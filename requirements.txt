@@ -1,5 +1,6 @@
 # Runtime Dependencies for SVG Image Generation
-# Install with: uv pip install -r requirements.txt
+# Install with: pip install -r requirements.txt
+# Or with uv: uv pip install -r requirements.txt
 
 # Core Dependencies
 streamlit>=1.28.0
