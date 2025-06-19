@@ -56,7 +56,18 @@ For development, testing, and local use:
    cd SVG-Image-Gen
    ```
 
-2. **Install dependencies**:
+2. **Install dependencies** (choose one option):
+
+   **Option A: Using uv (recommended for faster, more reliable dependency management)**:
+   ```bash
+   # Install uv if you don't have it
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+   
+   # Install dependencies
+   uv pip install -r requirements.txt
+   ```
+
+   **Option B: Using pip**:
    ```bash
    pip install -r requirements.txt
    ```
@@ -109,6 +120,10 @@ Run the test suite to verify functionality:
 
 ```bash
 # Install development dependencies
+# Option A: Using uv (recommended)
+uv pip install -r requirements-dev.txt
+
+# Option B: Using pip
 pip install -r requirements-dev.txt
 
 # Run all tests
