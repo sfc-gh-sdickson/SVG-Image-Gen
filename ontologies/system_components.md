@@ -6,215 +6,651 @@ The SVG Image Generation system is built using a layered architecture with clear
 
 ## Core System Components
 
-### 1. Presentation Layer (Streamlit UI)
+### 1. Frontend Components
 
-#### A. Main Application Component
+#### A. Streamlit Application Core
 ```yaml
-Component: MainApp
+Component: StreamlitApp
+Purpose: Main web application interface
 Responsibilities:
-  - Application initialization
-  - Page configuration
-  - Layout management
-  - Navigation handling
-  - Global state management
+  - User interface rendering
+  - Session state management
+  - Form validation and processing
+  - Error display and user feedback
+  - File upload/download handling
+  - Real-time updates and progress indicators
 
 Dependencies:
-  - Streamlit framework
+  - streamlit package
   - Session management service
-  - Configuration service
+  - AI generation service
+  - Storage service
+  - Error handling service
 
-Interfaces:
-  - initialize_app()
-  - configure_page()
-  - setup_layout()
-  - handle_navigation()
+Configuration:
+  - Page title and icon
+  - Layout settings
+  - Theme configuration
+  - Session state initialization
+  - Caching policies
 ```
 
 #### B. User Interface Components
 ```yaml
-Component: SidebarPanel
+Component: SidebarConfig
+Purpose: Configuration sidebar interface
 Responsibilities:
-  - Stage configuration input
-  - Database/schema selection
-  - Configuration validation
-  - User feedback display
+  - Stage name input and validation
+  - Database and schema selection
+  - Context switching controls
+  - Configuration persistence
+  - User preference management
 
-Component: MainPanel
+Component: MainInterface
+Purpose: Primary user interaction area
 Responsibilities:
-  - SVG prompt input
-  - Model selection
+  - Text input for SVG descriptions
+  - Model selection dropdown
   - File naming interface
-  - Generation controls
-  - Result display
+  - Generation button and controls
+  - Result display and preview
+  - Download instructions
 
-Component: StatusPanel
+Component: StatusIndicators
+Purpose: System status and feedback display
 Responsibilities:
-  - Session information display
-  - Progress indicators
+  - Connection status display
+  - Generation progress indicators
   - Error message display
   - Success notifications
+  - Loading states
 ```
 
-### 2. Business Logic Layer
+### 2. Backend Service Components
 
 #### A. Session Management Service
 ```yaml
-Component: SessionService
+Component: SessionManager
+Purpose: Snowflake session lifecycle management
 Responsibilities:
-  - Snowflake session creation
-  - Session validation
-  - Connection management
-  - Session lifecycle handling
-  - Error recovery
-
-Methods:
-  - get_active_session()
-  - validate_session()
-  - switch_context()
-  - cleanup_session()
+  - Session creation and validation
+  - Connection pooling and management
+  - Authentication handling
+  - Context switching
+  - Session cleanup and error recovery
 
 Dependencies:
-  - Snowflake Snowpark
-  - Configuration service
+  - snowflake-snowpark-python
+  - Environment configuration
   - Error handling service
+
+Configuration:
+  - Connection parameters
+  - Pool size settings
+  - Timeout configurations
+  - Retry policies
+  - Error thresholds
 ```
 
 #### B. AI Generation Service
 ```yaml
-Component: AIGenerationService
+Component: AIGenerator
+Purpose: Cortex AI integration and SVG generation
 Responsibilities:
-  - Prompt construction
-  - Cortex AI integration
-  - Response processing
-  - Content validation
-  - Error handling
-
-Methods:
-  - generate_svg_content(prompt, model)
-  - construct_prompt(description)
-  - validate_svg_content(content)
-  - extract_svg_from_response(response)
+  - Prompt engineering and construction
+  - AI model selection and configuration
+  - Query execution and response parsing
+  - Content validation and processing
+  - Error handling and retry logic
 
 Dependencies:
   - Snowflake session
   - Cortex AI service
-  - Validation service
+  - Error handling service
+  - Content validation service
+
+Configuration:
+  - Model parameters
+  - Prompt templates
+  - Response validation rules
+  - Timeout settings
+  - Retry policies
 ```
 
 #### C. Storage Service
 ```yaml
-Component: StorageService
+Component: StorageManager
+Purpose: File storage and stage management
 Responsibilities:
-  - Stage management
-  - File operations
+  - Stage creation and management
+  - File upload and download operations
   - Temporary table management
-  - Resource cleanup
   - Metadata tracking
-
-Methods:
-  - create_stage(stage_name)
-  - upload_file(content, filename, stage)
-  - create_temp_table(table_name)
-  - cleanup_resources()
-  - list_stage_contents(stage_name)
+  - Resource cleanup
 
 Dependencies:
   - Snowflake session
-  - File handling service
-  - Cleanup service
-```
-
-### 3. Data Access Layer
-
-#### A. Snowflake Data Access
-```yaml
-Component: SnowflakeDAO
-Responsibilities:
-  - SQL query execution
-  - Result set processing
-  - Transaction management
-  - Connection pooling
-  - Query optimization
-
-Methods:
-  - execute_query(query)
-  - execute_transaction(queries)
-  - process_results(result_set)
-  - handle_errors(error)
-
-Dependencies:
-  - Snowflake connector
-  - Connection pool
   - Error handling service
+  - File processing service
+
+Configuration:
+  - Stage naming conventions
+  - File size limits
+  - Cleanup policies
+  - Access control settings
+  - Performance optimizations
 ```
 
-#### B. File System Access
+#### D. Error Handling Service
 ```yaml
-Component: FileSystemDAO
+Component: ErrorHandler
+Purpose: Centralized error management and recovery
 Responsibilities:
-  - Temporary file operations
-  - File validation
-  - Path management
-  - Security checks
-  - Cleanup operations
-
-Methods:
-  - create_temp_file(content)
-  - validate_file_path(path)
-  - cleanup_temp_files()
-  - secure_file_operations()
+  - Error classification and categorization
+  - User-friendly error messages
+  - Error logging and monitoring
+  - Recovery strategy execution
+  - State restoration
 
 Dependencies:
-  - OS file system
-  - Security service
-  - Validation service
+  - Logging service
+  - Monitoring service
+  - Recovery strategies
+
+Configuration:
+  - Error thresholds
+  - Retry policies
+  - Logging levels
+  - Recovery strategies
+  - User notification settings
 ```
 
-### 4. Integration Layer
+### 3. Development Infrastructure Components
 
-#### A. Cortex AI Integration
+#### A. Type Stub Management System
 ```yaml
-Component: CortexAIIntegration
+Component: StubManager
+Purpose: Automated type stub detection and management
 Responsibilities:
-  - AI service communication
-  - Model management
-  - Request/response handling
+  - Mypy output parsing
+  - Package name mapping
+  - Requirements file management
+  - Stub installation automation
+  - Validation and testing
+
+Dependencies:
+  - mypy package
+  - subprocess module
+  - requirements-dev.txt file
+  - Package mapping system
+
+Configuration:
+  - Package mapping rules
+  - Installation policies
+  - Validation criteria
+  - Error handling strategies
+  - Performance optimizations
+
+Features:
+  - Automatic stub detection
+  - Comprehensive package mapping (80+ packages)
+  - Built-in module handling
+  - Special case management
+  - Pre-commit integration
+```
+
+#### B. Pre-commit Hook System
+```yaml
+Component: PreCommitManager
+Purpose: Automated code quality and type safety checks
+Responsibilities:
+  - Hook execution coordination
+  - Type stub management integration
+  - Code formatting and linting
+  - Security scanning
+  - Quality assurance automation
+
+Dependencies:
+  - pre-commit package
+  - All development tools
+  - Type stub management system
+  - Git repository
+
+Configuration:
+  - Hook execution order
+  - Tool configurations
+  - Success criteria
+  - Error handling policies
+  - Performance settings
+
+Hooks:
+  - fix-missing-type-stubs (local)
+  - black (code formatting)
+  - ruff (fast linting)
+  - mypy (type checking)
+  - bandit (security scanning)
+  - safety (vulnerability scanning)
+```
+
+#### C. Code Quality Pipeline
+```yaml
+Component: QualityManager
+Purpose: Comprehensive code quality assurance
+Responsibilities:
+  - Code formatting enforcement
+  - Style guide compliance
+  - Import organization
+  - Security vulnerability detection
+  - Performance optimization
+
+Dependencies:
+  - black (formatter)
+  - ruff (linter)
+  - isort (import sorter)
+  - flake8 (style checker)
+  - bandit (security linter)
+  - safety (vulnerability scanner)
+
+Configuration:
+  - Formatting rules
+  - Linting policies
+  - Security thresholds
+  - Performance criteria
+  - Integration settings
+```
+
+#### D. Testing Framework
+```yaml
+Component: TestManager
+Purpose: Automated testing and validation
+Responsibilities:
+  - Unit test execution
+  - Integration test coordination
+  - Coverage reporting
+  - Performance testing
+  - Type stub validation
+
+Dependencies:
+  - pytest framework
+  - pytest-mock
+  - pytest-cov
+  - Test data and fixtures
+  - Mock services
+
+Configuration:
+  - Test discovery patterns
+  - Coverage thresholds
+  - Performance benchmarks
+  - Mock configurations
+  - Reporting settings
+```
+
+### 4. Data Management Components
+
+#### A. Configuration Management
+```yaml
+Component: ConfigManager
+Purpose: Application configuration and environment management
+Responsibilities:
+  - Environment variable loading
+  - Configuration validation
+  - Default value management
+  - Configuration caching
+  - Environment-specific settings
+
+Dependencies:
+  - python-dotenv package
+  - Environment variables
+  - Configuration files
+  - Validation service
+
+Configuration:
+  - Environment detection
+  - Variable mapping
+  - Validation rules
+  - Caching policies
+  - Error handling
+```
+
+#### B. Caching System
+```yaml
+Component: CacheManager
+Purpose: Performance optimization through caching
+Responsibilities:
+  - Session caching
+  - Data caching
+  - Configuration caching
+  - Type stub caching
+  - Cache invalidation
+
+Dependencies:
+  - Streamlit cache decorators
+  - Memory management
+  - Cache policies
+  - Invalidation strategies
+
+Configuration:
+  - Cache TTL settings
+  - Memory limits
+  - Invalidation policies
+  - Performance thresholds
+  - Monitoring settings
+```
+
+### 5. Integration Components
+
+#### A. Snowflake Integration Layer
+```yaml
+Component: SnowflakeConnector
+Purpose: Snowflake platform integration
+Responsibilities:
+  - Connection management
+  - SQL execution
+  - Result processing
+  - Transaction management
+  - Performance optimization
+
+Dependencies:
+  - snowflake-snowpark-python
+  - snowflake-connector-python
+  - Connection pooling
+  - Error handling
+
+Configuration:
+  - Connection parameters
+  - Pool settings
+  - Timeout configurations
+  - Retry policies
+  - Performance settings
+```
+
+#### B. Cortex AI Integration
+```yaml
+Component: CortexConnector
+Purpose: Snowflake Cortex AI service integration
+Responsibilities:
+  - AI model access
+  - Query construction
+  - Response processing
   - Error handling
   - Performance monitoring
 
-Methods:
-  - call_cortex_model(prompt, model)
-  - validate_model_availability(model)
-  - handle_ai_errors(error)
-  - monitor_performance(metrics)
-
 Dependencies:
-  - Snowflake Cortex service
-  - Model registry
-  - Monitoring service
+  - Snowflake session
+  - AI service access
+  - Query templates
+  - Response parsers
+
+Configuration:
+  - Model parameters
+  - Query templates
+  - Response validation
+  - Error handling
+  - Performance settings
 ```
 
-#### B. Streamlit Integration
+### 6. Monitoring and Observability Components
+
+#### A. Logging System
 ```yaml
-Component: StreamlitIntegration
+Component: LogManager
+Purpose: Comprehensive application logging
 Responsibilities:
-  - UI component rendering
-  - State management
-  - Event handling
-  - Caching management
-  - Component lifecycle
-
-Methods:
-  - render_components()
-  - manage_state()
-  - handle_events()
-  - manage_cache()
+  - User action logging
+  - System event logging
+  - Error logging
+  - Performance logging
+  - Audit trail maintenance
 
 Dependencies:
-  - Streamlit framework
-  - State management service
-  - Event handling service
+  - Python logging module
+  - Log configuration
+  - Log storage
+  - Log analysis tools
+
+Configuration:
+  - Log levels
+  - Log formats
+  - Storage policies
+  - Retention settings
+  - Analysis tools
 ```
+
+#### B. Metrics Collection
+```yaml
+Component: MetricsCollector
+Purpose: System performance and business metrics
+Responsibilities:
+  - Performance metric collection
+  - Business metric tracking
+  - Quality metric monitoring
+  - Development metric tracking
+  - Metric aggregation and reporting
+
+Dependencies:
+  - Metrics storage
+  - Collection agents
+  - Analysis tools
+  - Reporting systems
+
+Configuration:
+  - Collection intervals
+  - Metric definitions
+  - Storage policies
+  - Analysis rules
+  - Reporting schedules
+```
+
+### 7. Security Components
+
+#### A. Authentication Service
+```yaml
+Component: AuthManager
+Purpose: User authentication and session security
+Responsibilities:
+  - Credential validation
+  - Session token management
+  - Permission checking
+  - Security policy enforcement
+  - Audit logging
+
+Dependencies:
+  - Snowflake authentication
+  - Session management
+  - Security policies
+  - Audit logging
+
+Configuration:
+  - Authentication methods
+  - Token policies
+  - Permission rules
+  - Security thresholds
+  - Audit settings
+```
+
+#### B. Security Scanner
+```yaml
+Component: SecurityScanner
+Purpose: Code and dependency security analysis
+Responsibilities:
+  - Code security analysis
+  - Dependency vulnerability scanning
+  - Security policy enforcement
+  - Security reporting
+  - Remediation guidance
+
+Dependencies:
+  - bandit (code security)
+  - safety (dependency security)
+  - Security policies
+  - Reporting tools
+
+Configuration:
+  - Security rules
+  - Vulnerability thresholds
+  - Scanning policies
+  - Reporting formats
+  - Remediation workflows
+```
+
+### 8. Deployment Components
+
+#### A. Environment Manager
+```yaml
+Component: EnvironmentManager
+Purpose: Environment-specific configuration and deployment
+Responsibilities:
+  - Environment detection
+  - Configuration loading
+  - Dependency management
+  - Environment validation
+  - Deployment coordination
+
+Dependencies:
+  - Environment variables
+  - Configuration files
+  - Dependency managers
+  - Validation services
+
+Configuration:
+  - Environment types
+  - Configuration mapping
+  - Validation rules
+  - Deployment policies
+  - Error handling
+```
+
+#### B. CI/CD Pipeline
+```yaml
+Component: PipelineManager
+Purpose: Continuous integration and deployment automation
+Responsibilities:
+  - Build automation
+  - Test execution
+  - Quality checks
+  - Deployment coordination
+  - Pipeline monitoring
+
+Dependencies:
+  - CI/CD platform
+  - Build tools
+  - Test frameworks
+  - Deployment tools
+  - Monitoring systems
+
+Configuration:
+  - Build steps
+  - Test policies
+  - Quality gates
+  - Deployment rules
+  - Monitoring settings
+```
+
+### 9. Utility Components
+
+#### A. File Processing Service
+```yaml
+Component: FileProcessor
+Purpose: File handling and processing utilities
+Responsibilities:
+  - File validation
+  - Format conversion
+  - Content processing
+  - Temporary file management
+  - Cleanup operations
+
+Dependencies:
+  - File system access
+  - Format libraries
+  - Validation rules
+  - Processing pipelines
+
+Configuration:
+  - File size limits
+  - Format support
+  - Processing rules
+  - Cleanup policies
+  - Error handling
+```
+
+#### B. Validation Service
+```yaml
+Component: ValidationManager
+Purpose: Input and data validation
+Responsibilities:
+  - Input validation
+  - Data format validation
+  - Business rule validation
+  - Error reporting
+  - Validation caching
+
+Dependencies:
+  - Validation rules
+  - Error handling
+  - Caching system
+  - Reporting tools
+
+Configuration:
+  - Validation rules
+  - Error messages
+  - Caching policies
+  - Reporting formats
+  - Performance settings
+```
+
+### 10. Helper Components
+
+#### A. Package Mapping System
+```yaml
+Component: PackageMapper
+Purpose: Comprehensive package name to type stub mapping
+Responsibilities:
+  - Package name mapping
+  - Special case handling
+  - Built-in module detection
+  - Mapping validation
+  - Mapping updates
+
+Dependencies:
+  - Package mapping data
+  - Validation rules
+  - Update mechanisms
+  - Error handling
+
+Configuration:
+  - Mapping rules
+  - Special cases
+  - Validation criteria
+  - Update policies
+  - Error handling
+```
+
+#### B. Development Workflow Coordinator
+```yaml
+Component: WorkflowCoordinator
+Purpose: Development process automation and coordination
+Responsibilities:
+  - Workflow orchestration
+  - Tool coordination
+  - Process automation
+  - Quality assurance
+  - Developer experience optimization
+
+Dependencies:
+  - All development tools
+  - Workflow definitions
+  - Automation scripts
+  - Quality metrics
+
+Configuration:
+  - Workflow steps
+  - Tool configurations
+  - Quality gates
+  - Automation rules
+  - Performance settings
+```
+
+This comprehensive component architecture ensures modular, maintainable, and scalable development with excellent developer experience and automated quality assurance.
 
 ## Component Interactions
 
@@ -306,7 +742,7 @@ Dependency Injection:
     ai_service: AIGenerationService
     storage_service: StorageService
     error_handler: ErrorHandlingService
-  
+
   configurations:
     snowflake_config: SnowflakeConfig
     ai_config: AIConfig
@@ -364,13 +800,13 @@ Test Components:
       - Session validation
       - Context switching
       - Error handling
-  
+
   - AIGenerationService:
       - Prompt construction
       - Response processing
       - Content validation
       - Error handling
-  
+
   - StorageService:
       - Stage operations
       - File operations
@@ -398,12 +834,12 @@ Health Check Components:
       - Connection status
       - Authentication status
       - Response time
-  
+
   - AIGenerationService:
       - Model availability
       - Response time
       - Success rate
-  
+
   - StorageService:
       - Stage accessibility
       - File operations
@@ -486,4 +922,4 @@ Backup Components:
   - Data backup
   - Recovery procedures
   - Disaster recovery
-``` 
+```

@@ -236,4 +236,4 @@ For questions or issues related to the model artifacts:
 
 ---
 
-**Note**: These artifacts are living documents that should be updated as the system evolves. Regular reviews and updates ensure they remain accurate and useful for development and operations teams. 
+**Note**: These artifacts are living documents that should be updated as the system evolves. Regular reviews and updates ensure they remain accurate and useful for development and operations teams.

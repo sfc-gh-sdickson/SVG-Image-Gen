@@ -7,7 +7,7 @@
 Package: streamlit
 Version: >= 1.28.0
 Purpose: Web application framework for creating interactive data apps
-Usage: 
+Usage:
   - Main UI framework
   - Session state management
   - Component rendering
@@ -56,375 +56,325 @@ Dependencies:
   - certifi
 ```
 
-## Standard Library Dependencies
-
-### 1. DateTime Module
+### 4. Python-dotenv
 ```yaml
-Module: datetime
-Purpose: Date and time manipulation
+Package: python-dotenv
+Version: >= 1.0.0
+Purpose: Environment variable management for local development
 Usage:
-  - Timestamp generation for filenames
-  - Session tracking
-  - Logging timestamps
-  - Temporary resource naming
-Functions Used:
-  - datetime.now()
-  - strftime()
-  - timedelta
+  - Load environment variables from .env files
+  - Support for local development without global env pollution
+  - Seamless transition between local and production environments
+Dependencies:
+  - None (pure Python)
 ```
 
-### 2. OS Module
+## Development Dependencies
+
+### 1. Type Checking and Stub Management
 ```yaml
-Module: os
-Purpose: Operating system interface
+Package: mypy
+Version: >= 1.0.0
+Purpose: Static type checking for Python
 Usage:
-  - Environment variable access
-  - File path operations
-  - System information retrieval
-Functions Used:
-  - os.environ.get()
-  - os.path.join()
-  - os.path.exists()
+  - Type validation
+  - Code quality assurance
+  - IDE integration support
+  - Pre-commit validation
+
+Package: types-*
+Version: Various
+Purpose: Type stubs for third-party packages
+Usage:
+  - Provide type information for external libraries
+  - Enable comprehensive type checking
+  - Improve IDE autocomplete and error detection
+Management:
+  - Automatic detection via scripts/fix-missing-type-stubs.py
+  - Pre-commit integration for automatic stub management
+  - Comprehensive package mapping for common libraries
 ```
 
-### 3. Tempfile Module
+### 2. Code Quality Tools
 ```yaml
-Module: tempfile
-Purpose: Temporary file and directory creation
+Package: black
+Version: >= 23.0.0
+Purpose: Code formatter
 Usage:
-  - Temporary file handling
-  - Secure temporary storage
-  - Cleanup management
-Functions Used:
-  - tempfile.NamedTemporaryFile()
-  - tempfile.mkdtemp()
+  - Consistent code formatting
+  - PEP 8 compliance
+  - Pre-commit formatting
+
+Package: ruff
+Version: >= 0.1.0
+Purpose: Fast Python linter
+Usage:
+  - Code linting
+  - Import sorting
+  - Style enforcement
+
+Package: flake8
+Version: >= 6.0.0
+Purpose: Style guide enforcement
+Usage:
+  - PEP 8 compliance checking
+  - Code complexity analysis
+  - Style consistency
+
+Package: isort
+Version: >= 5.12.0
+Purpose: Import sorting
+Usage:
+  - Consistent import organization
+  - Pre-commit import sorting
 ```
 
-## Optional Dependencies
-
-### 1. Development Dependencies
+### 3. Testing Framework
 ```yaml
 Package: pytest
 Version: >= 7.0.0
 Purpose: Testing framework
-Usage: Unit and integration testing
+Usage:
+  - Unit testing
+  - Integration testing
+  - Test discovery and execution
+  - Coverage reporting
 
-Package: black
-Version: >= 23.0.0
-Purpose: Code formatting
-Usage: Consistent code style
+Package: pytest-mock
+Version: >= 3.10.0
+Purpose: Mocking utilities for pytest
+Usage:
+  - Mock objects for testing
+  - Dependency injection testing
+  - Isolated unit tests
 
-Package: flake8
-Version: >= 6.0.0
-Purpose: Linting
-Usage: Code quality checks
-
-Package: mypy
-Version: >= 1.0.0
-Purpose: Static type checking
-Usage: Type safety validation
+Package: pytest-cov
+Version: >= 4.0.0
+Purpose: Coverage reporting for pytest
+Usage:
+  - Code coverage measurement
+  - Coverage reporting
+  - Coverage thresholds
 ```
 
-### 2. Monitoring Dependencies
+### 4. Security and Quality Assurance
 ```yaml
-Package: structlog
-Version: >= 23.0.0
-Purpose: Structured logging
-Usage: Application logging and monitoring
+Package: bandit
+Version: >= 1.7.0
+Purpose: Security linter
+Usage:
+  - Security vulnerability detection
+  - Common security issue identification
+  - Pre-commit security checks
 
-Package: prometheus-client
-Version: >= 0.17.0
-Purpose: Metrics collection
-Usage: Performance monitoring
+Package: safety
+Version: >= 2.0.0
+Purpose: Dependency vulnerability scanner
+Usage:
+  - Known vulnerability detection
+  - Dependency security monitoring
+  - CI/CD security integration
 ```
 
-## Package Configuration
+## Type Stub Management Workflow
 
-### 1. Requirements.txt
-```txt
-# Core dependencies
-streamlit>=1.28.0
-snowflake-snowpark-python>=1.8.0
-snowflake-connector-python>=3.0.0
-
-# Development dependencies
-pytest>=7.0.0
-black>=23.0.0
-flake8>=6.0.0
-mypy>=1.0.0
-
-# Optional monitoring
-structlog>=23.0.0
-prometheus-client>=0.17.0
-```
-
-### 2. Setup.py Configuration
-```python
-from setuptools import setup, find_packages
-
-setup(
-    name="svg-image-generator",
-    version="1.0.0",
-    description="SVG Image Generation with Snowflake Cortex",
-    author="Your Name",
-    author_email="your.email@example.com",
-    packages=find_packages(),
-    install_requires=[
-        "streamlit>=1.28.0",
-        "snowflake-snowpark-python>=1.8.0",
-        "snowflake-connector-python>=3.0.0",
-    ],
-    extras_require={
-        "dev": [
-            "pytest>=7.0.0",
-            "black>=23.0.0",
-            "flake8>=6.0.0",
-            "mypy>=1.0.0",
-        ],
-        "monitoring": [
-            "structlog>=23.0.0",
-            "prometheus-client>=0.17.0",
-        ],
-    },
-    python_requires=">=3.8",
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-    ],
-)
-```
-
-### 3. Pyproject.toml Configuration
-```toml
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "svg-image-generator"
-version = "1.0.0"
-description = "SVG Image Generation with Snowflake Cortex"
-authors = [{name = "Your Name", email = "your.email@example.com"}]
-license = {text = "MIT"}
-readme = "README.md"
-requires-python = ">=3.8"
-dependencies = [
-    "streamlit>=1.28.0",
-    "snowflake-snowpark-python>=1.8.0",
-    "snowflake-connector-python>=3.0.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.0.0",
-    "black>=23.0.0",
-    "flake8>=6.0.0",
-    "mypy>=1.0.0",
-]
-monitoring = [
-    "structlog>=23.0.0",
-    "prometheus-client>=0.17.0",
-]
-
-[tool.black]
-line-length = 88
-target-version = ['py38']
-
-[tool.mypy]
-python_version = "3.8"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-```
-
-## Dependency Management
-
-### 1. Version Pinning Strategy
+### 1. Automatic Stub Detection
 ```yaml
-Version Strategy:
-  - Core dependencies: Pinned to specific versions
-  - Development dependencies: Minimum version requirements
-  - Security updates: Automatic updates for patch versions
-  - Breaking changes: Manual review and testing required
+Script: scripts/fix-missing-type-stubs.py
+Purpose: Automatic type stub management
+Features:
+  - Parses mypy output for missing stubs
+  - Maps package names to typeshed equivalents
+  - Updates requirements-dev.txt automatically
+  - Optional automatic installation
+  - Comprehensive package mapping (80+ packages)
+  - Built-in module handling
 ```
 
-### 2. Security Considerations
+### 2. Pre-commit Integration
 ```yaml
-Security Measures:
-  - Regular dependency updates
-  - Vulnerability scanning
-  - License compliance checking
-  - Supply chain security
-  - Dependency pinning for reproducible builds
+Hook: fix-missing-type-stubs
+Trigger: Before each commit
+Actions:
+  - Run mypy on codebase
+  - Detect missing type stubs
+  - Add missing stubs to requirements-dev.txt
+  - Install new stubs if needed
+  - Ensure clean commits
 ```
 
-### 3. Compatibility Matrix
+### 3. Package Mapping Strategy
 ```yaml
-Python Versions:
-  - 3.8: Fully supported
-  - 3.9: Fully supported
-  - 3.10: Fully supported
-  - 3.11: Fully supported
-  - 3.12: Testing in progress
+Mapping Categories:
+  - Standard library mappings (yaml -> PyYAML)
+  - Common third-party packages (requests, flask, etc.)
+  - Database and ORM packages
+  - Web frameworks and tools
+  - Cloud and deployment packages
+  - Data processing and analysis
+  - Testing and mocking tools
+  - Development tools
 
-Operating Systems:
-  - Linux: Fully supported
-  - macOS: Fully supported
-  - Windows: Limited support (Snowflake connector issues)
-
-Snowflake Versions:
-  - Enterprise: Fully supported
-  - Standard: Fully supported
-  - VPS: Limited support
+Built-in Handling:
+  - Skip built-in modules (xml, json, csv, etc.)
+  - Map pkg_resources to setuptools
+  - Handle special cases (yaml -> PyYAML)
 ```
 
-## Package Usage Patterns
+## Dependency Management Tools
 
-### 1. Streamlit Usage
-```python
-# Page configuration
-st.set_page_config(
-    page_title="SVG Generator with Snowflake Cortex",
-    page_icon="🎨",
-    layout="wide"
-)
-
-# Session state management
-@st.cache_resource
-def get_session():
-    return get_active_session()
-
-# UI components
-st.title("🎨 SVG Generator with Snowflake Cortex")
-st.sidebar.header("Configuration")
-st.text_area("Describe the SVG you want to generate:")
-st.selectbox("Cortex Model:", model_options)
-st.button("Generate SVG and Upload to Stage", type="primary")
+### 1. UV (Recommended)
+```yaml
+Tool: uv
+Purpose: Fast Python package installer and resolver
+Advantages:
+  - Significantly faster than pip
+  - Better dependency resolution
+  - Built-in virtual environment management
+  - Lock file support
+  - Modern Python packaging standards
+Usage:
+  - uv pip install -r requirements.txt
+  - uv pip install -r requirements-dev.txt
+  - uv run python script.py
 ```
 
-### 2. Snowpark Usage
-```python
-# Session management
-session = get_active_session()
-
-# SQL execution
-result = session.sql(cortex_query).collect()
-
-# Stage operations
-session.sql(f"CREATE STAGE IF NOT EXISTS {stage_name}").collect()
-session.sql(f"LIST @{stage_name}").collect()
-
-# Table operations
-session.sql(f"CREATE TRANSIENT TABLE {temp_table}").collect()
-session.sql(f"INSERT INTO {temp_table} SELECT $${svg_content}$$").collect()
+### 2. Pip (Traditional)
+```yaml
+Tool: pip
+Purpose: Traditional Python package installer
+Usage:
+  - pip install -r requirements.txt
+  - pip install -r requirements-dev.txt
+  - Compatible with all Python environments
 ```
 
-### 3. Error Handling Patterns
-```python
-try:
-    session = get_session()
-    st.success("✅ Connected to Snowflake using active session")
-except Exception as e:
-    st.error(f"❌ Failed to get active session: {str(e)}")
-    st.stop()
+## Environment-Specific Dependencies
 
-try:
-    result = session.sql(cortex_query).collect()
-    svg_content = result[0][0] if result else None
-except Exception as e:
-    st.error(f"An error occurred: {str(e)}")
-    with st.expander("Error Details"):
-        st.write(str(e))
+### 1. Local Development
+```yaml
+Required:
+  - python-dotenv (environment variable loading)
+  - All development dependencies
+  - Type stubs for used packages
+
+Optional:
+  - uv (for faster dependency management)
+  - Additional type stubs as needed
+```
+
+### 2. Streamlit in Snowflake (SiS)
+```yaml
+Required:
+  - Core runtime dependencies only
+  - No local environment setup needed
+  - Automatic session management
+
+Not Required:
+  - python-dotenv
+  - Development dependencies
+  - Type stubs (handled by Snowflake environment)
+```
+
+### 3. CI/CD Environment
+```yaml
+Required:
+  - All development dependencies
+  - Type stubs for comprehensive checking
+  - Security scanning tools
+  - Coverage reporting tools
+
+Optional:
+  - Documentation generation tools
+  - Performance testing tools
+```
+
+## Dependency Update Workflow
+
+### 1. Regular Updates
+```yaml
+Process:
+  - Monthly dependency review
+  - Security vulnerability scanning
+  - Type stub compatibility checking
+  - Automated testing after updates
+  - Documentation updates
+```
+
+### 2. Type Stub Updates
+```yaml
+Process:
+  - Automatic detection via helper script
+  - Manual review of new stubs
+  - Testing with updated stubs
+  - Documentation updates
+  - Team communication about changes
+```
+
+## Security Considerations
+
+### 1. Dependency Scanning
+```yaml
+Tools:
+  - safety (vulnerability scanning)
+  - bandit (code security analysis)
+  - pre-commit hooks (automated checks)
+
+Frequency:
+  - Pre-commit (automatic)
+  - CI/CD pipeline (automatic)
+  - Monthly manual review
+```
+
+### 2. Type Stub Security
+```yaml
+Considerations:
+  - Only install stubs from trusted sources (typeshed)
+  - Regular updates for security patches
+  - Validation of stub compatibility
+  - Testing with new stub versions
 ```
 
 ## Performance Optimization
 
-### 1. Caching Strategies
-```python
-# Session caching
-@st.cache_resource
-def get_session():
-    return get_active_session()
-
-# Data caching
-@st.cache_data(ttl=3600)
-def get_stage_contents(stage_name):
-    return session.sql(f"LIST @{stage_name}").collect()
-```
-
-### 2. Resource Management
-```python
-# Automatic cleanup
-try:
-    # Create temporary resources
-    session.sql(f"CREATE TRANSIENT TABLE {temp_table}").collect()
-    # ... operations ...
-finally:
-    # Cleanup
-    session.sql(f"DROP TABLE IF EXISTS {temp_table}").collect()
-```
-
-### 3. Memory Management
+### 1. Installation Optimization
 ```yaml
-Memory Optimization:
-  - Use transient tables for temporary data
-  - Implement proper cleanup procedures
-  - Limit result set sizes
-  - Use streaming for large files
+Strategies:
+  - Use uv for faster installations
+  - Lock files for reproducible builds
+  - Minimal dependency sets
+  - Regular cleanup of unused dependencies
 ```
 
-## Deployment Considerations
-
-### 1. Environment Variables
-```bash
-# Required environment variables
-SNOWFLAKE_ACCOUNT=your_account
-SNOWFLAKE_USER=your_user
-SNOWFLAKE_PASSWORD=your_password
-SNOWFLAKE_WAREHOUSE=your_warehouse
-SNOWFLAKE_DATABASE=your_database
-SNOWFLAKE_SCHEMA=your_schema
-
-# Optional environment variables
-STREAMLIT_SERVER_PORT=8501
-STREAMLIT_SERVER_ADDRESS=0.0.0.0
-STREAMLIT_SERVER_HEADLESS=true
-```
-
-### 2. Container Configuration
-```dockerfile
-FROM python:3.9-slim
-
-WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8501
-
-CMD ["streamlit", "run", "SVG-Image-Gen.py", "--server.port=8501", "--server.address=0.0.0.0"]
-```
-
-### 3. Runtime Configuration
+### 2. Runtime Optimization
 ```yaml
-Runtime Settings:
-  - Python version: 3.9+
-  - Memory: 2GB minimum, 4GB recommended
-  - CPU: 2 cores minimum, 4 cores recommended
-  - Storage: 10GB minimum for temporary files
-  - Network: HTTPS access to Snowflake APIs
-``` 
+Strategies:
+  - Lazy loading where appropriate
+  - Minimal import statements
+  - Efficient type checking configuration
+  - Caching for repeated operations
+```
+
+## Monitoring and Maintenance
+
+### 1. Dependency Health
+```yaml
+Metrics:
+  - Update frequency
+  - Security vulnerability count
+  - Type stub coverage
+  - Build time impact
+  - Runtime performance impact
+```
+
+### 2. Maintenance Tasks
+```yaml
+Regular Tasks:
+  - Update dependencies
+  - Review and update type stubs
+  - Clean up unused dependencies
+  - Update documentation
+  - Test compatibility
+```
+
+This comprehensive dependency management system ensures reliable, secure, and maintainable code with excellent developer experience through automated type stub management.
