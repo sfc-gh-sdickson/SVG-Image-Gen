@@ -1,3 +1,10 @@
+# Load environment variables from .env if present (for local development)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv is optional; skip if not installed
+
 import streamlit as st
 from snowflake.snowpark.context import get_active_session
 from snowflake.snowpark import Session
@@ -18,13 +25,69 @@ st.markdown("Generate SVG files using Snowflake Cortex AI and save them to a Sno
 # Get the active Snowflake session
 @st.cache_resource
 def get_session():
-    return get_active_session()
+    """Get Snowflake session - supports both SiS environment and local development"""
+    # Check if we're in a Snowflake environment (Streamlit in Snowflake)
+    try:
+        # Try to get active session first (for SiS environment)
+        session = get_active_session()
+        st.info("🔗 Using active Snowflake session (Streamlit in Snowflake environment)")
+        return session
+    except Exception as e:
+        # If that fails, try to create a session with environment variables (local development)
+        st.warning("⚠️ Active session not available, attempting local connection...")
+        
+        # Get connection parameters from environment variables
+        account = os.environ.get('SNOWFLAKE_ACCOUNT')
+        user = os.environ.get('SNOWFLAKE_USER')
+        password = os.environ.get('SNOWFLAKE_PASSWORD')
+        warehouse = os.environ.get('SNOWFLAKE_WAREHOUSE')
+        database = os.environ.get('SNOWFLAKE_DATABASE')
+        schema = os.environ.get('SNOWFLAKE_SCHEMA')
+        role = os.environ.get('SNOWFLAKE_ROLE')
+        
+        # Check if required credentials are available
+        if not all([account, user, password, warehouse]):
+            st.error("""
+            ❌ Cannot connect to Snowflake. Missing required environment variables:
+            
+            **Required:**
+            - SNOWFLAKE_ACCOUNT
+            - SNOWFLAKE_USER  
+            - SNOWFLAKE_PASSWORD
+            - SNOWFLAKE_WAREHOUSE
+            
+            **Optional:**
+            - SNOWFLAKE_DATABASE
+            - SNOWFLAKE_SCHEMA
+            - SNOWFLAKE_ROLE
+            
+            **For local development, set these in your environment or create a .env file.**
+            """)
+            st.stop()
+        
+        try:
+            # Create session with environment variables
+            session = Session.builder.configs({
+                "account": account,
+                "user": user,
+                "password": password,
+                "warehouse": warehouse,
+                "database": database,
+                "schema": schema,
+                "role": role
+            }).create()
+            
+            st.success("✅ Connected to Snowflake using environment credentials")
+            return session
+            
+        except Exception as conn_error:
+            st.error(f"❌ Failed to connect to Snowflake: {str(conn_error)}")
+            st.stop()
 
 try:
     session = get_session()
-    st.success("✅ Connected to Snowflake using active session")
 except Exception as e:
-    st.error(f"❌ Failed to get active session: {str(e)}")
+    st.error(f"❌ Failed to get session: {str(e)}")
     st.stop()
 
 # Sidebar for stage configuration
