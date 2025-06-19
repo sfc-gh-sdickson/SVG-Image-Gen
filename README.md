@@ -2,7 +2,7 @@
 
 <img src="Snowflake_Logo.svg" width="200">
 
-This project is a Streamlit application that runs within Snowflake (Streamlit in Snowflake - SiS). It provides a user-friendly interface to generate SVG (Scalable Vector Graphics) images from text-based descriptions using the power of Snowflake Cortex AI. Generated SVGs are then saved directly to a specified Snowflake stage.
+This project is a Streamlit application that runs within Snowflake (Streamlit in Snowflake - SiS) or locally for development. It provides a user-friendly interface to generate SVG (Scalable Vector Graphics) images from text-based descriptions using the power of Snowflake Cortex AI. Generated SVGs are then saved directly to a specified Snowflake stage.
 
 ## ✨ Features
 
@@ -15,6 +15,7 @@ This project is a Streamlit application that runs within Snowflake (Streamlit in
 -   **Session Context Awareness**: Displays the current Snowflake role, warehouse, database, and schema, and allows for context switching.
 -   **Stage Management**: Includes functionality to list the current contents of the target stage.
 -   **In-App Guidance**: Provides instructions, example prompts, and troubleshooting tips to enhance the user experience.
+-   **Dual Environment Support**: Works both in Streamlit in Snowflake (SiS) and local development environments.
 
 ## ⚙️ Technologies Used
 
@@ -28,7 +29,7 @@ This project is a Streamlit application that runs within Snowflake (Streamlit in
 
 To run this application, you will need:
 
--   A Snowflake account with **Streamlit in Snowflake (SiS)** and **Snowflake Cortex** enabled.
+-   A Snowflake account with **Snowflake Cortex** enabled.
 -   Permissions to perform the following actions in your Snowflake environment:
     -   `CREATE STAGE` in a schema.
     -   `USE` a warehouse.
@@ -37,11 +38,87 @@ To run this application, you will need:
 
 ## 🚀 Installation and Running
 
-This application is designed to run as a Streamlit app within Snowflake.
+### Option 1: Streamlit in Snowflake (SiS) - Production
+
+This is the recommended approach for production use.
 
 1.  **Create a new Streamlit App** in your Snowflake account.
 2.  **Copy and paste** the content of the `SVG-Image-Gen.py` file into the editor.
 3.  **Save and Run** the application. The app will use your active Snowflake session, so no additional login is required.
+
+### Option 2: Local Development
+
+For development, testing, and local use:
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd SVG-Image-Gen
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Set up environment variables**:
+   ```bash
+   # Copy the example configuration
+   cp config.example.env .env
+   
+   # Edit .env with your Snowflake credentials
+   nano .env
+   ```
+
+4. **Configure your Snowflake credentials** in `.env`:
+   ```bash
+   # Required
+   SNOWFLAKE_ACCOUNT=your-account-identifier
+   SNOWFLAKE_USER=your-username
+   SNOWFLAKE_PASSWORD=your-password
+   SNOWFLAKE_WAREHOUSE=your-warehouse-name
+   
+   # Optional
+   SNOWFLAKE_DATABASE=your-database-name
+   SNOWFLAKE_SCHEMA=your-schema-name
+   SNOWFLAKE_ROLE=your-role-name
+   ```
+
+5. **Run the application**:
+   ```bash
+   streamlit run SVG-Image-Gen.py
+   ```
+
+## 🔐 Authentication
+
+The application supports two authentication modes:
+
+### SiS Environment (Automatic)
+- Uses `get_active_session()` to automatically connect to your active Snowflake session
+- No additional configuration required
+- Inherits your current Snowflake context and permissions
+
+### Local Environment (Manual)
+- Uses environment variables for connection parameters
+- Requires setting up `.env` file with your Snowflake credentials
+- Supports all standard Snowflake authentication methods
+
+## 🧪 Testing
+
+Run the test suite to verify functionality:
+
+```bash
+# Install development dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest -m "unit"      # Unit tests only
+pytest -m "integration"  # Integration tests only
+pytest -m "snowflake"    # Snowflake-specific tests
+```
 
 ## 📖 How to Use
 
@@ -63,6 +140,27 @@ This application is designed to run as a Streamlit app within Snowflake.
 
 ## 🔧 Troubleshooting
 
+### Common Issues
+
+**Authentication Errors**:
+- **SiS Environment**: Ensure you're logged into Snowflake and have an active session
+- **Local Environment**: Verify your `.env` file contains correct credentials
+
+**Connection Issues**:
+- Check your Snowflake account identifier format
+- Verify network connectivity to Snowflake
+- Ensure your warehouse is running
+
+**Permission Errors**:
+- Verify you have `CREATE STAGE` permissions
+- Check that your role has access to the specified database/schema
+- Ensure Cortex AI access is enabled for your account
+
+**Cortex AI Errors**:
+- Confirm Cortex AI is enabled in your Snowflake account
+- Check that your role has access to `SNOWFLAKE.CORTEX`
+- Verify the selected model is available in your region
+
 The application includes a "Troubleshooting" section that covers common issues such as:
 
 -   Stage not found errors.
@@ -75,3 +173,17 @@ Refer to this section within the app for performance tips and solutions to commo
 ## 📄 License
 
 Please add your own license information here. A common choice for open-source projects is the MIT License.
+
+## 🛠️ Local Development with python-dotenv
+
+This project supports [python-dotenv](https://pypi.org/project/python-dotenv/). If you have a `.env` file in your project root, environment variables will be loaded automatically when you run the app locally. This is the recommended way to manage secrets and configuration for local development.
+
+To use:
+1. Install dependencies (python-dotenv is included in requirements.txt)
+2. Copy `config.example.env` to `.env` and fill in your credentials
+3. Run the app as usual
+
+```bash
+cp config.example.env .env
+streamlit run SVG-Image-Gen.py
+```
