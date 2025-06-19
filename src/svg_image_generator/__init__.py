@@ -10,14 +10,22 @@ __email__ = "team@svg-generator.com"
 
 # Import main components when available
 try:
-    from .app import main  # type: ignore
+    from .app import (
+        main,  # type: ignore  # TODO[0e1e7b2a]: Remove unused type: ignore (see TODO.md)
+    )
 except ImportError:
     main = None
 
 try:
-    from .services.session_service import SessionService  # type: ignore
-    from .services.ai_service import AIGenerationService  # type: ignore
-    from .services.storage_service import StorageService  # type: ignore
+    from .services.ai_service import (
+        AIGenerationService,  # type: ignore  # TODO[1a2c3d4e]: Remove unused type: ignore (see TODO.md)
+    )
+    from .services.session_service import (
+        SessionService,  # type: ignore  # TODO[2b3c4d5e]: Remove unused type: ignore (see TODO.md)
+    )
+    from .services.storage_service import (
+        StorageService,  # type: ignore  # TODO[3c4d5e6f]: Remove unused type: ignore (see TODO.md)
+    )
 except ImportError:
     SessionService = None
     AIGenerationService = None
@@ -31,4 +39,4 @@ __all__ = [
     "SessionService",
     "AIGenerationService",
     "StorageService",
-] 
+]

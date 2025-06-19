@@ -26,19 +26,19 @@ install-dev:
 
 # Testing
 test:
-	pytest tests/ -v
+	.venv/bin/python -m pytest tests/ -v
 
 test-cov:
-	pytest tests/ --cov=src/svg_image_generator --cov-report=html --cov-report=term-missing
+	.venv/bin/python -m pytest tests/ --cov=src/svg_image_generator --cov-report=html --cov-report=term-missing
 
 test-fast:
-	pytest tests/ -v -m "not slow"
+	.venv/bin/python -m pytest tests/ -v -m "not slow"
 
 test-integration:
-	pytest tests/ -v -m "integration"
+	.venv/bin/python -m pytest tests/ -v -m "integration"
 
 test-unit:
-	pytest tests/ -v -m "unit"
+	.venv/bin/python -m pytest tests/ -v -m "unit"
 
 # Code Quality
 lint:
@@ -99,7 +99,7 @@ check: lint test
 
 # CI/CD helpers
 ci-test:
-	pytest tests/ --cov=src/svg_image_generator --cov-report=xml --cov-report=term-missing --junitxml=test-results.xml
+	.venv/bin/python -m pytest tests/ --cov=src/svg_image_generator --cov-report=xml --cov-report=term-missing --junitxml=test-results.xml
 
 ci-lint:
 	ruff check src/ tests/
@@ -115,10 +115,10 @@ docker-run:
 
 # Snowflake specific
 snowflake-test:
-	pytest tests/ -v -m "snowflake"
+	.venv/bin/python -m pytest tests/ -v -m "snowflake"
 
 ai-test:
-	pytest tests/ -v -m "ai"
+	.venv/bin/python -m pytest tests/ -v -m "ai"
 
 # Security
 security-check:
@@ -131,4 +131,4 @@ update-deps:
 	uv pip install --upgrade -r requirements-dev.txt
 
 check-deps:
-	uv pip list --outdated 
+	uv pip list --outdated

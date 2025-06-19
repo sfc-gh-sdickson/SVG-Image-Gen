@@ -10,4 +10,4 @@ snowflake-connector-python>=3.0.0
 # Optional Runtime Dependencies (uncomment as needed)
 # structlog>=23.0.0
 # prometheus-client>=0.17.0
-python-dotenv>=1.0.0 
+python-dotenv>=1.0.0

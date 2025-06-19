@@ -44,4 +44,4 @@ bcrypt>=4.0.0
 hatchling>=1.8.0
 build>=1.0.0
 twine>=4.0.0
-semantic-release>=8.0.0 
+python-semantic-release>=8.0.0
