@@ -131,4 +131,4 @@ update-deps:
 	uv pip install --upgrade -r requirements-dev.txt
 
 check-deps:
-	uv pip list --outdated 
+	uv pip list --outdated

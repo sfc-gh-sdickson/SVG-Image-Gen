@@ -314,4 +314,4 @@ mkdocs-material = "^9.0.0"
 mkdocstrings = {extras = ["python"], version = "^0.20.0"}
 
 [tool.poetry.scripts]
-svg-generator = "svg_image_generator.cli:main" 
+svg-generator = "svg_image_generator.cli:main"

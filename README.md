@@ -62,7 +62,7 @@ For development, testing, and local use:
    ```bash
    # Install uv if you don't have it
    curl -LsSf https://astral.sh/uv/install.sh | sh
-   
+
    # Install dependencies
    uv pip install -r requirements.txt
    ```
@@ -76,7 +76,7 @@ For development, testing, and local use:
    ```bash
    # Copy the example configuration
    cp config.example.env .env
-   
+
    # Edit .env with your Snowflake credentials
    nano .env
    ```
@@ -88,7 +88,7 @@ For development, testing, and local use:
    SNOWFLAKE_USER=your-username
    SNOWFLAKE_PASSWORD=your-password
    SNOWFLAKE_WAREHOUSE=your-warehouse-name
-   
+
    # Optional
    SNOWFLAKE_DATABASE=your-database-name
    SNOWFLAKE_SCHEMA=your-schema-name
@@ -134,6 +134,22 @@ pytest -m "unit"      # Unit tests only
 pytest -m "integration"  # Integration tests only
 pytest -m "snowflake"    # Snowflake-specific tests
 ```
+
+### Type Checking and Stub Management
+
+We use **mypy** for static type checking. If you encounter missing type stub errors:
+
+```bash
+# Automatic stub management (recommended)
+python scripts/fix-missing-type-stubs.py
+
+# Manual approach
+mypy src/
+# Add missing types-<package> to requirements-dev.txt
+pip install -r requirements-dev.txt
+```
+
+For detailed development guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📖 How to Use
 

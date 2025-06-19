@@ -28,4 +28,4 @@ responses>=0.23.0
 
 # Code Quality (Optional)
 pre-commit>=3.0.0
-bandit>=1.7.0 
+bandit>=1.7.0

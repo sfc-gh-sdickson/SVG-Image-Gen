@@ -2,9 +2,10 @@
 Pytest configuration and common fixtures for SVG Image Generator tests.
 """
 
-import pytest
-from unittest.mock import Mock, patch
 from datetime import datetime
+from unittest.mock import Mock, patch
+
+import pytest
 
 
 @pytest.fixture
@@ -18,23 +19,35 @@ def mock_snowflake_session():
 @pytest.fixture
 def mock_streamlit():
     """Mock Streamlit components for testing."""
-    with patch("streamlit.set_page_config") as mock_config, \
-         patch("streamlit.title") as mock_title, \
-         patch("streamlit.sidebar") as mock_sidebar, \
-         patch("streamlit.columns") as mock_columns, \
-         patch("streamlit.text_area") as mock_text_area, \
-         patch("streamlit.selectbox") as mock_selectbox, \
-         patch("streamlit.text_input") as mock_text_input, \
-         patch("streamlit.button") as mock_button, \
-         patch("streamlit.success") as mock_success, \
-         patch("streamlit.error") as mock_error, \
-         patch("streamlit.info") as mock_info, \
-         patch("streamlit.warning") as mock_warning, \
-         patch("streamlit.spinner") as mock_spinner, \
-         patch("streamlit.expander") as mock_expander, \
-         patch("streamlit.components.v1.html") as mock_html, \
-         patch("streamlit.code") as mock_code:
-        
+    with patch("streamlit.set_page_config") as mock_config, patch(
+        "streamlit.title"
+    ) as mock_title, patch("streamlit.sidebar") as mock_sidebar, patch(
+        "streamlit.columns"
+    ) as mock_columns, patch(
+        "streamlit.text_area"
+    ) as mock_text_area, patch(
+        "streamlit.selectbox"
+    ) as mock_selectbox, patch(
+        "streamlit.text_input"
+    ) as mock_text_input, patch(
+        "streamlit.button"
+    ) as mock_button, patch(
+        "streamlit.success"
+    ) as mock_success, patch(
+        "streamlit.error"
+    ) as mock_error, patch(
+        "streamlit.info"
+    ) as mock_info, patch(
+        "streamlit.warning"
+    ) as mock_warning, patch(
+        "streamlit.spinner"
+    ) as mock_spinner, patch(
+        "streamlit.expander"
+    ) as mock_expander, patch(
+        "streamlit.components.v1.html"
+    ) as mock_html, patch(
+        "streamlit.code"
+    ) as mock_code:
         # Setup mock return values
         mock_columns.return_value = [Mock(), Mock()]
         mock_text_area.return_value = "test prompt"
@@ -45,7 +58,7 @@ def mock_streamlit():
         mock_spinner.return_value.__exit__ = Mock()
         mock_expander.return_value.__enter__ = Mock()
         mock_expander.return_value.__exit__ = Mock()
-        
+
         yield {
             "config": mock_config,
             "title": mock_title,
@@ -82,7 +95,7 @@ def sample_cortex_response():
             <circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" />
         </svg>""",
         "model": "claude-3-5-sonnet",
-        "usage": {"prompt_tokens": 50, "completion_tokens": 100}
+        "usage": {"prompt_tokens": 50, "completion_tokens": 100},
     }
 
 
@@ -96,7 +109,7 @@ def test_config():
         "warehouse": "TEST_WH",
         "model": "claude-3-5-sonnet",
         "prompt": "Create a simple red circle",
-        "filename": "test_svg"
+        "filename": "test_svg",
     }
 
 
@@ -115,21 +128,13 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
     )
-    config.addinivalue_line(
-        "markers", "integration: marks tests as integration tests"
-    )
-    config.addinivalue_line(
-        "markers", "unit: marks tests as unit tests"
-    )
-    config.addinivalue_line(
-        "markers", "e2e: marks tests as end-to-end tests"
-    )
+    config.addinivalue_line("markers", "integration: marks tests as integration tests")
+    config.addinivalue_line("markers", "unit: marks tests as unit tests")
+    config.addinivalue_line("markers", "e2e: marks tests as end-to-end tests")
     config.addinivalue_line(
         "markers", "snowflake: marks tests that require Snowflake connection"
     )
-    config.addinivalue_line(
-        "markers", "ai: marks tests that require AI service"
-    )
+    config.addinivalue_line("markers", "ai: marks tests that require AI service")
 
 
 def pytest_addoption(parser):
@@ -146,4 +151,4 @@ def pytest_collection_modifyitems(config, items):
         skip_slow = pytest.mark.skip(reason="need --runslow option to run")
         for item in items:
             if "slow" in item.keywords:
-                item.add_marker(skip_slow) 
+                item.add_marker(skip_slow)
