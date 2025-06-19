@@ -179,6 +179,7 @@ class TestSessionConfiguration:
         """Test session creation with all configuration parameters."""
         logger.info("Running test_session_configuration_with_all_params")
         mock_configs.return_value = Mock()
+
         config = {
             "account": "test-account",
             "user": "test-user",
@@ -206,6 +207,7 @@ class TestSessionConfiguration:
         """Test session creation with minimal required parameters."""
         logger.info("Running test_session_configuration_minimal_params")
         mock_configs.return_value = Mock()
+
         config = {
             "account": "test-account",
             "user": "test-user",
