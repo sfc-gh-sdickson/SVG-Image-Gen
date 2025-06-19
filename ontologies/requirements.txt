@@ -1,0 +1,31 @@
+# Core Dependencies for SVG Image Generation System
+
+# Web Application Framework
+streamlit>=1.28.0
+
+# Snowflake Integration
+snowflake-snowpark-python>=1.8.0
+snowflake-connector-python>=3.0.0
+
+# Development Dependencies (Optional)
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Monitoring and Logging (Optional)
+structlog>=23.0.0
+prometheus-client>=0.17.0
+
+# Security and Validation (Optional)
+cryptography>=41.0.0
+python-dotenv>=1.0.0
+
+# Testing and Mocking (Optional)
+pytest-mock>=3.10.0
+pytest-cov>=4.0.0
+responses>=0.23.0
+
+# Code Quality (Optional)
+pre-commit>=3.0.0
+bandit>=1.7.0 
