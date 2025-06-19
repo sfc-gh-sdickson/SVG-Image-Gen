@@ -132,6 +132,13 @@ def pytest_configure(config):
     )
 
 
+def pytest_addoption(parser):
+    """Add custom command line options."""
+    parser.addoption(
+        "--runslow", action="store_true", default=False, help="run slow tests"
+    )
+
+
 # Skip slow tests by default
 def pytest_collection_modifyitems(config, items):
     """Skip slow tests by default unless --runslow is passed."""
