@@ -1,0 +1,55 @@
+---
+description: Defines conformance requirements for spore distribution and validation.
+globs:
+alwaysApply: true
+---
+
+# spore-conformance.mdc
+
+meta:
+  name: Spore Conformance
+  description: >
+    Defines the requirements and validation criteria for spore distribution and validation.
+    Ensures spores meet project standards for distribution and review.
+
+rules:
+  - when: spore.distribution
+    then:
+      - "Spores must be saved to $HOME/Downloads for distribution"
+      - "Spores must be in a format that preserves all necessary metadata and validation information"
+      - "Spores must include validation information that can be verified by the project's validation tools"
+
+  - when: spore.validation
+    then:
+      - "Spores must be semantically valid according to the project's ontology model"
+      - "Spores must include appropriate documentation that explains their purpose and usage"
+      - "Spores must clearly specify any dependencies or requirements for their use"
+
+  - when: spore.review
+    then:
+      - "Spores must be reviewed according to the project's review procedures"
+      - "Documentation must be reviewed for completeness and accuracy"
+      - "Validation results must be reviewed and verified"
+
+  - when: spore.integration
+    then:
+      - "Spores must be properly modeled in the project's ontology"
+      - "Spores must integrate with the project's validation and review tools"
+      - "Spores must be properly documented in the project's documentation system"
+
+  - when: spore.maintenance
+    then:
+      - "Spores must be version controlled"
+      - "Changes to spores must be tracked and documented"
+      - "Deprecated spores must be clearly marked and documented"
+
+rationale: >
+  These requirements ensure that:
+  - Spores are properly distributed and accessible
+  - Spores can be validated and verified
+  - Spores are properly documented and maintained
+  - Spores integrate with the project's tools and processes
+  - Spores meet the project's quality standards
+
+---
+This rule helps ensure spores meet project standards for distribution and review.

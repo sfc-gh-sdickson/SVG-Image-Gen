@@ -1,673 +1,648 @@
 # Project Architecture for SVG Image Generation System
 
-## System Architecture Overview
+## 🏗️ System Overview
 
-### 1. High-Level Architecture
+The SVG Image Generator is a Streamlit-based application that leverages Snowflake Cortex AI to generate SVG images from natural language descriptions. The system is designed for deployment in multiple environments with a focus on Streamlit in Snowflake (SiS) as the primary production target.
 
-```mermaid
-graph TB
-    subgraph "Frontend Layer"
-        A[Streamlit UI]
-        B[Session State Management]
-        C[User Input Validation]
-    end
+## 🎯 Architecture Principles
 
-    subgraph "Backend Layer"
-        D[Session Management Service]
-        E[AI Generation Service]
-        F[Storage Service]
-        G[Error Handling Service]
-    end
+### 1. Multi-Environment Deployment
+- **Primary Target**: Streamlit in Snowflake (SiS)
+- **Secondary Target**: Package Distribution
+- **Development**: Local environment with full tooling
+- **Excluded**: Container deployment (user preference)
 
-    subgraph "External Services"
-        H[Snowflake Data Platform]
-        I[Cortex AI Service]
-        J[File Storage (Stages)]
-    end
+### 2. Layered Architecture
+- **Presentation Layer**: Streamlit UI components
+- **Business Logic Layer**: Session management, AI operations, storage
+- **Data Access Layer**: Snowflake integration, file operations
+- **Integration Layer**: Cortex AI, external services
 
-    subgraph "Development Infrastructure"
-        K[Type Stub Management]
-        L[Pre-commit Hooks]
-        M[Code Quality Tools]
-        N[Testing Framework]
-    end
+### 3. Constraint Management
+- **Environment Detection**: Runtime environment identification
+- **Dependency Availability**: Package availability checking
+- **Graceful Degradation**: Fallback mechanisms for missing features
+- **Performance Optimization**: Environment-specific optimizations
 
-    A --> D
-    B --> D
-    C --> D
-    D --> H
-    E --> I
-    F --> J
-    G --> D
-    G --> E
-    G --> F
+## 🏛️ System Architecture
 
-    K --> M
-    L --> M
-    M --> N
+### High-Level Architecture
+```
+┌─────────────────────────────────────┐
+│           Presentation Layer        │
+│         (Streamlit UI)              │
+├─────────────────────────────────────┤
+│           Business Logic Layer      │
+│    (Session, AI, Storage Services)  │
+├─────────────────────────────────────┤
+│           Data Access Layer         │
+│    (Snowflake DAO, File System)     │
+├─────────────────────────────────────┤
+│           Integration Layer         │
+│    (Cortex AI, Streamlit)           │
+└─────────────────────────────────────┘
 ```
 
-### 2. Component Architecture
-
-#### A. Frontend Components
-```yaml
-Streamlit Application:
-  - Page Configuration:
-      - Title and icon setup
-      - Layout configuration
-      - Session state initialization
-
-  - User Interface:
-      - Sidebar configuration
-      - Main content area
-      - Form components
-      - Status indicators
-
-  - State Management:
-      - Session state persistence
-      - Form validation
-      - Error state handling
-      - Success state display
-
-  - Caching Layer:
-      - Session caching
-      - Data caching
-      - Configuration caching
-      - Type stub caching
-```
-
-#### B. Backend Services
-```yaml
-Session Management Service:
-  - Connection Management:
-      - Three-tier authentication system
-      - SiS environment detection
-      - Connection parameter detection
-      - Local development support
-      - Environment variable handling
-      - Connection pooling
-
-  - Authentication:
-      - Active session authentication (get_active_session)
-      - Connection parameter authentication (Session.builder.create)
-      - Environment variable authentication (Session.builder.configs)
-      - Credential validation
-      - Session token management
-      - Permission checking
-      - Error recovery with graceful fallback
-
-AI Generation Service:
-  - Prompt Engineering:
-      - Input sanitization
-      - Context construction
-      - Model selection
-      - Response parsing
-
-  - Cortex Integration:
-      - Query construction
-      - Response validation
-      - Error handling
-      - Performance optimization
-
-Storage Service:
-  - Stage Management:
-      - Stage creation
-      - File operations
-      - Metadata tracking
-      - Access control
-
-  - Temporary Storage:
-      - Table management
-      - Data insertion
-      - Content validation
-      - Resource cleanup
-```
-
-#### C. Development Infrastructure
-```yaml
-Type Stub Management System:
-  - Detection Engine:
-      - Mypy integration
-      - Output parsing
-      - Package identification
-      - Error classification
-
-  - Resolution Engine:
-      - Package mapping
-      - Requirements management
-      - Installation automation
-      - Validation checking
-
-  - Integration Layer:
-      - Pre-commit hooks
-      - CI/CD integration
-      - IDE support
-      - Documentation generation
-
-Code Quality Pipeline:
-  - Formatting Tools:
-      - Black code formatter
-      - isort import sorter
-      - ruff fast linter
-      - flake8 style checker
-
-  - Security Tools:
-      - bandit security linter
-      - safety vulnerability scanner
-      - Pre-commit integration
-      - Automated scanning
-
-  - Testing Framework:
-      - pytest test runner
-      - Mock utilities
-      - Coverage reporting
-      - Integration testing
-```
-
-### 3. Data Architecture
-
-#### A. Data Flow Architecture
-```mermaid
-graph LR
-    A[User Input] --> B[Input Validation]
-    B --> C[Session Creation]
-    C --> D[Context Setup]
-    D --> E[AI Generation]
-    E --> F[Content Processing]
-    F --> G[Storage Operations]
-    G --> H[Result Delivery]
-
-    I[Development Changes] --> J[Pre-commit Hooks]
-    J --> K[Type Stub Management]
-    K --> L[Code Quality Checks]
-    L --> M[Testing]
-    M --> N[Commit]
-```
-
-#### B. Storage Architecture
-```yaml
-Temporary Storage:
-  - Transient Tables:
-      - Purpose: Temporary SVG content storage
-      - Lifecycle: Session-based
-      - Cleanup: Automatic
-      - Performance: Optimized for quick access
-
-  - File System:
-      - Purpose: Local development files
-      - Lifecycle: Development session
-      - Cleanup: Manual or automated
-      - Security: Local access only
-
-Persistent Storage:
-  - Snowflake Stages:
-      - Purpose: Generated SVG files
-      - Lifecycle: Long-term storage
-      - Access: Role-based permissions
-      - Performance: Optimized for retrieval
-
-  - Configuration Storage:
-      - Purpose: Application settings
-      - Lifecycle: Application lifetime
-      - Access: Environment-based
-      - Security: Encrypted credentials
-```
-
-### 4. Security Architecture
-
-#### A. Authentication Architecture
-
-### Three-Tier Authentication System
-
-The application implements a sophisticated authentication system that gracefully handles different Snowflake environments:
-
+### Component Architecture
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Authentication Flow                      │
+│                    SVG Image Generator                      │
 ├─────────────────────────────────────────────────────────────┤
-│  Tier 1: Active Session (SiS)                              │
-│  ├─ get_active_session()                                   │
-│  ├─ Inherits current context                               │
-│  └─ No configuration needed                                │
+│  Session Manager  │  Context Discovery  │  AI Generation   │
+│  - Auth Tiers     │  - Resources        │  - Cortex Calls  │
+│  - Connection     │  - Permissions      │  - Prompt Refine │
+│  - Fallback       │  - Validation       │  - Error Handle  │
 ├─────────────────────────────────────────────────────────────┤
-│  Tier 2: connections.toml                                  │
-│  ├─ Manual TOML parsing                                    │
-│  ├─ Private key handling                                   │
-│  │  ├─ Detect private_key_path                             │
-│  │  ├─ Read and validate file                              │
-│  │  ├─ Load with cryptography                              │
-│  │  └─ Handle passphrase                                   │
-│  └─ Automatic fallback                                     │
-├─────────────────────────────────────────────────────────────┤
-│  Tier 3: Environment Variables                             │
-│  ├─ Explicit configuration                                 │
-│  ├─ All auth methods supported                             │
-│  └─ Development fallback                                   │
+│  Storage Service  │  Data Transport     │  Error Handling  │
+│  - Stage Mgmt     │  - Nanoarrow        │  - Classification │
+│  - File Ops       │  - Fallback         │  - Recovery      │
+│  - Cleanup        │  - Performance      │  - Logging       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Private Key Authentication Handler
+## 🔧 Core Components
 
-**Problem Solved**: The Snowflake Snowpark library has a common gotcha where it expects private key content but receives file paths, leading to cryptic errors.
-
-**Architecture**:
-```python
-def handle_private_key_auth(conn_params):
-    if 'private_key_path' in conn_params:
-        # 1. Path expansion and validation
-        pk_path = Path(conn_params['private_key_path']).expanduser()
-        if not pk_path.exists():
-            raise FileNotFoundError(f"Private key file not found at {pk_path}")
-
-        # 2. Key loading with cryptography
-        from cryptography.hazmat.primitives import serialization
-        with open(pk_path, "rb") as key_file:
-            p_key = serialization.load_pem_private_key(
-                key_file.read(),
-                password=conn_params.get('private_key_passphrase', '').encode() or None,
-            )
-
-        # 3. Replace path with actual key object
-        conn_params['private_key'] = p_key
-        del conn_params['private_key_path']  # Clean up
-```
-
-**Error Patterns Handled**:
-- `Expected bytes or RSAPrivateKey, got <class 'NoneType'>`
-- `FileNotFoundError` for missing key files
-- `ValueError` for invalid key formats
-- `TypeError` for incorrect passphrase handling
-
-#### B. Authorization Architecture
+### 1. Session Management Service
 ```yaml
-Resource Access Control:
-  - Database Access:
-      - Read permissions
-      - Write permissions
-      - Schema access
-      - Table operations
+Purpose: Three-tier authentication and session management
+Components:
+  - Active Session Detection (Tier 1)
+  - Connection Parameter Management (Tier 2)
+  - Environment Variable Configuration (Tier 3)
+  - Graceful Fallback Mechanisms
+  - Connection Pooling
+  - Error Recovery
 
-  - Stage Access:
-      - File upload permissions
-      - File download permissions
-      - Stage management
-      - Metadata access
+Dependencies:
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - snowflake-connector-python>=3.0.0
+  - cryptography>=41.0.0
 
-  - AI Service Access:
-      - Model access permissions
-      - Query execution limits
-      - Rate limiting
-      - Cost controls
+Features:
+  - Automatic environment detection
+  - Seamless authentication switching
+  - Connection health monitoring
+  - Session caching and reuse
 ```
 
-### 5. Development Architecture
-
-#### A. Development Workflow Architecture
-```mermaid
-graph TD
-    A[Code Changes] --> B[Pre-commit Hooks]
-    B --> C[Type Stub Check]
-    C --> D[Auto-fix Stubs]
-    D --> E[Code Formatting]
-    E --> F[Linting]
-    F --> G[Type Checking]
-    G --> H[Security Scan]
-    H --> I[Commit]
-    I --> J[Push]
-    J --> K[CI/CD Pipeline]
-    K --> L[Testing]
-    L --> M[Deployment]
-```
-
-#### B. Type Safety Architecture
+### 2. Context Discovery Service
 ```yaml
-Type Checking System:
-  - Mypy Integration:
-      - Static type checking
-      - Type annotation validation
-      - Import checking
-      - Configuration management
+Purpose: Dynamic resource discovery and permission validation
+Components:
+  - Database Discovery
+  - Schema Discovery
+  - Stage Discovery
+  - Cortex Model Discovery
+  - Permission Validation
+  - Resource Caching
 
-  - Stub Management:
-      - Automatic detection
-      - Package mapping
-      - Installation automation
-      - Validation checking
+Dependencies:
+  - Snowflake session
+  - SQL execution capabilities
+  - Permission validation
 
-  - IDE Integration:
-      - Type hints
-      - Autocomplete
-      - Error detection
-      - Refactoring support
+Features:
+  - Real-time resource discovery
+  - Permission-based filtering
+  - Cached resource lists
+  - Error handling and recovery
 ```
 
-#### Smoke Testing Snowflake Connections
-
-A smoke test is included to validate real Snowflake connectivity using profiles in `~/.snowflake/connections.toml`.
-- By default, the `[default]` profile is used.
-- To use a different profile, set the `TEST_SNOWFLAKE_CONNECTION` environment variable.
-
-Example:
-```bash
-pytest tests/test_authentication.py -k smoke_connect_via_connections_toml -v -s
-# or for a custom profile
-TEST_SNOWFLAKE_CONNECTION=YOUR_PROFILE pytest tests/test_authentication.py -k smoke_connect_via_connections_toml -v -s
-```
-The test will attempt to connect and run `SELECT 1`. It will be skipped if the connection cannot be established.
-
-### 6. Deployment Architecture
-
-#### A. Environment Architecture
+### 3. AI Generation Service
 ```yaml
-Development Environment:
-  - Local Setup:
-      - Python virtual environment
-      - Development dependencies
-      - Type stubs
-      - Local configuration
+Purpose: Cortex AI integration and SVG generation
+Components:
+  - Model Validation
+  - Prompt Engineering
+  - Prompt Sandwich Implementation
+  - Response Processing
+  - Content Validation
+  - Error Handling
 
-  - Development Tools:
-      - Pre-commit hooks
-      - Code quality tools
-      - Testing framework
-      - Documentation tools
+Dependencies:
+  - Snowflake session
+  - Cortex AI service
+  - Model registry
 
-Production Environment:
-  - SiS Deployment:
-      - Snowflake-managed
-      - Automatic scaling
-      - Built-in security
-      - Performance optimization
-
-  - Local Deployment:
-      - Container-based
-      - Environment variables
-      - Health monitoring
-      - Logging infrastructure
+Features:
+  - Multi-step prompt refinement
+  - Model availability checking
+  - Response validation
+  - Timeout management
+  - Retry logic
 ```
 
-#### B. CI/CD Architecture
+### 4. Storage Service
+```yaml
+Purpose: File storage and management in Snowflake stages
+Components:
+  - Stage Management
+  - File Operations
+  - Metadata Tracking
+  - Resource Cleanup
+  - Access Control
+
+Dependencies:
+  - Snowflake session
+  - Stage permissions
+  - File system operations
+
+Features:
+  - Automatic stage creation
+  - File upload/download
+  - Metadata management
+  - Resource cleanup
+  - Permission validation
+```
+
+### 5. Data Transport Service
+```yaml
+Purpose: Efficient data movement between Snowflake and Python
+Components:
+  - Nanoarrow Integration (Primary)
+  - PyArrow Fallback (Legacy)
+  - Performance Monitoring
+  - Transport Layer Detection
+  - Automatic Fallback
+
+Dependencies:
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - nanoarrow (internal, managed by Snowflake)
+  - pyarrow (fallback only)
+
+Features:
+  - Automatic transport layer selection
+  - Performance benchmarking
+  - Error rate monitoring
+  - Automatic fallback mechanisms
+  - Transport layer detection
+```
+
+## 🔐 Authentication Architecture
+
+### Three-Tier Authentication System
+```yaml
+Tier 1 - Active Session (SiS Environment):
+  - Method: get_active_session()
+  - Environment: Streamlit in Snowflake
+  - Security: Inherits user's Snowflake session
+  - Fallback: Automatic to Tier 2
+
+Tier 2 - Connection Parameters:
+  - Method: Session.builder.create()
+  - Environment: Various Snowflake environments
+  - Security: Connection parameter validation
+  - Fallback: Automatic to Tier 3
+
+Tier 3 - Environment Variables:
+  - Method: Session.builder.configs()
+  - Environment: Local development
+  - Security: Environment variable validation
+  - Fallback: Error with guidance
+```
+
+### Authentication Flow
+```
+1. Try get_active_session() → Success: Use session
+2. Try Session.builder.create() → Success: Use session
+3. Try Session.builder.configs() → Success: Use session
+4. All failed → Error with configuration guidance
+```
+
+## 📊 Data Architecture
+
+### Data Transport Layer
+```yaml
+Primary Transport: Nanoarrow
+  - Internal to Snowflake packages
+  - Available in Snowpark >=1.12.0
+  - Automatic selection
+  - Optimized performance
+
+Legacy Transport: PyArrow
+  - Deprecated but available for fallback
+  - Used only if nanoarrow fails
+  - Performance monitoring required
+  - Automatic rollback capability
+
+Transport Detection:
+  - Runtime capability detection
+  - Performance benchmarking
+  - Error rate monitoring
+  - Automatic fallback triggers
+```
+
+### Data Flow
+```
+1. Snowflake Query → Snowpark DataFrame
+2. DataFrame.to_pandas() → Nanoarrow Transport
+3. Pandas DataFrame → Python Processing
+4. Processed Data → Snowflake Storage
+```
+
+## 🚀 Deployment Architecture
+
+### Streamlit in Snowflake (SiS) - Primary
+```yaml
+Environment: Snowflake-managed
+Python Version: 3.9-3.11
+Authentication: Tier 1 (active session)
+Dependencies: Core only
+Data Transport: Nanoarrow (internal)
+Advantages:
+  - Native Snowflake integration
+  - Simplified authentication
+  - Managed environment
+  - Enterprise security
+Constraints:
+  - Limited package availability
+  - Snowflake-managed environment
+  - Python version constraints
+```
+
+### Package Distribution - Secondary
+```yaml
+Environment: User-managed
+Python Version: >=3.9, <3.12
+Authentication: All three tiers
+Dependencies: Full control
+Data Transport: Nanoarrow (internal)
+Advantages:
+  - Version control
+  - Dependency management
+  - Local development
+  - Community distribution
+Constraints:
+  - User environment management
+  - Installation complexity
+  - Version compatibility
+```
+
+### Constraint Management Architecture
+```yaml
+Python Version Constraints:
+  - Current: >=3.9, <3.12
+  - Snowflake SiS: 3.9-3.11
+  - Package Distribution: >=3.9, <3.12
+  - Detection: Runtime version checking
+  - Fallback: Graceful degradation
+
+Package Availability Constraints:
+  - Core Dependencies:
+    - snowflake-snowpark-python[pandas]>=1.12.0
+    - streamlit>=1.30
+    - cryptography>=41.0.0
+  - Optional Dependencies:
+    - python-dotenv>=1.0.0
+    - toml>=0.10.2
+  - Detection: Import error handling
+  - Fallback: Alternative implementations
+```
+
+### CI/CD Architecture
 ```yaml
 Continuous Integration:
   - Code Quality:
-      - Type checking
-      - Linting
-      - Security scanning
-      - Format validation
+    - Type checking (mypy)
+    - Linting (ruff, flake8)
+    - Security scanning (bandit)
+    - Format validation (black)
 
   - Testing:
-      - Unit tests
-      - Integration tests
-      - Type stub validation
-      - Performance tests
+    - Unit tests (pytest)
+    - Integration tests
+    - Deployment tests
+    - Type stub validation
+    - Performance tests
 
   - Documentation:
-      - README updates
-      - API documentation
-      - Ontology updates
-      - Contributing guidelines
+    - README updates
+    - API documentation
+    - Ontology updates
+    - Contributing guidelines
 
 Continuous Deployment:
   - Automated Testing:
-      - Pre-deployment validation
-      - Smoke tests
-      - Integration verification
-      - Performance monitoring
+    - Pre-deployment validation
+    - Smoke tests
+    - Integration verification
+    - Performance monitoring
 
   - Deployment Pipeline:
-      - Environment preparation
-      - Dependency installation
-      - Configuration setup
-      - Health checks
+    - Environment preparation
+    - Dependency installation
+    - Configuration setup
+    - Health checks
 ```
 
-### 7. Performance Architecture
+## 🎨 Performance Architecture
 
-#### A. Caching Architecture
+### Caching Architecture
 ```yaml
-Application Caching:
-  - Session Caching:
-      - Cache key: User session
-      - TTL: 1 hour
-      - Invalidation: Session timeout
-      - Storage: Memory
+Session Caching:
+  - Streamlit cache_resource decorator
+  - Session object caching
+  - Connection pooling
+  - Health monitoring
 
-  - Data Caching:
-      - Cache key: Stage contents
-      - TTL: 1 hour
-      - Invalidation: Manual refresh
-      - Storage: Memory
+Resource Caching:
+  - Database list caching
+  - Schema list caching
+  - Stage list caching
+  - Model list caching
 
-  - Configuration Caching:
-      - Cache key: App configuration
-      - TTL: 24 hours
-      - Invalidation: Config changes
-      - Storage: Memory
-
-  - Type Stub Caching:
-      - Cache key: Mypy results
-      - TTL: 1 hour
-      - Invalidation: Requirements changes
-      - Storage: File system
+Data Caching:
+  - Query result caching
+  - DataFrame caching
+  - File content caching
+  - Metadata caching
 ```
 
-#### B. Resource Management Architecture
+### Optimization Strategies
 ```yaml
+Data Transport Optimization:
+  - Nanoarrow for efficient serialization
+  - Batch processing where possible
+  - Minimal data transfer
+  - Compression when beneficial
+
+Query Optimization:
+  - Efficient SQL queries
+  - Proper indexing
+  - Query result caching
+  - Connection pooling
+
 Memory Management:
-  - Temporary Data:
-      - Automatic cleanup
-      - Size limits
-      - Lifecycle management
-      - Error recovery
-
-  - Connection Pooling:
-      - Pool size management
-      - Connection reuse
-      - Timeout handling
-      - Health monitoring
-
-CPU Management:
-  - Async Operations:
-      - Non-blocking I/O
-      - Background processing
-      - Task scheduling
-      - Load balancing
-
-  - Type Checking:
-      - Incremental checking
-      - Parallel processing
-      - Cache utilization
-      - Performance optimization
+  - Resource cleanup
+  - Memory monitoring
+  - Garbage collection
+  - Memory-efficient operations
 ```
 
-### 8. Monitoring Architecture
+## 🔄 Error Handling Architecture
 
-#### A. Logging Architecture
+### Error Classification
 ```yaml
-Application Logging:
-  - User Actions:
-      - Input validation
-      - Generation requests
-      - Error conditions
-      - Success events
+Authentication Errors:
+  - Connection failures
+  - Authentication failures
+  - Permission errors
+  - Configuration errors
 
-  - System Events:
-      - Session management
-      - AI service calls
-      - Storage operations
-      - Performance metrics
+Data Transport Errors:
+  - Nanoarrow failures
+  - PyArrow fallback errors
+  - Serialization errors
+  - Performance degradation
 
-  - Development Events:
-      - Type checking results
-      - Pre-commit execution
-      - Dependency management
-      - Build processes
+AI Service Errors:
+  - Model unavailability
+  - Service timeouts
+  - Response validation errors
+  - Content generation failures
 
-Audit Logging:
-  - Authentication Events:
-      - Login attempts
-      - Session creation
-      - Permission checks
-      - Access violations
-
-  - Data Access:
-      - File operations
-      - Database queries
-      - Stage access
-      - Configuration changes
+Storage Errors:
+  - Stage creation failures
+  - File operation errors
+  - Permission errors
+  - Resource cleanup failures
 ```
 
-#### B. Metrics Architecture
+### Error Recovery
 ```yaml
-Performance Metrics:
-  - Response Times:
-      - UI rendering
-      - AI generation
-      - File operations
-      - Database queries
+Automatic Recovery:
+  - Retry logic
+  - Fallback mechanisms
+  - Circuit breakers
+  - Graceful degradation
 
-  - Throughput:
-      - Requests per second
-      - Concurrent users
-      - Resource utilization
-      - Error rates
+Manual Recovery:
+  - Error reporting
+  - User guidance
+  - Rollback procedures
+  - Support escalation
 
-  - Quality Metrics:
-      - Type coverage
-      - Test coverage
-      - Code quality scores
-      - Security scan results
-
-Business Metrics:
-  - User Engagement:
-      - Active users
-      - Generation success rate
-      - Feature usage
-      - User satisfaction
-
-  - System Health:
-      - Uptime
-      - Error rates
-      - Performance trends
-      - Resource usage
+Monitoring:
+  - Error rate tracking
+  - Performance monitoring
+  - Health checks
+  - Alert systems
 ```
 
-### 9. Error Handling Architecture
+## 🔒 Security Architecture
 
-#### A. Error Classification Architecture
+### Authentication Security
 ```yaml
-Error Categories:
-  - Input Errors:
-      - Validation failures
-      - Format errors
-      - Missing required fields
-      - Invalid selections
+Session Security:
+  - Inherits Snowflake security
+  - Role-based access control
+  - Session timeout management
+  - Secure credential handling
 
-  - Session Errors:
-      - Connection failures
-      - Authentication errors
-      - Permission denied
-      - Session timeout
+Data Security:
+  - Encrypted connections
+  - Secure file operations
+  - Input validation
+  - Output sanitization
 
-  - AI Service Errors:
-      - Service unavailable
-      - Model errors
-      - Generation failures
-      - Timeout errors
-
-  - Storage Errors:
-      - Stage creation failures
-      - File upload errors
-      - Permission issues
-      - Cleanup failures
-
-  - Development Errors:
-      - Type stub issues
-      - Pre-commit failures
-      - Build errors
-      - Test failures
+Access Control:
+  - Permission validation
+  - Resource-level access
+  - Audit logging
+  - Compliance monitoring
 ```
 
-#### B. Error Recovery Architecture
+### Data Protection
 ```yaml
-Recovery Strategies:
-  - Retry Logic:
-      - Exponential backoff
-      - Maximum retry attempts
-      - Error classification
-      - Success criteria
+Data in Transit:
+  - Encrypted connections
+  - Secure protocols
+  - Certificate validation
+  - Connection security
 
-  - Fallback Options:
-      - Alternative services
-      - Cached responses
-      - Default values
-      - Graceful degradation
+Data at Rest:
+  - Snowflake security
+  - File encryption
+  - Access controls
+  - Audit trails
 
-  - State Recovery:
-      - UI state restoration
-      - Session recovery
-      - Data consistency
-      - User notification
+Data Processing:
+  - Input validation
+  - Output sanitization
+  - Memory protection
+  - Resource isolation
 ```
 
-### 10. Integration Architecture
+## 📈 Scalability Architecture
 
-#### A. External Service Integration
+### Horizontal Scaling
 ```yaml
-Snowflake Integration:
-  - Connection Management:
-      - Connection pooling
-      - Authentication handling
-      - Session lifecycle
-      - Error recovery
+Stateless Design:
+  - No server-side state
+  - Session-based state management
+  - Stateless operations
+  - Load balancing support
 
-  - Data Operations:
-      - SQL execution
-      - Result processing
-      - Transaction management
-      - Performance optimization
+Resource Management:
+  - Connection pooling
+  - Resource cleanup
+  - Memory management
+  - Performance optimization
 
-Cortex AI Integration:
-  - Service Communication:
-      - Query construction
-      - Response parsing
-      - Error handling
-      - Performance monitoring
-
-  - Model Management:
-      - Model selection
-      - Parameter configuration
-      - Response validation
-      - Cost optimization
+Load Distribution:
+  - Multiple instances
+  - Load balancing
+  - Resource sharing
+  - Performance monitoring
 ```
 
-#### B. Development Tool Integration
+### Vertical Scaling
 ```yaml
-Pre-commit Integration:
-  - Hook Management:
-      - Automatic execution
-      - Error handling
-      - Success criteria
-      - Rollback procedures
+Resource Optimization:
+  - Memory optimization
+  - CPU optimization
+  - I/O optimization
+  - Network optimization
 
-  - Tool Coordination:
-      - Execution order
-      - Dependency management
-      - Result aggregation
-      - Status reporting
-
-CI/CD Integration:
-  - Pipeline Management:
-      - Stage coordination
-      - Dependency resolution
-      - Error handling
-      - Success criteria
-
-  - Tool Integration:
-      - Testing framework
-      - Quality tools
-      - Security scanners
-      - Deployment automation
+Performance Tuning:
+  - Query optimization
+  - Caching strategies
+  - Connection pooling
+  - Resource management
 ```
 
-This comprehensive architecture ensures a robust, scalable, and maintainable system with excellent developer experience and automated quality assurance.
+## 🧪 Testing Architecture
+
+### Test Categories
+```yaml
+Unit Tests:
+  - Component testing
+  - Function testing
+  - Mock testing
+  - Isolation testing
+
+Integration Tests:
+  - Component integration
+  - Service integration
+  - End-to-end testing
+  - Performance testing
+
+Deployment Tests:
+  - Environment testing
+  - Configuration testing
+  - Dependency testing
+  - Compatibility testing
+```
+
+### Test Environment
+```yaml
+Local Development:
+  - Full test suite
+  - Mock services
+  - Local databases
+  - Development tools
+
+CI/CD Pipeline:
+  - Automated testing
+  - Integration testing
+  - Performance testing
+  - Security testing
+
+Production Testing:
+  - Smoke tests
+  - Health checks
+  - Performance monitoring
+  - Error tracking
+```
+
+## 📚 Documentation Architecture
+
+### Technical Documentation
+```yaml
+Architecture Documentation:
+  - System overview
+  - Component documentation
+  - Integration guides
+  - Deployment guides
+
+API Documentation:
+  - Function documentation
+  - Parameter documentation
+  - Return value documentation
+  - Example usage
+
+Configuration Documentation:
+  - Environment setup
+  - Configuration options
+  - Dependency management
+  - Troubleshooting guides
+```
+
+### User Documentation
+```yaml
+Installation Guides:
+  - Environment setup
+  - Dependency installation
+  - Configuration setup
+  - Verification steps
+
+Usage Guides:
+  - Feature documentation
+  - Workflow guides
+  - Best practices
+  - Troubleshooting
+
+Maintenance Guides:
+  - Update procedures
+  - Backup procedures
+  - Monitoring guides
+  - Support procedures
+```
+
+## 🔄 Migration Architecture
+
+### PyArrow to NanoArrow Migration
+```yaml
+Status: COMPLETED
+Version: 1.1.0
+Migration Date: 2025-01-27
+
+Migration Strategy:
+  - Gradual migration
+  - Feature flags
+  - Fallback mechanisms
+  - Performance monitoring
+
+Validation:
+  - SiS environment testing
+  - Performance benchmarking
+  - Error rate monitoring
+  - Rollback testing
+
+Rollback Plan:
+  - Automatic fallback
+  - Performance alerts
+  - Error rate thresholds
+  - Manual intervention
+```
+
+### Future Migrations
+```yaml
+Planning:
+  - Impact assessment
+  - Risk analysis
+  - Rollback planning
+  - Testing strategy
+
+Execution:
+  - Gradual rollout
+  - Monitoring
+  - Validation
+  - Documentation
+
+Maintenance:
+  - Performance monitoring
+  - Error tracking
+  - User feedback
+  - Continuous improvement
+```

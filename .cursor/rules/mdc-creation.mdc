@@ -1,0 +1,82 @@
+---
+description: Defines the standard format and requirements for creating `.mdc` files.
+globs: **/*.mdc
+alwaysApply: false
+---
+# mdc-creation.mdc
+
+meta:
+  name: MDC Creation Standards
+  description: >
+    Defines the standard format and requirements for creating Model Definition Card (.mdc) files.
+    Ensures consistency and machine-readability of project rules and constraints.
+    Used by LLMs to understand and apply project standards.
+
+rules:
+  - when: file.created
+    match: "**/*.mdc"
+    then:
+      - "Must use kebab-case for filenames (e.g., 'mdc-creation.mdc')"
+      - "Must include a clear, concise description in the meta section"
+      - "Description must explain the purpose and scope of the MDC file"
+      - "Description must be specific enough for LLMs to determine applicability"
+      - "Description should be one or two sentences maximum"
+      - "Description must be in plain language, avoiding technical jargon"
+      - "Description must be enclosed in '>' for multi-line support"
+
+  - when: file.modified
+    match: "**/*.mdc"
+    then:
+      - "Must maintain kebab-case in filenames"
+      - "Must preserve description in meta section"
+      - "Must ensure description remains clear and relevant"
+      - "Must update description if MDC purpose changes"
+      - "Must not use edit_file or edit_tool for MDC modifications"
+      - "Must use structured YAML libraries (PyYAML, ruamel.yaml) for YAML portions"
+      - "Must use markdown libraries (markdown-it-py, mistune, panflute) for markdown portions"
+      - "Must validate YAML syntax before applying changes"
+      - "Must preserve file structure and formatting"
+
+  - when: file.created
+    match: "**/*.mdc"
+    then:
+      - "Must follow YAML syntax"
+      - "Must include meta section with name and description"
+      - "Must include rules section with when, match, and then clauses"
+      - "Must use consistent indentation (2 spaces)"
+      - "Must use double quotes for strings containing special characters"
+      - "Must use single quotes for simple strings"
+
+  - when: file.modified
+    match: "**/*.mdc"
+    then:
+      - "Must maintain kebab-case in filenames"
+      - "Must preserve description in meta section"
+      - "Must ensure description remains clear and relevant"
+      - "Must update description if MDC purpose changes"
+      - "Must not use edit_file or edit_tool for MDC modifications"
+      - "Must use structured YAML libraries (PyYAML, ruamel.yaml) for YAML portions"
+      - "Must use markdown libraries (markdown-it-py, mistune, panflute) for markdown portions"
+      - "Must validate YAML syntax before applying changes"
+      - "Must preserve file structure and formatting"
+      - "Must use appropriate string quotes"
+
+  - when: pr.created
+    then:
+      - "Must review MDC file format"
+      - "Must verify description clarity and relevance"
+      - "Must check rule applicability"
+      - "Must validate YAML syntax"
+      - "Must ensure consistent formatting"
+
+rationale: >
+  These requirements ensure that:
+  - MDC files are consistent and machine-readable
+  - Rules are properly integrated with the project model
+  - Rules can be validated and enforced
+  - Rules are maintainable and well-documented
+  - Rules follow project standards
+
+---
+
+This rule helps ensure MDC files meet project standards for consistency and integration.
