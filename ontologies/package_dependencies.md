@@ -5,7 +5,7 @@
 ### 1. Streamlit Framework
 ```yaml
 Package: streamlit
-Version: >= 1.28.0
+Version: >=1.30
 Purpose: Web application framework for creating interactive data apps
 Usage:
   - Main UI framework
@@ -19,12 +19,16 @@ Dependencies:
   - packaging
   - toml
   - watchdog
+Constraints:
+  - Required for all deployment scenarios
+  - Version compatibility with Snowflake SiS
+  - UI component API compliance
 ```
 
 ### 2. Snowflake Snowpark for Python
 ```yaml
 Package: snowflake-snowpark-python
-Version: >= 1.8.0
+Version: >=1.12.0
 Purpose: Native Python library for Snowflake data programming
 Usage:
   - Three-tier authentication system:
@@ -32,20 +36,25 @@ Usage:
     2. Connection parameter detection (Session.builder.create)
     3. Environment variable configuration (Session.builder.configs)
   - SQL query execution
-  - DataFrame operations
+  - DataFrame operations (using nanoarrow internally)
   - File operations with stages
   - Transaction management
 Dependencies:
   - snowflake-connector-python
-  - pyarrow
+  - nanoarrow (internal, managed by Snowpark)
   - numpy
   - pandas
+Constraints:
+  - Critical dependency for all Snowflake operations
+  - Version compatibility with Snowflake platform
+  - Python version constraints (3.9-3.11 for SiS)
+  - Nanoarrow integration available in >=1.12.0
 ```
 
 ### 3. Snowflake Connector for Python
 ```yaml
 Package: snowflake-connector-python
-Version: >= 3.0.0
+Version: >=3.0.0
 Purpose: Python connector for Snowflake database
 Usage:
   - Database connection management
@@ -57,12 +66,54 @@ Dependencies:
   - requests
   - urllib3
   - certifi
+  - nanoarrow (internal, managed by connector)
+Constraints:
+  - Required for Snowpark functionality
+  - Security updates and vulnerability patches
+  - Compatibility with authentication methods
 ```
 
-### 4. Python-dotenv
+### 4. Nanoarrow (Internal)
+```yaml
+Package: nanoarrow
+Version: Internal (managed by Snowflake packages)
+Purpose: Lightweight Arrow-compatible serialization layer
+Usage:
+  - Internal data format handling
+  - Performance optimization
+  - Snowflake data exchange
+  - DataFrame transport
+Dependencies:
+  - Managed internally by Snowflake packages
+Constraints:
+  - Internal dependency, not directly managed
+  - Available in Snowpark >=1.12.0
+  - Used automatically by Snowflake packages
+  - No explicit installation required
+```
+
+### 5. Cryptography
+```yaml
+Package: cryptography
+Version: >=41.0.0
+Purpose: Cryptographic operations and security
+Usage:
+  - Private key authentication
+  - Secure credential handling
+  - Encryption/decryption operations
+Dependencies:
+  - cffi
+  - six
+Constraints:
+  - Security requirement for authentication
+  - Version updates for vulnerability patches
+  - Required for private key handling
+```
+
+### 6. Python-dotenv
 ```yaml
 Package: python-dotenv
-Version: >= 1.0.0
+Version: >=1.0.0
 Purpose: Environment variable management for local development
 Usage:
   - Load environment variables from .env files
@@ -70,6 +121,100 @@ Usage:
   - Seamless transition between local and production environments
 Dependencies:
   - None (pure Python)
+Constraints:
+  - Optional for SiS deployment
+  - Required for local development
+  - Not needed in package distribution
+```
+
+### 7. TOML
+```yaml
+Package: toml
+Version: >=0.10.2
+Purpose: TOML configuration file parsing
+Usage:
+  - connections.toml file parsing
+  - Configuration management
+  - Settings file handling
+Dependencies:
+  - None (pure Python)
+Constraints:
+  - Required for connections.toml support
+  - Used in Tier 2 authentication
+  - Optional for SiS deployment
+```
+
+## Deprecated Dependencies
+
+### PyArrow (Deprecated)
+```yaml
+Package: pyarrow
+Version: <19.0.0 (deprecated)
+Purpose: Previously used for data serialization and processing
+Usage:
+  - Was used for data format handling
+  - Was used for performance optimization
+  - Was used for Snowflake data exchange
+Status: DEPRECATED
+Replacement: nanoarrow (internal, managed by Snowflake packages)
+Migration: Completed in version 1.1.0
+Constraints:
+  - No longer required for runtime
+  - May be kept in dev dependencies for legacy testing
+  - Rollback available if needed
+```
+
+## Deployment-Specific Dependencies
+
+### 1. Streamlit in Snowflake (SiS) Dependencies
+```yaml
+Required Core Dependencies:
+  - streamlit>=1.30
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - snowflake-connector-python>=3.0.0
+  - cryptography>=41.0.0
+
+Optional Dependencies:
+  - toml>=0.10.2 (for connections.toml support)
+  - python-dotenv>=1.0.0 (not typically needed)
+
+Not Required:
+  - pyarrow (deprecated, replaced by nanoarrow)
+  - Development dependencies
+  - Type stubs (handled by Snowflake environment)
+  - Testing frameworks
+  - Code quality tools
+
+Constraints:
+  - Python version: 3.9-3.11
+  - Package availability: Limited to Snowflake-approved packages
+  - Environment: Snowflake-managed
+  - Authentication: Primarily Tier 1 (active session)
+  - Data transport: nanoarrow (internal)
+```
+
+### 2. Package Distribution Dependencies
+```yaml
+Required Core Dependencies:
+  - streamlit>=1.30
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - snowflake-connector-python>=3.0.0
+  - cryptography>=41.0.0
+  - python-dotenv>=1.0.0
+  - toml>=0.10.2
+
+Optional Dependencies:
+  - All development dependencies
+  - Type stubs for comprehensive checking
+  - Testing frameworks
+  - Code quality tools
+
+Constraints:
+  - Python version: >=3.9, <3.12
+  - Package availability: Full PyPI access
+  - Environment: User-managed
+  - Authentication: All three tiers supported
+  - Data transport: nanoarrow (internal)
 ```
 
 ## Development Dependencies
@@ -77,7 +222,7 @@ Dependencies:
 ### 1. Type Checking and Stub Management
 ```yaml
 Package: mypy
-Version: >= 1.0.0
+Version: >=1.0.0
 Purpose: Static type checking for Python
 Usage:
   - Type validation
@@ -101,7 +246,7 @@ Management:
 ### 2. Code Quality Tools
 ```yaml
 Package: black
-Version: >= 23.0.0
+Version: >=23.0.0
 Purpose: Code formatter
 Usage:
   - Consistent code formatting
@@ -109,7 +254,7 @@ Usage:
   - Pre-commit formatting
 
 Package: ruff
-Version: >= 0.1.0
+Version: >=0.1.0
 Purpose: Fast Python linter
 Usage:
   - Code linting
@@ -117,7 +262,7 @@ Usage:
   - Style enforcement
 
 Package: flake8
-Version: >= 6.0.0
+Version: >=6.0.0
 Purpose: Style guide enforcement
 Usage:
   - PEP 8 compliance checking
@@ -125,7 +270,7 @@ Usage:
   - Style consistency
 
 Package: isort
-Version: >= 5.12.0
+Version: >=5.12.0
 Purpose: Import sorting
 Usage:
   - Consistent import organization
@@ -135,7 +280,7 @@ Usage:
 ### 3. Testing Framework
 ```yaml
 Package: pytest
-Version: >= 7.0.0
+Version: >=7.0.0
 Purpose: Testing framework
 Usage:
   - Unit testing
@@ -144,7 +289,7 @@ Usage:
   - Coverage reporting
 
 Package: pytest-mock
-Version: >= 3.10.0
+Version: >=3.10.0
 Purpose: Mocking utilities for pytest
 Usage:
   - Mock objects for testing
@@ -152,7 +297,7 @@ Usage:
   - Isolated unit tests
 
 Package: pytest-cov
-Version: >= 4.0.0
+Version: >=4.0.0
 Purpose: Coverage reporting for pytest
 Usage:
   - Code coverage measurement
@@ -163,7 +308,7 @@ Usage:
 ### 4. Security and Quality Assurance
 ```yaml
 Package: bandit
-Version: >= 1.7.0
+Version: >=1.7.0
 Purpose: Security linter
 Usage:
   - Security vulnerability detection
@@ -171,7 +316,7 @@ Usage:
   - Pre-commit security checks
 
 Package: safety
-Version: >= 2.0.0
+Version: >=2.0.0
 Purpose: Dependency vulnerability scanner
 Usage:
   - Known vulnerability detection
@@ -179,205 +324,109 @@ Usage:
   - CI/CD security integration
 ```
 
-## Type Stub Management Workflow
+## Constraint Management System
 
-### 1. Automatic Stub Detection
+### 1. Python Version Constraints
 ```yaml
-Script: scripts/fix-missing-type-stubs.py
-Purpose: Automatic type stub management
-Features:
-  - Parses mypy output for missing stubs
-  - Maps package names to typeshed equivalents
-  - Updates requirements-dev.txt automatically
-  - Optional automatic installation
-  - Comprehensive package mapping (80+ packages)
-  - Built-in module handling
+Current Requirements:
+  - requires-python: ">=3.9, <3.12"
+
+Environment-Specific Constraints:
+  - Snowflake SiS: 3.9-3.11
+  - Local Development: >=3.9, <3.12
+  - Package Distribution: >=3.9, <3.12
+
+Detection Mechanisms:
+  - Runtime version checking
+  - Environment detection
+  - Graceful degradation
+  - User notification
+
+Fallback Strategies:
+  - Version-specific code paths
+  - Alternative implementations
+  - Feature disabling
+  - Error messaging
 ```
 
-### 2. Pre-commit Integration
+### 2. Package Availability Constraints
 ```yaml
-Hook: fix-missing-type-stubs
-Trigger: Before each commit
-Actions:
-  - Run mypy on codebase
-  - Detect missing type stubs
-  - Add missing stubs to requirements-dev.txt
-  - Install new stubs if needed
-  - Ensure clean commits
+Core Dependencies (Always Required):
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - streamlit>=1.30
+  - cryptography>=41.0.0
+
+Optional Dependencies (Environment-Dependent):
+  - python-dotenv>=1.0.0 (local development)
+  - toml>=0.10.2 (connections.toml support)
+
+Deprecated Dependencies:
+  - pyarrow<19.0.0 (deprecated, replaced by nanoarrow)
+
+Detection Mechanisms:
+  - Import error handling
+  - Runtime dependency checking
+  - Graceful degradation
+  - Fallback to legacy methods
+
+Fallback Strategies:
+  - Alternative implementations
+  - Feature disabling
+  - Error messaging
+  - Rollback procedures
 ```
 
-### 3. Package Mapping Strategy
+### 3. Data Transport Constraints
 ```yaml
-Mapping Categories:
-  - Standard library mappings (yaml -> PyYAML)
-  - Common third-party packages (requests, flask, etc.)
-  - Database and ORM packages
-  - Web frameworks and tools
-  - Cloud and deployment packages
-  - Data processing and analysis
-  - Testing and mocking tools
-  - Development tools
+Primary Transport Layer:
+  - nanoarrow (internal, managed by Snowflake packages)
+  - Available in Snowpark >=1.12.0
+  - Automatic selection by Snowflake packages
 
-Built-in Handling:
-  - Skip built-in modules (xml, json, csv, etc.)
-  - Map pkg_resources to setuptools
-  - Handle special cases (yaml -> PyYAML)
+Legacy Transport Layer:
+  - pyarrow (deprecated, fallback only)
+  - Available for rollback scenarios
+  - Performance monitoring required
+
+Detection Mechanisms:
+  - Runtime transport layer detection
+  - Performance benchmarking
+  - Error rate monitoring
+  - Automatic fallback
+
+Fallback Strategies:
+  - Automatic rollback to pyarrow
+  - Performance degradation alerts
+  - Error rate threshold monitoring
+  - Manual intervention triggers
 ```
 
-## Dependency Management Tools
+## Migration Status
 
-### 1. UV (Recommended)
+### PyArrow to NanoArrow Migration
 ```yaml
-Tool: uv
-Purpose: Fast Python package installer and resolver
-Advantages:
-  - Significantly faster than pip
-  - Better dependency resolution
-  - Built-in virtual environment management
-  - Lock file support
-  - Modern Python packaging standards
-Usage:
-  - uv pip install -r requirements.txt
-  - uv pip install -r requirements-dev.txt
-  - uv run python script.py
+Status: COMPLETED
+Version: 1.1.0
+Migration Date: 2025-01-27
+
+Changes Made:
+  - Removed pyarrow from runtime dependencies
+  - Updated to snowflake-snowpark-python[pandas]>=1.12.0
+  - Implemented nanoarrow-based data transport
+  - Added rollback mechanisms
+  - Updated documentation
+
+Validation:
+  - SiS environment testing completed
+  - Performance benchmarks established
+  - Rollback procedures tested
+  - Error handling validated
+
+Rollback Plan:
+  - Automatic fallback to pyarrow if needed
+  - Performance monitoring in place
+  - Error rate threshold alerts
+  - Manual rollback procedures documented
 ```
 
-### 2. Pip (Traditional)
-```yaml
-Tool: pip
-Purpose: Traditional Python package installer
-Usage:
-  - pip install -r requirements.txt
-  - pip install -r requirements-dev.txt
-  - Compatible with all Python environments
-```
-
-## Environment-Specific Dependencies
-
-### 1. Local Development
-```yaml
-Required:
-  - python-dotenv (environment variable loading)
-  - All development dependencies
-  - Type stubs for used packages
-
-Optional:
-  - uv (for faster dependency management)
-  - Additional type stubs as needed
-```
-
-### 2. Streamlit in Snowflake (SiS)
-```yaml
-Required:
-  - Core runtime dependencies only
-  - No local environment setup needed
-  - Automatic session management
-
-Not Required:
-  - python-dotenv
-  - Development dependencies
-  - Type stubs (handled by Snowflake environment)
-```
-
-### 3. CI/CD Environment
-```yaml
-Required:
-  - All development dependencies
-  - Type stubs for comprehensive checking
-  - Security scanning tools
-  - Coverage reporting tools
-
-Optional:
-  - Documentation generation tools
-  - Performance testing tools
-```
-
-## Dependency Update Workflow
-
-### 1. Regular Updates
-```yaml
-Process:
-  - Monthly dependency review
-  - Security vulnerability scanning
-  - Type stub compatibility checking
-  - Automated testing after updates
-  - Documentation updates
-```
-
-### 2. Type Stub Updates
-```yaml
-Process:
-  - Automatic detection via helper script
-  - Manual review of new stubs
-  - Testing with updated stubs
-  - Documentation updates
-  - Team communication about changes
-```
-
-## Security Considerations
-
-### 1. Dependency Scanning
-```yaml
-Tools:
-  - safety (vulnerability scanning)
-  - bandit (code security analysis)
-  - pre-commit hooks (automated checks)
-
-Frequency:
-  - Pre-commit (automatic)
-  - CI/CD pipeline (automatic)
-  - Monthly manual review
-```
-
-### 2. Type Stub Security
-```yaml
-Considerations:
-  - Only install stubs from trusted sources (typeshed)
-  - Regular updates for security patches
-  - Validation of stub compatibility
-  - Testing with new stub versions
-```
-
-## Performance Optimization
-
-### 1. Installation Optimization
-```yaml
-Strategies:
-  - Use uv for faster installations
-  - Lock files for reproducible builds
-  - Minimal dependency sets
-  - Regular cleanup of unused dependencies
-```
-
-### 2. Runtime Optimization
-```yaml
-Strategies:
-  - Lazy loading where appropriate
-  - Minimal import statements
-  - Efficient type checking configuration
-  - Caching for repeated operations
-```
-
-## Monitoring and Maintenance
-
-### 1. Dependency Health
-```yaml
-Metrics:
-  - Update frequency
-  - Security vulnerability count
-  - Type stub coverage
-  - Build time impact
-  - Runtime performance impact
-```
-
-### 2. Maintenance Tasks
-```yaml
-Regular Tasks:
-  - Update dependencies
-  - Review and update type stubs
-  - Clean up unused dependencies
-  - Update documentation
-  - Test compatibility
-```
-
-This comprehensive dependency management system ensures reliable, secure, and maintainable code with excellent developer experience through automated type stub management.
+This comprehensive dependency management system ensures reliable, secure, and maintainable development with automated quality assurance and flexible deployment options. The constraint management system handles Python version and package availability limitations across different deployment environments.
