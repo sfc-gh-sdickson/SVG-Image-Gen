@@ -1,0 +1,22 @@
+@prefix ex: <http://example.org/svggen#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix sf: <http://snowflake.com/ns/integration#> .
+
+ex:git_api_integration a sf:APIIntegration ;
+    sf:apiProvider "git_https_api" ;
+    sf:apiAllowedPrefixes "https://github.com/sfc-gh-sdickson/" ;
+    sf:allowedAuthenticationSecrets ex:svggen_git_secret ;
+    sf:enabled true ;
+    sf:definedIn ex:svggen_db.integrations .
+
+ex:svggen_git_secret a sf:Secret ;
+    sf:hasRole ex:svggen_git_admin .
+
+ex:svggen_git_admin a sf:Role ;
+    sf:hasPrivileges (
+        sf:CreateIntegration
+        sf:UsageOnDatabase
+        sf:UsageOnSchema
+        sf:UsageOnSecret
+    ) ;
+    sf:grantedOn ex:svggen_db , ex:svggen_db.integrations , ex:svggen_git_secret .

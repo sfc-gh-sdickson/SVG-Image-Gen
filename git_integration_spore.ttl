@@ -1,0 +1,405 @@
+@prefix spore: <http://example.org/spore#> .
+@prefix ex: <http://example.org/svggen#> .
+@prefix sf: <http://snowflake.com/ns/integration#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# SPORE Document Definition
+spore:GitIntegrationSpore a spore:SPOREDocument ;
+    dct:title "Git Integration for SVG Image Generator" ;
+    dct:description "Secure, maintainable Git-based deployment pipeline for Snowflake + Streamlit apps with enterprise-grade authentication integration" ;
+    dct:created "2024-12-19"^^xsd:date ;
+    dct:modified "2024-12-19"^^xsd:date ;
+    spore:version "1.1.0" ;
+    spore:status spore:PlanningPhase ;
+    spore:hasSection spore:FunctionalRequirements, spore:NonFunctionalRequirements, spore:ArchitectureModel, spore:ImplementationPlan, spore:RiskAssessment, spore:SuccessCriteria ;
+    spore:targetsSystem ex:SVGImageGenDeployment ;
+    spore:authenticatesUsing ex:svggen_git_secret ;
+    spore:usesIntegration ex:git_api_integration ;
+    spore:hasPhasePlan spore:SixWeekPlan ;
+    spore:definesSuccessMetric ex:DeploymentTime ;
+    spore:definesSuccessMetric ex:RollbackCapable ;
+    spore:definesSuccessMetric ex:TimeToRepair ;
+    spore:definesSuccessMetric ex:DeveloperUX ;
+    spore:definesSuccessMetric ex:SystemAvailability ;
+    spore:definesSuccessMetric ex:PerformanceTarget .
+
+# Stakeholders
+ex:PrimaryUsers a spore:Stakeholder ;
+    dct:title "SVG Image Generator Users" ;
+    spore:hasRole spore:EndUser ;
+    spore:requiresFeature ex:VersionControl .
+
+ex:Developers a spore:Stakeholder ;
+    dct:title "Development Team" ;
+    spore:hasRole spore:Maintainer ;
+    spore:requiresFeature ex:MaintainableCode .
+
+ex:DevOps a spore:Stakeholder ;
+    dct:title "DevOps Team" ;
+    spore:hasRole spore:InfrastructureManager ;
+    spore:requiresFeature ex:AutomatedDeployment .
+
+ex:Security a spore:Stakeholder ;
+    dct:title "Security Team" ;
+    spore:hasRole spore:SecurityReviewer ;
+    spore:requiresFeature ex:SecureAccess .
+
+# Functional Requirements
+spore:FunctionalRequirements a spore:Section ;
+    dct:title "Functional Requirements" ;
+    spore:containsRequirement ex:FR-GIT-001, ex:FR-GIT-002, ex:FR-GIT-003, ex:FR-GIT-004, ex:FR-GIT-005 .
+
+ex:FR-GIT-001 a spore:FunctionalRequirement ;
+    dct:title "Authentication Integration" ;
+    spore:priority spore:High ;
+    spore:phase spore:Phase1 ;
+    spore:type spore:Authentication ;
+    spore:description "Replace hardcoded password authentication with existing session manager" ;
+    spore:acceptanceCriteria "Uses get_session() from session_manager.py", "Supports all three authentication tiers", "Maintains existing error handling patterns", "Provides comprehensive logging" ;
+    spore:implementsComponent ex:SessionManager .
+
+ex:FR-GIT-002 a spore:FunctionalRequirement ;
+    dct:title "Git API Operations" ;
+    spore:priority spore:High ;
+    spore:phase spore:Phase2 ;
+    spore:type spore:API ;
+    spore:description "Core Git repository operations" ;
+    spore:acceptanceCriteria "Read repository contents", "Create/update files in repository", "Commit changes with custom messages", "Branch management", "Error handling and retry logic" ;
+    spore:implementsComponent ex:GitIntegrationModule .
+
+ex:FR-GIT-003 a spore:FunctionalRequirement ;
+    dct:title "SQL Infrastructure Setup" ;
+    spore:priority spore:High ;
+    spore:phase spore:Phase3 ;
+    spore:type spore:Infrastructure ;
+    spore:description "Complete Snowflake infrastructure for Git integration" ;
+    spore:acceptanceCriteria "Role hierarchy and permissions", "Secret management for GitHub tokens", "API integration configuration", "Validation and cleanup procedures" ;
+    spore:implementsComponent ex:SnowflakeInfrastructure .
+
+ex:FR-GIT-004 a spore:FunctionalRequirement ;
+    dct:title "User Interface Integration" ;
+    spore:priority spore:Medium ;
+    spore:phase spore:Phase5 ;
+    spore:type spore:UserInterface ;
+    spore:description "Git features in the main application UI" ;
+    spore:acceptanceCriteria "Repository selection interface", "Commit message input", "Branch selection", "File path specification", "Integration with SVG generation workflow" ;
+    spore:implementsComponent ex:StreamlitUI .
+
+ex:FR-GIT-005 a spore:FunctionalRequirement ;
+    dct:title "Testing Framework" ;
+    spore:priority spore:High ;
+    spore:phase spore:Phase4 ;
+    spore:type spore:Testing ;
+    spore:description "Comprehensive testing for Git integration" ;
+    spore:acceptanceCriteria "Unit tests with mocked GitHub API", "Integration tests with real Snowflake", "Authentication scenario testing", "Performance and security tests" ;
+    spore:implementsComponent ex:TestFramework .
+
+# Non-Functional Requirements
+spore:NonFunctionalRequirements a spore:Section ;
+    dct:title "Non-Functional Requirements" ;
+    spore:containsRequirement ex:NFR-GIT-001, ex:NFR-GIT-002, ex:NFR-GIT-003, ex:NFR-GIT-004, ex:NFR-GIT-005 .
+
+ex:NFR-GIT-001 a spore:NonFunctionalRequirement ;
+    dct:title "Security" ;
+    spore:priority spore:Critical ;
+    spore:type spore:Security ;
+    spore:description "Secure handling of GitHub tokens and repository access" ;
+    spore:maturityModel ex:SecurityMaturityModel ;
+    spore:acceptanceCriteria "GitHub tokens stored in Snowflake secrets", "Role-based access control", "Audit logging for Git operations", "Secure API communication" .
+
+ex:NFR-GIT-002 a spore:NonFunctionalRequirement ;
+    dct:title "Performance" ;
+    spore:priority spore:Medium ;
+    spore:type spore:Performance ;
+    spore:description "Efficient Git operations without impacting main application" ;
+    spore:maturityModel ex:PerformanceMaturityModel ;
+    spore:acceptanceCriteria "Git operations complete within 30 seconds", "Asynchronous processing where appropriate", "Connection pooling for API calls", "Graceful timeout handling" .
+
+ex:NFR-GIT-003 a spore:NonFunctionalRequirement ;
+    dct:title "Reliability" ;
+    spore:priority spore:High ;
+    spore:type spore:Reliability ;
+    spore:description "Robust error handling and recovery" ;
+    spore:maturityModel ex:ReliabilityMaturityModel ;
+    spore:acceptanceCriteria "Retry logic for transient failures", "Graceful degradation when Git unavailable", "Comprehensive error messages", "Rollback capabilities" .
+
+ex:NFR-GIT-004 a spore:NonFunctionalRequirement ;
+    dct:title "Maintainability" ;
+    spore:priority spore:Medium ;
+    spore:type spore:Maintainability ;
+    spore:description "Code quality and documentation standards" ;
+    spore:maturityModel ex:MaintainabilityMaturityModel ;
+    spore:acceptanceCriteria "Follows existing code patterns", "Comprehensive documentation", "Type annotations and linting compliance", "Test coverage >80%" .
+
+ex:NFR-GIT-005 a spore:NonFunctionalRequirement ;
+    dct:title "Availability" ;
+    spore:priority spore:High ;
+    spore:type spore:Availability ;
+    spore:description "System availability and recovery objectives" ;
+    spore:maturityModel ex:AvailabilityMaturityModel ;
+    spore:acceptanceCriteria "99.5% uptime for Git clone-based deploys", "<30 minutes time-to-repair for integration failures", "Graceful fallback to local storage when Git unavailable", "Health monitoring and alerting" .
+
+# Architecture Model
+spore:ArchitectureModel a spore:Section ;
+    dct:title "Technical Architecture" ;
+    spore:definesComponent ex:GitIntegrationModule, ex:SessionManager, ex:SnowflakeInfrastructure ;
+    spore:definesSecurity ex:RoleBasedAccessControl ;
+    spore:definesIntegration ex:SnowflakeAPIIntegration .
+
+ex:GitIntegrationModule a spore:Component ;
+    dct:title "Git Integration Module" ;
+    spore:filePath "src/svg_image_generator/git_integration.py" ;
+    spore:implements spore:FunctionalRequirements ;
+    spore:usesAuthentication ex:ThreeTierAuth ;
+    spore:providesAPI ex:GitOperations ;
+    spore:hasMethod ex:read_file, ex:write_file, ex:create_branch, ex:list_repositories ;
+    spore:isExportable true ;
+    spore:canBeReusedIn ex:OtherSnowflakeProjects .
+
+ex:SessionManager a spore:Component ;
+    dct:title "Session Manager" ;
+    spore:filePath "src/svg_image_generator/session_manager.py" ;
+    spore:implements ex:FR-GIT-001 ;
+    spore:providesAuthentication ex:ThreeTierAuth ;
+    spore:hasMethod ex:get_session .
+
+ex:SnowflakeInfrastructure a spore:Component ;
+    dct:title "Snowflake Infrastructure" ;
+    spore:filePath "sql/git_integration_setup.sql" ;
+    spore:implements ex:FR-GIT-003 ;
+    spore:definesRoles ex:svggen_git_admin, ex:svggen_git_user ;
+    spore:managesSecrets ex:svggen_git_secret ;
+    spore:configuresIntegration ex:git_api_integration .
+
+# Role Definitions
+ex:svggen_git_admin a sf:Role ;
+    dct:title "SVG Generator Git Administrator" ;
+    sf:hasPrivileges sf:CreateIntegration, sf:UsageOnDatabase, sf:UsageOnSchema, sf:UsageOnSecret ;
+    sf:grantedOn ex:svggen_db, ex:svggen_db.integrations, ex:svggen_git_secret ;
+    spore:canManage ex:git_api_integration .
+
+ex:svggen_git_user a sf:Role ;
+    dct:title "SVG Generator Git User" ;
+    sf:hasPrivileges sf:UsageOnIntegration ;
+    sf:grantedOn ex:git_api_integration ;
+    spore:canUse ex:GitOperations .
+
+# Secret Management
+ex:svggen_git_secret a sf:Secret ;
+    dct:title "GitHub Personal Access Token" ;
+    sf:hasRole ex:svggen_git_admin ;
+    spore:rotationPolicy "90_days" ;
+    spore:encryptionType "AES256" ;
+    spore:auditLogging true .
+
+# API Integration
+ex:git_api_integration a sf:APIIntegration ;
+    sf:apiProvider "git_https_api" ;
+    sf:apiAllowedPrefixes "https://github.com/sfc-gh-sdickson/" ;
+    sf:allowedAuthenticationSecrets ex:svggen_git_secret ;
+    sf:enabled true ;
+    sf:definedIn ex:svggen_db.integrations .
+
+# Implementation Plan
+spore:ImplementationPlan a spore:Section ;
+    dct:title "Implementation Plan" ;
+    spore:hasPhase spore:Phase1, spore:Phase2, spore:Phase3, spore:Phase4, spore:Phase5, spore:Phase6 .
+
+spore:Phase1 a spore:Phase ;
+    dct:title "Authentication Integration" ;
+    spore:duration "1 week" ;
+    spore:goal "Replace hardcoded authentication with existing session manager" ;
+    spore:deliverables ex:ModifiedIntegrationCheck, ex:AuthenticationTests ;
+    spore:dependencies ex:ExistingSessionManager, ex:SnowflakeConnection ;
+    spore:securityGate ex:AuthenticationReview .
+
+spore:Phase2 a spore:Phase ;
+    dct:title "Core Git Integration Module" ;
+    spore:duration "1 week" ;
+    spore:goal "Implement core Git API operations" ;
+    spore:deliverables ex:GitIntegrationModule, ex:UnitTests ;
+    spore:dependencies spore:Phase1, ex:SnowflakeAPIIntegration, ex:GitHubAPIAccess ;
+    spore:securityGate ex:CodeSecurityReview .
+
+spore:Phase3 a spore:Phase ;
+    dct:title "SQL Infrastructure" ;
+    spore:duration "1 week" ;
+    spore:goal "Complete Snowflake infrastructure setup" ;
+    spore:deliverables ex:SetupScripts, ex:CleanupScripts, ex:ValidationScripts ;
+    spore:dependencies ex:ACCOUNTADMINAccess, ex:ExistingDatabase, ex:SecretManagement ;
+    spore:securityGate ex:RolePermissionAudit .
+
+spore:Phase4 a spore:Phase ;
+    dct:title "Testing Framework" ;
+    spore:duration "1 week" ;
+    spore:goal "Comprehensive testing infrastructure" ;
+    spore:deliverables ex:UnitTestFramework, ex:IntegrationTests, ex:PerformanceTests ;
+    spore:dependencies spore:Phase2, ex:TestData, ex:MockRepositories ;
+    spore:securityGate ex:SecurityTesting .
+
+spore:Phase5 a spore:Phase ;
+    dct:title "UI Integration" ;
+    spore:duration "1 week" ;
+    spore:goal "Integrate Git features into main application" ;
+    spore:deliverables ex:UpdatedApp, ex:GitUIComponents ;
+    spore:dependencies spore:Phase2, ex:ExistingUIFramework ;
+    spore:securityGate ex:UISecurityReview .
+
+spore:Phase6 a spore:Phase ;
+    dct:title "Documentation and Validation" ;
+    spore:duration "1 week" ;
+    spore:goal "Complete documentation and validation tools" ;
+    spore:deliverables ex:UserDocumentation, ex:ArchitectureDocumentation ;
+    spore:dependencies spore:Phase1, spore:Phase2, spore:Phase3, spore:Phase4, spore:Phase5 ;
+    spore:securityGate ex:FinalSecurityValidation .
+
+# Risk Assessment
+spore:RiskAssessment a spore:Section ;
+    dct:title "Risk Assessment" ;
+    spore:containsRisk ex:Risk-T-001, ex:Risk-T-002, ex:Risk-T-003, ex:Risk-S-001, ex:Risk-S-002, ex:Risk-B-001, ex:Risk-B-002 .
+
+ex:Risk-T-001 a spore:TechnicalRisk ;
+    dct:title "GitHub API Rate Limiting" ;
+    spore:probability 3 ;
+    spore:impact 4 ;
+    spore:riskIndex 12 ;
+    spore:riskLevel spore:High ;
+    spore:earlyWarningIndicators "API response times >2 seconds", "Rate limit headers approaching limits", "Increased 429 error responses" ;
+    spore:mitigation "Implement rate limiting awareness and retry logic" .
+
+ex:Risk-T-002 a spore:TechnicalRisk ;
+    dct:title "Snowflake API Integration Complexity" ;
+    spore:probability 3 ;
+    spore:impact 3 ;
+    spore:riskIndex 9 ;
+    spore:riskLevel spore:Medium ;
+    spore:earlyWarningIndicators "Integration setup failures", "Authentication errors in test environment", "Documentation gaps in Snowflake API" ;
+    spore:mitigation "Thorough testing and fallback mechanisms" .
+
+ex:Risk-S-001 a spore:SecurityRisk ;
+    dct:title "GitHub Token Exposure" ;
+    spore:probability 1 ;
+    spore:impact 5 ;
+    spore:riskIndex 5 ;
+    spore:riskLevel spore:Medium ;
+    spore:earlyWarningIndicators "Token rotation delays", "Unusual access patterns", "Secret management failures" ;
+    spore:mitigation "Proper secret management and access controls" .
+
+# Success Criteria
+spore:SuccessCriteria a spore:Section ;
+    dct:title "Success Criteria" ;
+    spore:definesMetric ex:DeploymentTime, ex:RollbackCapable, ex:TimeToRepair, ex:DeveloperUX, ex:SystemAvailability, ex:PerformanceTarget .
+
+ex:DeploymentTime a spore:SuccessMetric ;
+    dct:title "Time to Deploy via Git" ;
+    spore:targetValue 60 ;
+    spore:unit "seconds" ;
+    spore:measurementMethod "End-to-end deployment timing" .
+
+ex:RollbackCapable a spore:SuccessMetric ;
+    dct:title "Rollback Capability" ;
+    spore:targetValue true ;
+    spore:unit "boolean" ;
+    spore:measurementMethod "Functional testing of rollback procedures" .
+
+ex:TimeToRepair a spore:SuccessMetric ;
+    dct:title "Time to Repair Integration Failure" ;
+    spore:targetValue 30 ;
+    spore:unit "minutes" ;
+    spore:measurementMethod "Incident response timing" .
+
+ex:DeveloperUX a spore:SuccessMetric ;
+    dct:title "Developer Experience - Time to Initiate Deployment" ;
+    spore:targetValue 1 ;
+    spore:unit "minutes" ;
+    spore:measurementMethod "User interaction timing" .
+
+ex:SystemAvailability a spore:SuccessMetric ;
+    dct:title "System Availability for Git Operations" ;
+    spore:targetValue 99.5 ;
+    spore:unit "percent" ;
+    spore:measurementMethod "Uptime monitoring" .
+
+ex:PerformanceTarget a spore:SuccessMetric ;
+    dct:title "Git Operation Performance" ;
+    spore:targetValue 30 ;
+    spore:unit "seconds" ;
+    spore:measurementMethod "API response timing" .
+
+# Maturity Models
+ex:SecurityMaturityModel a spore:MaturityModel ;
+    spore:minimumLevel "GitHub tokens stored in Snowflake secrets, basic RBAC" ;
+    spore:targetLevel "Full audit logging, automated token rotation, zero-trust access model" .
+
+ex:PerformanceMaturityModel a spore:MaturityModel ;
+    spore:minimumLevel "Git operations complete within 60 seconds" ;
+    spore:targetLevel "Git operations complete within 30 seconds, async processing" .
+
+ex:ReliabilityMaturityModel a spore:MaturityModel ;
+    spore:minimumLevel "Basic retry logic, error messages" ;
+    spore:targetLevel "Circuit breaker pattern, comprehensive rollback capabilities" .
+
+ex:MaintainabilityMaturityModel a spore:MaturityModel ;
+    spore:minimumLevel "70% test coverage, basic documentation" ;
+    spore:targetLevel "80% test coverage, comprehensive documentation, type safety" .
+
+ex:AvailabilityMaturityModel a spore:MaturityModel ;
+    spore:minimumLevel "99.0% uptime for Git operations" ;
+    spore:targetLevel "99.5% uptime for Git operations, <30 min time-to-repair" .
+
+# Rollback Plan
+ex:RollbackPlan a spore:ContingencyPlan ;
+    dct:title "Rollback Strategy" ;
+    spore:primaryRollback ex:LocalStorageFallback ;
+    spore:secondaryRollback ex:DisableGitFeatures .
+
+ex:LocalStorageFallback a spore:RollbackStrategy ;
+    dct:title "Switch to Local Storage" ;
+    spore:trigger "Git API unavailable for >5 minutes" ;
+    spore:action "Redirect SVG saves to local Snowflake stage" ;
+    spore:recovery "Automatic retry when Git becomes available" .
+
+ex:DisableGitFeatures a spore:RollbackStrategy ;
+    dct:title "Disable Git Integration" ;
+    spore:trigger "Security incident or critical bug" ;
+    spore:action "Disable Git integration module" ;
+    spore:recovery "Manual re-enablement after issue resolution" .
+
+# Security Gates
+ex:AuthenticationReview a spore:SecurityGate ;
+    dct:title "Authentication Integration Review" ;
+    spore:phase spore:Phase1 ;
+    spore:reviewer ex:Security ;
+    spore:criteria "Authentication integration security review" .
+
+ex:CodeSecurityReview a spore:SecurityGate ;
+    dct:title "Code Security Review" ;
+    spore:phase spore:Phase2 ;
+    spore:reviewer ex:Security ;
+    spore:criteria "Code security review" .
+
+ex:RolePermissionAudit a spore:SecurityGate ;
+    dct:title "Role and Permission Audit" ;
+    spore:phase spore:Phase3 ;
+    spore:reviewer ex:Security ;
+    spore:criteria "Role and permission security audit" .
+
+ex:SecurityTesting a spore:SecurityGate ;
+    dct:title "Security Testing and Penetration Testing" ;
+    spore:phase spore:Phase4 ;
+    spore:reviewer ex:Security ;
+    spore:criteria "Security testing and penetration testing" .
+
+ex:UISecurityReview a spore:SecurityGate ;
+    dct:title "UI Security Review" ;
+    spore:phase spore:Phase5 ;
+    spore:reviewer ex:Security ;
+    spore:criteria "UI security review" .
+
+ex:FinalSecurityValidation a spore:SecurityGate ;
+    dct:title "Final Security Validation and Compliance Check" ;
+    spore:phase spore:Phase6 ;
+    spore:reviewer ex:Security ;
+    spore:criteria "Final security validation and compliance check" .
