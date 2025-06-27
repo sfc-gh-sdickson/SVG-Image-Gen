@@ -1,42 +1,56 @@
 """
-SVG Image Generator with Snowflake Cortex AI.
+SVG Image Generator Package
 
-A Streamlit-based web application for generating SVG images using Snowflake Cortex AI.
+A comprehensive Streamlit application for generating SVG files using Snowflake Cortex AI
+and storing them in Snowflake stages with dynamic context discovery and prompt sandwich approach.
+
+This package provides:
+- Dynamic context discovery for Snowflake resources
+- Prompt sandwich implementation for improved SVG generation
+- Comprehensive error handling and logging
+- Model validation and fallback mechanisms
+- Secure authentication with multiple tiers
 """
 
 __version__ = "1.0.0"
 __author__ = "SVG Image Generator Team"
-__email__ = "team@svg-generator.com"
+__description__ = (
+    "SVG generation using Snowflake Cortex AI with dynamic context discovery"
+)
 
-# Import main components when available
-try:
-    from .app import (
-        main,  # type: ignore  # TODO[0e1e7b2a]: Remove unused type: ignore (see TODO.md)
-    )
-except ImportError:
-    main = None
-
-try:
-    from .services.ai_service import (
-        AIGenerationService,  # type: ignore  # TODO[1a2c3d4e]: Remove unused type: ignore (see TODO.md)
-    )
-    from .services.session_service import (
-        SessionService,  # type: ignore  # TODO[2b3c4d5e]: Remove unused type: ignore (see TODO.md)
-    )
-    from .services.storage_service import (
-        StorageService,  # type: ignore  # TODO[3c4d5e6f]: Remove unused type: ignore (see TODO.md)
-    )
-except ImportError:
-    SessionService = None
-    AIGenerationService = None
-    StorageService = None
+# Import main components for easy access
+from .core import (
+    discover_user_context,
+    get_accessible_databases,
+    get_accessible_schemas,
+    get_accessible_stages,
+    handle_context_errors,
+    validate_user_permissions,
+)
+from .cortex import get_available_cortex_models, safe_cortex_call, validate_cortex_model
+from .prompt_sandwich import (
+    generate_svg_with_refined_prompt,
+    implement_prompt_sandwich,
+    refine_prompt_with_cortex,
+)
+from .session_manager import get_session
 
 __all__ = [
-    "__version__",
-    "__author__",
-    "__email__",
-    "main",
-    "SessionService",
-    "AIGenerationService",
-    "StorageService",
+    # Core context discovery
+    "discover_user_context",
+    "get_accessible_databases",
+    "get_accessible_schemas",
+    "get_accessible_stages",
+    "validate_user_permissions",
+    "handle_context_errors",
+    # Cortex operations
+    "get_available_cortex_models",
+    "validate_cortex_model",
+    "safe_cortex_call",
+    # Prompt sandwich
+    "refine_prompt_with_cortex",
+    "generate_svg_with_refined_prompt",
+    "implement_prompt_sandwich",
+    # Session management
+    "get_session",
 ]

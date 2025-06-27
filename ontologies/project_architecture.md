@@ -80,16 +80,21 @@ Streamlit Application:
 ```yaml
 Session Management Service:
   - Connection Management:
+      - Three-tier authentication system
       - SiS environment detection
+      - Connection parameter detection
       - Local development support
       - Environment variable handling
       - Connection pooling
 
   - Authentication:
+      - Active session authentication (get_active_session)
+      - Connection parameter authentication (Session.builder.create)
+      - Environment variable authentication (Session.builder.configs)
       - Credential validation
       - Session token management
       - Permission checking
-      - Error recovery
+      - Error recovery with graceful fallback
 
 AI Generation Service:
   - Prompt Engineering:
@@ -211,19 +216,67 @@ Persistent Storage:
 ### 4. Security Architecture
 
 #### A. Authentication Architecture
-```yaml
-SiS Environment:
-  - Authentication: Automatic via Snowflake
-  - Session Management: Streamlit-in-Snowflake
-  - Permissions: Role-based access control
-  - Security: Snowflake-managed
 
-Local Development:
-  - Authentication: Environment variables
-  - Session Management: Manual configuration
-  - Permissions: Local user permissions
-  - Security: Local credential management
+### Three-Tier Authentication System
+
+The application implements a sophisticated authentication system that gracefully handles different Snowflake environments:
+
 ```
+┌─────────────────────────────────────────────────────────────┐
+│                    Authentication Flow                      │
+├─────────────────────────────────────────────────────────────┤
+│  Tier 1: Active Session (SiS)                              │
+│  ├─ get_active_session()                                   │
+│  ├─ Inherits current context                               │
+│  └─ No configuration needed                                │
+├─────────────────────────────────────────────────────────────┤
+│  Tier 2: connections.toml                                  │
+│  ├─ Manual TOML parsing                                    │
+│  ├─ Private key handling                                   │
+│  │  ├─ Detect private_key_path                             │
+│  │  ├─ Read and validate file                              │
+│  │  ├─ Load with cryptography                              │
+│  │  └─ Handle passphrase                                   │
+│  └─ Automatic fallback                                     │
+├─────────────────────────────────────────────────────────────┤
+│  Tier 3: Environment Variables                             │
+│  ├─ Explicit configuration                                 │
+│  ├─ All auth methods supported                             │
+│  └─ Development fallback                                   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Private Key Authentication Handler
+
+**Problem Solved**: The Snowflake Snowpark library has a common gotcha where it expects private key content but receives file paths, leading to cryptic errors.
+
+**Architecture**:
+```python
+def handle_private_key_auth(conn_params):
+    if 'private_key_path' in conn_params:
+        # 1. Path expansion and validation
+        pk_path = Path(conn_params['private_key_path']).expanduser()
+        if not pk_path.exists():
+            raise FileNotFoundError(f"Private key file not found at {pk_path}")
+
+        # 2. Key loading with cryptography
+        from cryptography.hazmat.primitives import serialization
+        with open(pk_path, "rb") as key_file:
+            p_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password=conn_params.get('private_key_passphrase', '').encode() or None,
+            )
+
+        # 3. Replace path with actual key object
+        conn_params['private_key'] = p_key
+        del conn_params['private_key_path']  # Clean up
+```
+
+**Error Patterns Handled**:
+- `Expected bytes or RSAPrivateKey, got <class 'NoneType'>`
+- `FileNotFoundError` for missing key files
+- `ValueError` for invalid key formats
+- `TypeError` for incorrect passphrase handling
 
 #### B. Authorization Architecture
 ```yaml
@@ -287,6 +340,20 @@ Type Checking System:
       - Error detection
       - Refactoring support
 ```
+
+#### Smoke Testing Snowflake Connections
+
+A smoke test is included to validate real Snowflake connectivity using profiles in `~/.snowflake/connections.toml`.
+- By default, the `[default]` profile is used.
+- To use a different profile, set the `TEST_SNOWFLAKE_CONNECTION` environment variable.
+
+Example:
+```bash
+pytest tests/test_authentication.py -k smoke_connect_via_connections_toml -v -s
+# or for a custom profile
+TEST_SNOWFLAKE_CONNECTION=YOUR_PROFILE pytest tests/test_authentication.py -k smoke_connect_via_connections_toml -v -s
+```
+The test will attempt to connect and run `SELECT 1`. It will be skipped if the connection cannot be established.
 
 ### 6. Deployment Architecture
 

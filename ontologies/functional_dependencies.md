@@ -1,5 +1,42 @@
 # Functional Dependencies for SVG Image Generation System
 
+## Requirements Traceability, Risk Management, and Stakeholder Mapping
+
+### 1. Requirements Traceability Matrix
+| Requirement ID | Description | Code/Model Component | Status |
+|---------------|-------------|----------------------|--------|
+| REQ-1 | Only show user-accessible databases, schemas, and stages | discover_user_context, get_accessible_databases, get_accessible_schemas, get_accessible_stages | Implemented |
+| REQ-2 | Prevent invalid model selection and runtime errors | get_available_cortex_models, validate_cortex_model, safe_cortex_call, UI model dropdown | Implemented |
+| REQ-3 | Provide clear, actionable error messages for all runtime errors | safe_cortex_call, handle_context_errors, Streamlit error reporting | Implemented |
+| REQ-4 | Log all errors and context for maintainers | logging in all error handling functions | Implemented |
+| REQ-5 | Allow user to create new stages if needed | UI logic for stage creation | Implemented |
+| REQ-6 | Support prompt sandwich approach for SVG generation | implement_prompt_sandwich, refine_prompt_with_cortex, generate_svg_with_refined_prompt | Implemented |
+| REQ-7 | Ensure all requirements are testable and tested | tests/test_runtime_errors.py, tests/test_context_discovery.py | Implemented |
+| REQ-8 | Document all requirements, risks, and stakeholder needs | ontologies/data_models.md, ontologies/functional_dependencies.md | Implemented |
+
+### 2. Risk Management Table
+| Risk ID | Description | Mitigation/Status | Accepted/Deferred |
+|---------|-------------|-------------------|------------------|
+| RISK-1 | User selects a model not available in Snowflake | Dynamic model discovery, validation before use, user feedback | Mitigated |
+| RISK-2 | Permission errors for DB/schema/stage | Only show accessible resources, validate before use, clear error reporting | Mitigated |
+| RISK-3 | Cortex service outage or timeout | Error handling, user feedback, logging | Mitigated |
+| RISK-4 | Unclear error messages | All errors surfaced with actionable messages, logs for maintainers | Mitigated |
+| RISK-5 | User confusion about available models | UI only shows available models, instructions updated | Mitigated |
+| RISK-6 | Security: privilege escalation or data leak | Only show resources in user context, validate permissions | Mitigated |
+| RISK-7 | Deferred: Full audit logging for compliance | Not yet implemented | Deferred |
+| RISK-8 | Deferred: Automated recovery from service outages | Not yet implemented | Deferred |
+
+### 3. Stakeholder Mapping
+| Stakeholder | Perspective/Need | How Addressed |
+|-------------|------------------|---------------|
+| End User | Needs a simple, error-free UI that only shows what they can access | Dynamic dropdowns, error handling, clear instructions |
+| Admin | Needs to ensure users can't access unauthorized resources | Context discovery, permission validation |
+| Maintainer | Needs logs and error context for debugging | Logging, error reporting, test coverage |
+| Security/Compliance | Needs to ensure no privilege escalation or data leaks | Context-aware resource discovery, permission checks |
+| Developer | Needs requirements, risks, and flows to be documented and testable | Ontologies, traceability matrix, tests |
+
+---
+
 ## System Functional Dependencies
 
 ### 1. Core Functional Dependencies
@@ -9,14 +46,20 @@
 Function: get_session()
 Dependencies:
   - snowflake-snowpark-python package
-  - Active Snowflake connection (SiS environment)
-  - OR environment variables (local development)
+  - Three-tier authentication system:
+    1. Active Snowflake connection (SiS environment) - get_active_session()
+    2. Connection parameters (various Snowflake environments) - Session.builder.create()
+    3. Environment variables (local development) - Session.builder.configs()
   - python-dotenv package (local development)
   - Valid user credentials
   - Network connectivity to Snowflake
   - Streamlit cache_resource decorator
 Output: Snowflake session object
 Error Handling: Connection failure, authentication errors, missing environment variables
+Authentication Flow:
+  1. Try get_active_session() for SiS environment
+  2. Try Session.builder.create() for connection parameter environments
+  3. Try Session.builder.configs() with environment variables for local development
 ```
 
 #### B. Context Management Dependencies
@@ -32,18 +75,42 @@ Output: Boolean success status
 Error Handling: Invalid context, permission errors
 ```
 
-#### C. SVG Generation Dependencies
+#### C. Model Discovery and Validation Dependencies
 ```yaml
-Function: generate_svg_content()
+Function: get_available_cortex_models(), validate_cortex_model()
+Dependencies:
+  - Valid Snowflake session
+  - Cortex AI service enabled
+  - User permissions for Cortex models
+  - Model registry or test queries
+Output: List of available models, Boolean validation result
+Error Handling: Unknown model, permission errors, service errors, timeouts
+```
+
+#### D. SVG Generation Dependencies
+```yaml
+Function: generate_svg_content(), implement_prompt_sandwich(), safe_cortex_call()
 Dependencies:
   - Valid prompt text
-  - Selected AI model availability
+  - Selected AI model availability (validated)
   - Cortex AI service access
   - Snowflake warehouse running
   - SQL execution permissions
   - Network connectivity
 Output: SVG content string
-Error Handling: AI service errors, timeout, invalid responses
+Error Handling: AI service errors, timeout, invalid responses, model errors
+```
+
+#### E. Error Handling and Logging Dependencies
+```yaml
+Function: handle_context_errors(), safe_cortex_call(), logging
+Dependencies:
+  - All core functions
+  - Error classification logic
+  - Logging configuration
+  - Streamlit error reporting
+Output: User-facing error messages, logs, stack traces
+Error Handling: All known and unknown error cases
 ```
 
 ### 2. Development Workflow Dependencies
@@ -96,15 +163,29 @@ graph TD
     A[User Input] --> B[Input Validation]
     B --> C[Session Validation]
     C --> D[Context Setup]
-    D --> E[Prompt Construction]
-    E --> F[AI Generation]
-    F --> G[Content Processing]
-    G --> H[Storage Preparation]
-    H --> I[File Upload]
-    I --> J[Cleanup]
+    D --> E[Model Discovery]
+    E --> F[Model Validation]
+    F --> G[Prompt Construction]
+    G --> H[AI Generation]
+    H --> I[Content Processing]
+    I --> J[Storage Preparation]
+    J --> K[File Upload]
+    K --> L[Cleanup]
 ```
 
-#### B. Development Workflow Chain
+#### B. Error Handling Chain
+```mermaid
+graph TD
+    A[Operation] --> B[Error Detected]
+    B --> C[Error Classification]
+    C --> D[Mitigation/Reporting]
+    D --> E[User Notification]
+    D --> F[Logging]
+    D --> G[Stack Trace Capture]
+    D --> H[Risk Table Update]
+```
+
+#### C. Development Workflow Chain
 ```mermaid
 graph TD
     A[Code Changes] --> B[Pre-commit Hooks]
@@ -117,40 +198,7 @@ graph TD
     H --> I[Commit]
 ```
 
-#### C. Error Handling Dependencies
-```yaml
-Error Chain:
-  - Input Validation Errors:
-      - Invalid prompt text
-      - Invalid model selection
-      - Invalid filename format
-      - Invalid stage name
-
-  - Session Errors:
-      - Connection failure
-      - Authentication failure
-      - Session timeout
-      - Permission denied
-      - Missing environment variables
-
-  - AI Generation Errors:
-      - Cortex service unavailable
-      - Model not available
-      - Generation timeout
-      - Invalid response format
-
-  - Storage Errors:
-      - Stage creation failure
-      - File upload failure
-      - Temporary table errors
-      - Cleanup failures
-
-  - Development Errors:
-      - Missing type stubs
-      - Pre-commit hook failures
-      - Environment configuration issues
-      - Dependency installation problems
-```
+---
 
 ## Component Dependencies
 
@@ -166,7 +214,8 @@ Page Configuration:
 
 Sidebar Components:
   - Stage name input
-  - Database/schema inputs
+  - Database/schema inputs (dynamic dropdowns)
+  - Model selection dropdown (dynamic, validated)
   - Configuration validation
   - User feedback
 
@@ -177,6 +226,7 @@ Main Interface:
   - Generation button
   - Progress indicators
   - Result display
+  - Error reporting
 ```
 
 #### B. UI State Management
@@ -192,38 +242,34 @@ State Dependencies:
 
 ### 2. Backend Component Dependencies
 
-#### A. Snowflake Integration Layer
+#### A. Context Discovery and Model Validation
 ```yaml
-Session Management:
-  - Connection pooling
-  - Authentication handling
-  - Session lifecycle management
-  - Error recovery
-  - Resource cleanup
-
-SQL Operations:
-  - Query execution
-  - Result processing
-  - Transaction management
-  - Error handling
-  - Performance optimization
+Backend Dependencies:
+  - discover_user_context()
+  - get_available_cortex_models()
+  - validate_cortex_model()
+  - get_accessible_databases(), get_accessible_schemas(), get_accessible_stages()
+  - Logging and error handling
 ```
 
-#### B. File Operations Layer
+#### B. Prompt Sandwich and SVG Generation
 ```yaml
-Stage Management:
-  - Stage creation
-  - File upload/download
-  - Metadata tracking
-  - Access control
-  - Cleanup operations
+Backend Dependencies:
+  - implement_prompt_sandwich()
+  - refine_prompt_with_cortex()
+  - generate_svg_with_refined_prompt()
+  - safe_cortex_call()
+  - Error handling and logging
+```
 
-Temporary Storage:
-  - Table creation
-  - Data insertion
-  - Content validation
-  - Resource cleanup
-  - Error recovery
+#### C. Error Handling and Logging
+```yaml
+Backend Dependencies:
+  - handle_context_errors()
+  - Logging configuration
+  - User feedback via Streamlit
+  - Stack trace capture
+  - Risk table update
 ```
 
 ### 3. Development Tools Dependencies
@@ -543,26 +589,48 @@ Resource Dependencies:
 ## Security Dependencies
 
 ### 1. Authentication Dependencies
-```yaml
-Auth Dependencies:
-  - Snowflake authentication:
-      - User credentials
-      - Role permissions
-      - Session tokens
-      - Token refresh
 
-  - Application security:
-      - Input validation
-      - SQL injection prevention
-      - XSS protection
-      - CSRF protection
+#### Three-Tier Authentication System
 
-  - Development security:
-      - Dependency vulnerability scanning
-      - Code security analysis
-      - Environment variable protection
-      - Credential management
-```
+The application implements a robust three-tier authentication system with automatic fallback:
+
+1. **Tier 1: Active Session (Streamlit in Snowflake)**
+   - Primary method for SiS environments
+   - Uses `get_active_session()` from Snowpark
+   - Inherits current Snowflake context
+
+2. **Tier 2: Connection Parameters (connections.toml)**
+   - Secondary method for local development
+   - Parses `~/.snowflake/connections.toml` manually
+   - Handles both `[default]` and `[connections.default]` structures
+   - **Critical: Private Key Authentication Support**
+     - Detects `private_key_path` in configuration
+     - Reads and loads private key file content
+     - Converts path to actual key object for Snowpark
+     - Handles optional passphrase for encrypted keys
+     - Common error: `Expected bytes or RSAPrivateKey, got <class 'NoneType'>` when path is passed instead of content
+
+3. **Tier 3: Environment Variables**
+   - Fallback method for explicit configuration
+   - Requires manual setup of environment variables
+   - Supports all standard Snowflake auth methods
+
+#### Private Key Authentication Handling
+
+**Problem**: Snowflake Snowpark library expects private key content, not file paths. When `private_key_path` is specified in `connections.toml`, the library fails with cryptic errors like `Expected bytes or RSAPrivateKey, got <class 'NoneType'>`.
+
+**Solution**: Our application detects `private_key_path` and:
+1. Expands the path (handles `~` for home directory)
+2. Validates file existence
+3. Reads the key file content
+4. Loads it using cryptography library
+5. Handles optional passphrase
+6. Passes the actual key object to Snowpark
+
+**Dependencies**:
+- `cryptography` library for key loading
+- `pathlib.Path` for path handling
+- `toml` for configuration parsing
 
 ### 2. Authorization Dependencies
 ```yaml
@@ -672,6 +740,16 @@ Integration Test Dependencies:
       - Pre-commit hook testing
       - Type stub management testing
       - CI/CD pipeline testing
+```
+
+#### D. Real Connection Smoke Test Dependency
+```yaml
+Test: test_smoke_connect_via_connections_toml
+Purpose: Validate real Snowflake connectivity using ~/.snowflake/connections.toml
+Default: Uses [default] profile
+Override: Set TEST_SNOWFLAKE_CONNECTION to use a different profile
+Validation: Runs SELECT 1 to confirm connection
+Skip: Test is skipped if connection cannot be established
 ```
 
 ## Deployment Dependencies

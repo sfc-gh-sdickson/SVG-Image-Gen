@@ -97,22 +97,35 @@ For development, testing, and local use:
 
 5. **Run the application**:
    ```bash
-   streamlit run SVG-Image-Gen.py
+   streamlit run src/svg_image_generator/app.py
    ```
 
 ## 🔐 Authentication
 
-The application supports two authentication modes:
+The application supports a three-tier authentication system with graceful fallback:
 
-### SiS Environment (Automatic)
+### 1. Active Session (SiS Environment) - Primary
 - Uses `get_active_session()` to automatically connect to your active Snowflake session
 - No additional configuration required
 - Inherits your current Snowflake context and permissions
+- Ideal for Streamlit in Snowflake (SiS) environments
 
-### Local Environment (Manual)
-- Uses environment variables for connection parameters
+### 2. Connection Parameters (Various Snowflake Environments) - Secondary
+- Uses `Session.builder.create()` to detect and use connection parameters
+- Automatically detects connection parameters from:
+  - Snowflake worksheets and native apps
+  - Connection profiles and configurations
+  - Snowflake CLI configuration
+  - Other Snowflake environment configurations
+- No manual configuration required when parameters are available
+
+### 3. Environment Variables (Local Development) - Fallback
+- Uses `Session.builder.configs()` with explicit environment variables
 - Requires setting up `.env` file with your Snowflake credentials
 - Supports all standard Snowflake authentication methods
+- Ideal for local development and testing
+
+The system automatically tries each method in order and falls back to the next if the previous fails, ensuring maximum compatibility across different Snowflake environments.
 
 ## 🧪 Testing
 
@@ -174,8 +187,28 @@ For detailed development guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 ### Common Issues
 
 **Authentication Errors**:
-- **SiS Environment**: Ensure you're logged into Snowflake and have an active session
-- **Local Environment**: Verify your `.env` file contains correct credentials
+- **Active Session (SiS)**: Ensure you're logged into Snowflake and have an active session
+- **Connection Parameters**: Verify connection parameters are properly configured in your Snowflake environment
+- **Environment Variables**: Verify your `.env` file contains correct credentials for local development
+- **General**: The system automatically tries three authentication methods - check the status messages for which method succeeded or failed
+
+**Private Key Authentication Gotcha**:
+- **Error**: `Expected bytes or RSAPrivateKey, got <class 'NoneType'>`
+- **Cause**: Snowflake Snowpark library expects private key content, not file paths
+- **Solution**: Our application automatically detects `private_key_path` in `connections.toml` and loads the key file content
+- **Configuration**: Ensure your `~/.snowflake/connections.toml` has the correct format:
+  ```toml
+  [default]
+  account = "your-account"
+  user = "your-user"
+  private_key_path = "~/.ssh/snowflake_key.pem"
+  private_key_passphrase = "optional-passphrase"  # if key is encrypted
+  warehouse = "your-warehouse"
+  ```
+- **Testing**: Run the private key tests to verify your setup:
+  ```bash
+  uv run pytest tests/test_authentication.py -k "private_key" -v
+  ```
 
 **Connection Issues**:
 - Check your Snowflake account identifier format
@@ -216,5 +249,22 @@ To use:
 
 ```bash
 cp config.example.env .env
-streamlit run SVG-Image-Gen.py
+streamlit run src/svg_image_generator/app.py
 ```
+
+## 🔥 Real Connection Smoke Test
+
+To verify your Snowflake connection profile in `~/.snowflake/connections.toml`, run the smoke test:
+
+```bash
+uv run pytest tests/test_authentication.py -k "test_smoke_connect_via_connections_toml" -v -s
+```
+
+By default, this uses the `[default]` profile. To use a different profile, set the environment variable:
+
+```bash
+export SNOWFLAKE_DEFAULT_CONNECTION_NAME=YOUR_PROFILE_NAME
+uv run pytest tests/test_authentication.py -k "test_smoke_connect_via_connections_toml" -v -s
+```
+
+This will attempt to connect and run `SELECT 1` using the specified profile. The test will be skipped if the connection cannot be established or the profile is missing.
