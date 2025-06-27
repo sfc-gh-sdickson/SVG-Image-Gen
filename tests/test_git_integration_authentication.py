@@ -55,10 +55,13 @@ class TestGitIntegrationAuthentication:
         """
         logger.info("Running test_git_integration_uses_session_manager")
 
+        # Import get_session before patching to avoid reference issues
+        from src.svg_image_generator.session_manager import get_session
+
         with patch(
             "src.svg_image_generator.session_manager.get_session",
             return_value=mock_session,
-        ):
+        ) as mock_get_session:
             try:
                 from snowpark_git_integration_check import validate_git_integration
 
@@ -66,9 +69,7 @@ class TestGitIntegrationAuthentication:
                 result = validate_git_integration()
 
                 # Verify session manager was called
-                from src.svg_image_generator.session_manager import get_session
-
-                get_session.assert_called()
+                mock_get_session.assert_called()
 
                 assert result is not None
 
@@ -231,6 +232,169 @@ class TestGitIntegrationAuthentication:
 
             except ImportError:
                 pytest.fail("Git integration not implemented yet - TDD step 1")
+
+    def test_list_accessible_repositories(self, mock_session):
+        """
+        Test listing all accessible GitHub repositories via the Snowflake API integration.
+        This is a TDD test: it should fail until the feature is implemented.
+        """
+        logger.info("Running test_list_accessible_repositories (TDD phase)")
+        # Mock the expected API response from Snowflake
+        mock_session.sql.return_value.collect.return_value = [
+            ("lou/svg-image-gen",),
+            ("lou/another-repo",),
+        ]
+        with patch(
+            "src.svg_image_generator.session_manager.get_session",
+            return_value=mock_session,
+        ):
+            try:
+                from src.svg_image_generator.git_integration import (
+                    list_accessible_repositories,
+                )
+
+                result = list_accessible_repositories(session=mock_session)
+                logger.info(f"Result from list_accessible_repositories: {result}")
+                assert result == [
+                    "lou/svg-image-gen",
+                    "lou/another-repo",
+                ], "Repository list does not match expected output"
+            except ImportError:
+                logger.error(
+                    "list_accessible_repositories function not implemented yet - expected TDD failure"
+                )
+                pytest.fail(
+                    "list_accessible_repositories function not implemented yet - TDD step"
+                )
+            except AssertionError as e:
+                logger.error(f"Assertion failed: {e}")
+                raise
+
+    def test_read_repository_file(self, mock_session):
+        """
+        Test reading file content from a GitHub repository via the Snowflake API integration.
+        This is a TDD test: it should fail until the feature is implemented.
+        """
+        logger.info("Running test_read_repository_file (TDD phase)")
+        # Mock the expected API response from Snowflake (file content)
+        mock_session.sql.return_value.collect.return_value = [
+            ("# SVG Image Generator\n\nThis is a test file content.",)
+        ]
+        with patch(
+            "src.svg_image_generator.session_manager.get_session",
+            return_value=mock_session,
+        ):
+            try:
+                from src.svg_image_generator.git_integration import read_repository_file
+
+                result = read_repository_file(
+                    repo="lou/svg-image-gen",
+                    path="README.md",
+                    branch="main",
+                    session=mock_session,
+                )
+                logger.info(f"Result from read_repository_file: {result}")
+                expected_content = (
+                    "# SVG Image Generator\n\nThis is a test file content."
+                )
+                assert (
+                    result == expected_content
+                ), f"File content does not match expected output. Got: {result}"
+            except ImportError:
+                logger.error(
+                    "read_repository_file function not implemented yet - expected TDD failure"
+                )
+                pytest.fail(
+                    "read_repository_file function not implemented yet - TDD step"
+                )
+            except AssertionError as e:
+                logger.error(f"Assertion failed: {e}")
+                raise
+
+    def test_write_repository_file(self, mock_session):
+        """
+        Test writing/committing file content to a GitHub repository via the Snowflake API integration.
+        This is a TDD test: it should fail until the feature is implemented.
+        """
+        logger.info("Running test_write_repository_file (TDD phase)")
+        # Mock the expected API response from Snowflake (commit success)
+        mock_session.sql.return_value.collect.return_value = [
+            ({"content": {"sha": "abc123"}, "commit": {"sha": "def456"}},)
+        ]
+        with patch(
+            "src.svg_image_generator.session_manager.get_session",
+            return_value=mock_session,
+        ):
+            try:
+                from src.svg_image_generator.git_integration import (
+                    write_repository_file,
+                )
+
+                result = write_repository_file(
+                    repo="lou/svg-image-gen",
+                    path="test-file.md",
+                    content="# Test Content\n\nThis is a test file.",
+                    commit_message="Add test file via API integration",
+                    branch="main",
+                    session=mock_session,
+                )
+                logger.info(f"Result from write_repository_file: {result}")
+                assert (
+                    result is True
+                ), f"Write operation should return True on success. Got: {result}"
+            except ImportError:
+                logger.error(
+                    "write_repository_file function not implemented yet - expected TDD failure"
+                )
+                pytest.fail(
+                    "write_repository_file function not implemented yet - TDD step"
+                )
+            except AssertionError as e:
+                logger.error(f"Assertion failed: {e}")
+                raise
+
+    def test_create_repository_branch(self, mock_session):
+        """
+        Test creating a new branch in a GitHub repository via the Snowflake API integration.
+        This is a TDD test: it should fail until the feature is implemented.
+        """
+        logger.info("Running test_create_repository_branch (TDD phase)")
+        # Mock the expected API responses from Snowflake (get SHA, create branch)
+        mock_session.sql.return_value.collect.side_effect = [
+            [("abc123",)],  # SHA for base branch
+            [
+                ({"ref": "refs/heads/feature-branch", "sha": "abc123"},)
+            ],  # Branch creation success
+        ]
+        with patch(
+            "src.svg_image_generator.session_manager.get_session",
+            return_value=mock_session,
+        ):
+            try:
+                from src.svg_image_generator.git_integration import (
+                    create_repository_branch,
+                )
+
+                result = create_repository_branch(
+                    repo="lou/svg-image-gen",
+                    base_branch="main",
+                    new_branch="feature-branch",
+                    session=mock_session,
+                )
+                logger.info(f"Result from create_repository_branch: {result}")
+                assert (
+                    result is True
+                ), f"Branch creation should return True on success. Got: {result}"
+            except ImportError:
+                logger.error(
+                    "create_repository_branch function not implemented yet - expected TDD failure"
+                )
+                pytest.fail(
+                    "create_repository_branch function not implemented yet - TDD step"
+                )
+            except AssertionError as e:
+                logger.error(f"Assertion failed: {e}")
+                raise
 
 
 class TestGitIntegrationAuthenticationIntegration:
