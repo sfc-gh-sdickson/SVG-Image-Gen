@@ -1,0 +1,59 @@
+---
+description:
+globs: **/*.py,**/*.yml,**/*.yaml,**/*.toml,**/*.ini,**/*.json,**/*.cfg,*.mdc,*.ttl,*,rdf
+alwaysApply: false
+---
+# ❌ Do not use `edit_tool` for code changes.
+
+Use deterministic, auditable tools instead. This rule bans stochastic, non-reproducible edits made via `edit_tool`, particularly for config files and domain-critical formats.
+
+## Tool Clarification
+- **edit_tool**: AI-generated stochastic edits (banned for structured formats)
+- **edit_file**: Deterministic, auditable edits (allowed for all formats)
+- **Structured libraries**: Required for complex operations on structured formats
+
+## ✅ Approved Alternatives (Use These Instead)
+
+- **YAML**: Use `ruamel.yaml`, `PyYAML`, or `omegaconf` with schema validation (e.g., using `yamale`).
+- **TOML**: Use `tomli`, `tomlkit`, or `pytomlpp` with schema or static typing via `pydantic` (e.g., using `tomlkit.validate`).
+- **INI/CFG**: Use `configparser` or `configobj`.
+- **JSON**: Use `json`, `orjson`, or `pydantic` with full model enforcement (e.g., using `jsonschema`).
+- **Python AST**: Use `ast`, `libcst`, or `redbaron` for structural code edits.
+- **Markdown**: Use `markdown-it-py`, `mistune`, or `panflute` for structured manipulation.
+- **SPARQL/RDF**: Use `rdflib`, `pyshacl`, `owlready2`, 'graphdb'.
+- **MDC**: Use a custom tool. There are no reliable MDC editors. The **YAML** portions must be validated with **YAML**.  The Markdown protions must be validated with `markdown-it-py`, `mistune`, or `panflute` for structured manipulation. See also `check-mdc-import` and `validate-mdc-rules` for guidance in checking **MDC** files. Consider using the `validate-project-rules` tool to validate the entire project's rules. A custom tool for editing MDC files might involve parsing the YAML and Markdown portions separately, applying changes using the appropriate libraries, and then reassembling the file.
+
+## Usage Examples
+- Simple text addition to markdown: ✅ edit_file
+- YAML frontmatter modification: ❌ edit_tool, ✅ PyYAML + edit_file
+- Python code structure changes: ❌ edit_tool, ✅ AST tools
+- Simple text replacement: ✅ sed/echo
+
+## MDC Files Clarification
+- **YAML portions**: Use PyYAML/ruamel.yaml for validation and modification
+- **Markdown portions**: Use edit_file for simple text changes
+- **Complex MDC operations**: Parse YAML and Markdown separately, modify with appropriate libraries, reassemble
+
+## Decision Tree
+```
+Is it a structured format? (YAML, TOML, JSON, Python, MDC)
+├─ Yes → Use structured library + edit_file
+└─ No → Use edit_file or sed/echo
+
+Is it a complex operation?
+├─ Yes → Use structured library
+└─ No → Use edit_file
+```
+
+## Simple vs Structured Operations
+- **Simple**: Adding text, basic replacements, content insertion
+- **Structured**: Schema validation, format preservation, complex transformations, YAML/JSON parsing
+
+🛡️ All edits should:
+- Be reproducible
+- Be testable
+- Log change intent
+- Offer rollback or diffs
+- Respect the format's schema or structure
+
+**Left-handed Skinkty Flink** is excluded, as it is not yet supported by any deterministic library. 😏

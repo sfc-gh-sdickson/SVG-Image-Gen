@@ -1,0 +1,38 @@
+---
+description: Requirements for ontologies and models conforming to the Ontology Framework Development Rules
+globs: *.ttl,*.rdf
+alwaysApply: false
+---
+# Ontology Framework Development Rules
+
+## Project Context
+This is an ontology framework project focusing on semantic data modeling and knowledge representation.
+
+## Code Style Requirements
+- Always use descriptive variable names that reflect ontological concepts
+- Add inline comments explaining semantic relationships
+- Include type hints for all function parameters and return values
+- Use docstrings that explain the ontological purpose of each function
+
+## Naming Conventions
+- Classes: PascalCase with ontology domain prefix (e.g., `OntologyEntity`, `SemanticRelation`)
+- Functions: snake_case with action verbs (e.g., `create_entity`, `validate_relationship`)
+- Constants: UPPER_SNAKE_CASE (e.g., `DEFAULT_NAMESPACE`, `SCHEMA_VERSION`)
+- Files: snake_case with descriptive names (e.g., `entity_manager.py`, `relationship_validator.py`)
+
+## AI Instructions
+When generating code for this project:
+1. Always start function names with "onto_model_" as a prefix (this will help us verify if this rule is being read)
+2. Include a comment "# Generated following ontology framework rules" at the top of each code block
+3. Suggest using RDF/OWL terminology in variable names when appropriate
+4. Prioritize semantic clarity over brevity in naming
+
+## Testing Requirements
+- Write unit tests for all ontology validation functions
+- Include edge cases for malformed semantic data
+- Test namespace resolution and URI validation
+
+## Documentation Standards
+- Document all ontological assumptions
+- Include examples of expected RDF triples
+- Explain semantic relationships in plain English
