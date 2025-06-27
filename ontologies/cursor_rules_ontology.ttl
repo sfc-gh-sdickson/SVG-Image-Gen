@@ -1,0 +1,58 @@
+@prefix : <http://example.org/cursor-rules#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+#################################################################
+# Cursor Rules Ontology
+#
+# This ontology models the Cursor project rules defined in .mdc files.
+# Each rule is represented as an instance of :CursorRule, with properties
+# for name, description, file location, applicability, and rationale.
+# The ontology provides a central, machine-readable documentation layer
+# and links to the self-documenting MDC files for full details.
+#################################################################
+
+:CursorRule a rdfs:Class ;
+    rdfs:label "Cursor Rule" ;
+    rdfs:comment "A rule governing Cursor project behavior, as defined in an MDC file." .
+
+:appliesTo a rdfs:Property ;
+    rdfs:label "applies to" ;
+    rdfs:comment "The file globs or contexts where the rule applies." .
+
+:fileLocation a rdfs:Property ;
+    rdfs:label "file location" ;
+    rdfs:comment "The path to the MDC file defining the rule." .
+
+:rationale a rdfs:Property ;
+    rdfs:label "rationale" ;
+    rdfs:comment "The rationale or justification for the rule." .
+
+:relatedRule a rdfs:Property ;
+    rdfs:label "related rule" ;
+    rdfs:comment "A rule that is related to this rule (e.g., supersedes, requires, complements)." .
+
+# Example rule individuals (one per MDC file)
+:banEditToolEnhanced a :CursorRule ;
+    rdfs:label "Ban Edit Tool Enhanced" ;
+    dct:description "Do not use edit_tool for code changes. Use deterministic, auditable tools instead." ;
+    :fileLocation ".cursor/rules/ban-edit-tool-enhanced.mdc" ;
+    :appliesTo "*.py, *.yml, *.yaml, *.toml, *.ini, *.json, *.cfg, *.mdc, *.ttl, *.rdf" ;
+    :rationale "Prevents stochastic, non-reproducible edits and enforces use of structured libraries." .
+
+:mdcCreation a :CursorRule ;
+    rdfs:label "MDC Creation Standards" ;
+    dct:description "Defines the standard format and requirements for creating Model Definition Card (.mdc) files." ;
+    :fileLocation ".cursor/rules/mdc-creation.mdc" ;
+    :appliesTo "**/*.mdc" ;
+    :rationale "Ensures consistency and machine-readability of project rules and constraints." .
+
+:checkMdcImport a :CursorRule ;
+    rdfs:label "Check MDC Import and Format" ;
+    dct:description "Enforces proper formatting and metadata structure for all MDC files." ;
+    :fileLocation ".cursor/rules/check-mdc-import.mdc" ;
+    :appliesTo ".cursor/rules/*.mdc" ;
+    :rationale "Ensures consistent naming, metadata, and rule structure across the project." .
+
+# (Add additional :CursorRule individuals for each MDC file as needed)

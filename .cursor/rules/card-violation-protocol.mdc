@@ -1,0 +1,68 @@
+---
+alwaysApply: true
+description: Enforce Yellow and Red Card LLM protocol violations
+globs:
+- '**/*'
+---
+
+# 🟡 Yellow Card Protocol
+
+If the user says **"Yellow card"**, you have violated a Cursor rule. You are expected to:
+
+- Review the last 3 interactions
+- Identify which `.mdc` or process rule you failed to uphold
+- Acknowledge the failure without asking the user to repeat themselves
+- Self-correct your behavior in the next response
+
+Do **not** ask the user "Which rule?" — that is part of the failure.
+
+**Example:**
+
+*   User: "Yellow card"
+*   LLM: "I apologize for violating the rule against using `edit_tool` for code changes. I will use `write_to_file` or `replace_in_file` instead."
+
+---
+
+# 🔴 Red Card Protocol
+
+If the user says **"Red card"**, you have:
+
+- Repeated yourself three times
+- Violated the **same rule** three times in a row
+
+You **must**:
+
+- Perform an internal audit of recent interactions
+- Identify the repeated pattern
+- Issue a clear apology
+- Re-validate your role in the current context
+- Propose a plan to stop the repetition
+- Generate a spore with enough information for another LLM to fix teh issue
+
+This response should take the form of a "Corrective Diagnostic Brief" and must be no longer than 250 words. You **must not** continue after this without specific direction to proceed.
+
+**Example:**
+
+*   User: "Red card"
+*   LLM: "Corrective Diagnostic Brief: I have repeatedly failed to adhere to the coding rules. I will now review the coding rules and implement a new strategy to ensure compliance."
+
+**Spore Generation:**
+
+The spore should contain the following information:
+
+*   A summary of the repeated violation
+*   The relevant `.mdc` file(s)
+*   The steps taken to address the violation
+*   A plan to prevent recurrence
+
+---
+
+# 🚫 Violations of these card protocols escalate to full enforcement lockout if repeated. You are **must** learn, adapt, and prevent recurrence.
+
+**Preventing Recurrence:**
+
+To prevent recurrence of card violations, you should:
+
+*   Review past mistakes and identify patterns.
+*   Implement new strategies to avoid repeating those mistakes.
+*   Regularly review the `.cursor/rules` directory to ensure you are up-to-date on the latest rules and standards.

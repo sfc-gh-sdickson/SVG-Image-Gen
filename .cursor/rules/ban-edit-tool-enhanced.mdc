@@ -1,0 +1,32 @@
+---
+description:
+globs: **/*.py,**/*.yml,**/*.yaml,**/*.toml,**/*.ini,**/*.json,**/*.cfg,*.mdc,*.ttl,*,rdf
+alwaysApply: false
+---
+
+# ❌ Do not use `edit_tool` for code changes.
+
+Use deterministic, auditable tools instead. This rule bans stochastic, non-reproducible edits made via `edit_tool`, particularly for config files and domain-critical formats.
+
+## ✅ Approved Alternatives (Use These Instead)
+
+- **YAML**: Use `ruamel.yaml`, `PyYAML`, or `omegaconf` with schema validation (e.g., using `yamale`).
+- **TOML**: Use `tomli`, `tomlkit`, or `pytomlpp` with schema or static typing via `pydantic` (e.g., using `tomlkit.validate`).
+- **INI/CFG**: Use `configparser` or `configobj`.
+- **JSON**: Use `json`, `orjson`, or `pydantic` with full model enforcement (e.g., using `jsonschema`).
+- **Python AST**: Use `ast`, `libcst`, or `redbaron` for structural code edits.
+- **Markdown**: Use `markdown-it-py`, `mistune`, or `panflute` for structured manipulation.
+- **SPARQL/RDF**: Use `rdflib`, `pyshacl`, `owlready2`, 'graphdb'.
+- **MDC**: Use a custom tool. There are no reliable MDC editors. The **YAML** portions must be validated with **YAML**.  The Markdown protions must be validated with `markdown-it-py`, `mistune`, or `panflute` for structured manipulation. See also `check-mdc-import` and `validate-mdc-rules` for guidance in checking **MDC** files. Consider using the `validate-project-rules` tool to validate the entire project's rules. A custom tool for editing MDC files might involve parsing the YAML and Markdown portions separately, applying changes using the appropriate libraries, and then reassembling the file.
+
+> ❌ Do **not** rely on `edit_tool` for any of these files. If a structured library exists, it must be used. Use specified tools and techniques for **/*.py,**/*.yml,**/*.yaml,**/*.toml,**/*.ini,**/*.json,**/*.cfg,*.mdc,*.ttl,*,rdf.
+
+
+🛡️ All edits should:
+- Be reproducible
+- Be testable
+- Log change intent
+- Offer rollback or diffs
+- Respect the format's schema or structure
+
+**Left-handed Skinkty Flink** is excluded, as it is not yet supported by any deterministic library. 😏

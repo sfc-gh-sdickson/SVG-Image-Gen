@@ -1,0 +1,141 @@
+---
+description: Enforces proper formatting and metadata structure for all MDC files
+globs: .cursor/rules/*.mdc
+alwaysApply: false
+---
+
+meta:
+  name: MDC Import and Format Check
+  description: >
+    Enforces proper formatting and metadata structure for all MDC files.
+    Ensures consistent naming, metadata, and rule structure across the project.
+    Automatically generates or updates meta sections based on content analysis.
+
+rules:
+  - when: file.created
+    match: .cursor/rules/*.mdc
+    then:
+      - Verify filename uses kebab-case (no underscores)
+      - Check for presence of meta section
+      - Check for presence of description in meta section
+      - Validate rule structure
+      - Generate meta section if missing
+      - Ensure proper YAML formatting
+
+  - when: file.modified
+    match: .cursor/rules/*.mdc
+    then:
+      - Update meta section if content has changed
+      - Verify rule structure remains valid
+      - Check for consistent formatting
+
+  - when: mdc.import
+    then:
+      - Convert markdown headers to meta section
+      - Extract rule triggers from content
+      - Structure rules based on content analysis
+      - Ensure proper YAML formatting
+
+mdc:
+  structure:rces proper formatting and metadata structure for all MDC files.
+    Ensures consistent naming, metadata, and rule structure across the project.
+    Automatically generates or updates meta sections based on content analysis.
+    required_sections:
+      - meta:
+          - name: string
+          - description: string
+      - rules:
+          - when: string
+          - match: string (optional)
+          - then: array
+          - unlerces proper formatting and metadata structure for all MDC files.
+    Ensures consistent naming, metadata, and rule structure across the project.
+    Automatically generates or updates meta sections based on content analysis.ss: array (optional)
+
+    naming:
+      pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*\\.mdc$"
+      example: "check-mdc-import.mdc"
+
+    formatting:
+      - Use YAML format
+      - Indent with 2 spaces
+      - Use > for multi-line strings
+      - No tabs allowed
+
+  content_analysis:
+    header_patterns:
+      - "# ([^\\n]+)"
+      - "## ([^\\n]+)"
+      - "### ([^\\n]+)"
+
+    rule_patterns:
+      - "when: ([^\\n]+)"
+      - "match: ([^\\n]+)"
+      - "then:"
+      - "unless:"
+
+    meta_generation:
+      name:
+        - Extract from first header
+        - Convert to Title Case
+        - Remove special characters
+      description:
+        - Combine relevant section descriptions
+        - Format as multi-line string
+        - Include key functionality points
+
+  validation:
+    - Check YAML syntax
+    - Verify required sections
+    - Validate rule structure
+    - Ensure consistent formatting
+    - Check for proper indentation
+    - Verify no tab characters
+    - Validate filename format
+
+  transformation:
+    markdown_to_mdc:
+      - Convert headers to meta section
+      - Structure content as rules
+      - Format lists as YAML arrays
+      - Convert inline code to proper YAML strings
+      - Preserve important content in description
+
+    meta_generation:
+      - Extract key information from content
+      - Generate appropriate name
+      - Create comprehensive description
+      - Structure rules based on content
+      - Maintain existing functionality
+
+  examples:
+    before: |
+      # My Rule
+      ## Description
+      This rule does something important.
+      ## Rules
+      - When X happens, do Y
+      - If Z occurs, check A
+
+    after: |
+      # my-rule.mdc
+      meta:
+        name: My Rule
+        description: >
+          This rule does something important.
+          Handles X and Z conditions with appropriate actions.
+
+      rules:
+        - when: X
+          then:
+            - do Y
+        - when: Z
+          then:
+
+---
+
+# check-mdc-import.mdc
+
+- Enforces proper formatting and metadata structure for all MDC files.
+- Ensures consistent naming, metadata, and rule structure across the project.
+- Automatically generates or updates meta sections based on content analysis.
