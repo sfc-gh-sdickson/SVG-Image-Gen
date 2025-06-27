@@ -27,7 +27,10 @@ Package: snowflake-snowpark-python
 Version: >= 1.8.0
 Purpose: Native Python library for Snowflake data programming
 Usage:
-  - Snowflake session management
+  - Three-tier authentication system:
+    1. Active session management (get_active_session)
+    2. Connection parameter detection (Session.builder.create)
+    3. Environment variable configuration (Session.builder.configs)
   - SQL query execution
   - DataFrame operations
   - File operations with stages

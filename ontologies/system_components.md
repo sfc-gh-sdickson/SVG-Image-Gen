@@ -73,9 +73,13 @@ Responsibilities:
 Component: SessionManager
 Purpose: Snowflake session lifecycle management
 Responsibilities:
+  - Three-tier authentication system:
+    1. Active session detection (SiS environment)
+    2. Connection parameter authentication (various Snowflake environments)
+    3. Environment variable authentication (local development)
   - Session creation and validation
   - Connection pooling and management
-  - Authentication handling
+  - Authentication handling with graceful fallback
   - Context switching
   - Session cleanup and error recovery
 
@@ -83,6 +87,7 @@ Dependencies:
   - snowflake-snowpark-python
   - Environment configuration
   - Error handling service
+  - Connection parameter detection
 
 Configuration:
   - Connection parameters
@@ -90,6 +95,7 @@ Configuration:
   - Timeout configurations
   - Retry policies
   - Error thresholds
+  - Authentication method priority
 ```
 
 #### B. AI Generation Service

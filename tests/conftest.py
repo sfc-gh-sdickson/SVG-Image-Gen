@@ -144,11 +144,10 @@ def pytest_addoption(parser):
     )
 
 
-# Skip slow tests by default
 def pytest_collection_modifyitems(config, items):
-    """Skip slow tests by default unless --runslow is passed."""
-    if not config.getoption("--runslow"):
-        skip_slow = pytest.mark.skip(reason="need --runslow option to run")
-        for item in items:
-            if "slow" in item.keywords:
-                item.add_marker(skip_slow)
+    """Add markers to tests based on their characteristics."""
+    skip_slow = pytest.mark.skip(reason="Slow test - run with --runslow")
+
+    for item in items:
+        if "slow" in item.keywords:
+            item.add_marker(skip_slow)

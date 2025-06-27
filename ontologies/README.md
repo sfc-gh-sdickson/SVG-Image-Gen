@@ -44,7 +44,15 @@ This directory contains comprehensive model artifacts and documentation for the 
 - Testing and monitoring strategies
 - Scalability and maintenance procedures
 
-### 6. [Requirements.txt](./requirements.txt)
+### 6. [Requirements Traceability](./requirements_traceability.md)
+**Purpose**: Complete traceability between requirements and test cases
+- Functional, non-functional, and development requirements
+- Test-to-requirement mapping matrix
+- Coverage analysis and quality gates
+- Verification criteria and continuous improvement
+- 100% requirements coverage with 168 test cases (130 passed, 38 failed)
+
+### 7. [Requirements.txt](./requirements.txt)
 **Purpose**: Package dependency specification
 - Core runtime dependencies
 - Development and testing dependencies
@@ -105,9 +113,13 @@ The SVG Image Generation system follows a layered architecture pattern:
 ## 🔐 Security Model
 
 ### Authentication
-- Uses active Snowflake session
+- Three-tier authentication system:
+  1. **Active Session**: Uses active Snowflake session (Streamlit in Snowflake environment)
+  2. **Connection Parameters**: Uses connection parameters from various Snowflake environments (worksheets, notebooks, CLI config)
+  3. **Environment Variables**: Uses explicit credentials for local development
 - Inherits user's Snowflake permissions
 - No additional authentication required
+- Graceful fallback between authentication methods
 
 ### Authorization
 - Role-based access control
@@ -150,16 +162,35 @@ The SVG Image Generation system follows a layered architecture pattern:
 - Error handling scenarios
 - UI component interactions
 
+### Real Connection Smoke Test
+
+A smoke test is provided to verify that your Snowflake connection profile in `~/.snowflake/connections.toml` works as expected.
+
+- By default, the test uses the `[default]` profile.
+- To use a different profile, set the `TEST_SNOWFLAKE_CONNECTION` environment variable.
+
+Example:
+```bash
+pytest tests/test_authentication.py -k smoke_connect_via_connections_toml -v -s
+# or for a custom profile
+TEST_SNOWFLAKE_CONNECTION=YOUR_PROFILE pytest tests/test_authentication.py -k smoke_connect_via_connections_toml -v -s
+```
+The test will attempt to connect and run `SELECT 1`. It will be skipped if the connection cannot be established.
+
 ## 🚀 Deployment
 
 ### Environment Requirements
-- Snowflake account with SiS enabled
+- Snowflake account with SiS enabled (for active session authentication)
+- OR Snowflake account with connection parameters configured (for connection parameter authentication)
+- OR Snowflake account with environment variables set (for local development)
 - Cortex AI access
 - Appropriate role permissions
 - Network access to Snowflake APIs
 
 ### Configuration
-- Environment variables for connection parameters
+- Environment variables for connection parameters (local development)
+- Connection parameter detection (various Snowflake environments)
+- Active session detection (Streamlit in Snowflake)
 - Model selection and configuration
 - Storage and cleanup policies
 - Error handling and logging levels

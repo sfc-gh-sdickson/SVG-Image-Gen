@@ -1,5 +1,42 @@
 # Data Models for SVG Image Generation System
 
+## Requirements Traceability, Risk Management, and Stakeholder Mapping
+
+### 1. Requirements Traceability Matrix
+| Requirement ID | Description | Code/Model Component | Status |
+|---------------|-------------|----------------------|--------|
+| REQ-1 | Only show user-accessible databases, schemas, and stages | discover_user_context, get_accessible_databases, get_accessible_schemas, get_accessible_stages | Implemented |
+| REQ-2 | Prevent invalid model selection and runtime errors | get_available_cortex_models, validate_cortex_model, safe_cortex_call, UI model dropdown | Implemented |
+| REQ-3 | Provide clear, actionable error messages for all runtime errors | safe_cortex_call, handle_context_errors, Streamlit error reporting | Implemented |
+| REQ-4 | Log all errors and context for maintainers | logging in all error handling functions | Implemented |
+| REQ-5 | Allow user to create new stages if needed | UI logic for stage creation | Implemented |
+| REQ-6 | Support prompt sandwich approach for SVG generation | implement_prompt_sandwich, refine_prompt_with_cortex, generate_svg_with_refined_prompt | Implemented |
+| REQ-7 | Ensure all requirements are testable and tested | tests/test_runtime_errors.py, tests/test_context_discovery.py | Implemented |
+| REQ-8 | Document all requirements, risks, and stakeholder needs | ontologies/data_models.md, ontologies/functional_dependencies.md | Implemented |
+
+### 2. Risk Management Table
+| Risk ID | Description | Mitigation/Status | Accepted/Deferred |
+|---------|-------------|-------------------|------------------|
+| RISK-1 | User selects a model not available in Snowflake | Dynamic model discovery, validation before use, user feedback | Mitigated |
+| RISK-2 | Permission errors for DB/schema/stage | Only show accessible resources, validate before use, clear error reporting | Mitigated |
+| RISK-3 | Cortex service outage or timeout | Error handling, user feedback, logging | Mitigated |
+| RISK-4 | Unclear error messages | All errors surfaced with actionable messages, logs for maintainers | Mitigated |
+| RISK-5 | User confusion about available models | UI only shows available models, instructions updated | Mitigated |
+| RISK-6 | Security: privilege escalation or data leak | Only show resources in user context, validate permissions | Mitigated |
+| RISK-7 | Deferred: Full audit logging for compliance | Not yet implemented | Deferred |
+| RISK-8 | Deferred: Automated recovery from service outages | Not yet implemented | Deferred |
+
+### 3. Stakeholder Mapping
+| Stakeholder | Perspective/Need | How Addressed |
+|-------------|------------------|---------------|
+| End User | Needs a simple, error-free UI that only shows what they can access | Dynamic dropdowns, error handling, clear instructions |
+| Admin | Needs to ensure users can't access unauthorized resources | Context discovery, permission validation |
+| Maintainer | Needs logs and error context for debugging | Logging, error reporting, test coverage |
+| Security/Compliance | Needs to ensure no privilege escalation or data leaks | Context-aware resource discovery, permission checks |
+| Developer | Needs requirements, risks, and flows to be documented and testable | Ontologies, traceability matrix, tests |
+
+---
+
 ## Entity Relationship Model
 
 ### Core Entities
@@ -18,27 +55,85 @@ Attributes:
   - is_active: BOOLEAN
 ```
 
-#### 2. SVG Generation Request
+#### 2. User Context
+```yaml
+Entity: UserContext
+Attributes:
+  - context_id: UUID (Primary Key)
+  - session_id: UUID (Foreign Key -> UserSession)
+  - user_role: STRING
+  - warehouse: STRING
+  - current_database: STRING
+  - current_schema: STRING
+  - accessible_databases: ARRAY<STRING>
+  - accessible_schemas: ARRAY<STRING>
+  - accessible_stages: ARRAY<STRING>
+  - available_models: ARRAY<STRING>
+  - cortex_access: BOOLEAN
+  - permissions_level: ENUM('admin', 'user', 'readonly')
+  - discovered_at: TIMESTAMP
+  - last_validated: TIMESTAMP
+```
+
+#### 3. SVG Generation Request
 ```yaml
 Entity: SVGGenerationRequest
 Attributes:
   - request_id: UUID (Primary Key)
   - session_id: UUID (Foreign Key -> UserSession)
+  - context_id: UUID (Foreign Key -> UserContext)
   - prompt_text: STRING
   - selected_model: STRING
   - filename: STRING
   - stage_name: STRING
+  - database: STRING
+  - schema: STRING
   - created_at: TIMESTAMP
   - status: ENUM('pending', 'processing', 'completed', 'failed')
   - error_message: STRING (nullable)
 ```
 
-#### 3. Generated SVG
+#### 4. Prompt Sandwich Session
+```yaml
+Entity: PromptSandwichSession
+Attributes:
+  - sandwich_id: UUID (Primary Key)
+  - request_id: UUID (Foreign Key -> SVGGenerationRequest)
+  - raw_prompt: STRING
+  - refined_prompt: STRING
+  - generation_prompt: STRING
+  - model_used: STRING
+  - refinement_time_ms: INTEGER
+  - generation_time_ms: INTEGER
+  - total_time_ms: INTEGER
+  - refinement_success: BOOLEAN
+  - generation_success: BOOLEAN
+  - created_at: TIMESTAMP
+```
+
+#### 5. Error Event
+```yaml
+Entity: ErrorEvent
+Attributes:
+  - error_id: UUID (Primary Key)
+  - session_id: UUID (Foreign Key -> UserSession)
+  - context_id: UUID (Foreign Key -> UserContext)
+  - error_type: STRING
+  - error_message: STRING
+  - error_code: STRING
+  - occurred_at: TIMESTAMP
+  - mitigated: BOOLEAN
+  - user_visible: BOOLEAN
+  - stack_trace: STRING (nullable)
+```
+
+#### 6. Generated SVG
 ```yaml
 Entity: GeneratedSVG
 Attributes:
   - svg_id: UUID (Primary Key)
   - request_id: UUID (Foreign Key -> SVGGenerationRequest)
+  - sandwich_id: UUID (Foreign Key -> PromptSandwichSession)
   - svg_content: STRING (CLOB)
   - file_size: INTEGER
   - stage_path: STRING
@@ -47,7 +142,7 @@ Attributes:
   - processing_time_ms: INTEGER
 ```
 
-#### 4. Snowflake Stage
+#### 7. Snowflake Stage
 ```yaml
 Entity: SnowflakeStage
 Attributes:
@@ -61,7 +156,7 @@ Attributes:
   - last_modified: TIMESTAMP
 ```
 
-#### 5. Temporary Table
+#### 8. Temporary Table
 ```yaml
 Entity: TemporaryTable
 Attributes:
@@ -73,44 +168,108 @@ Attributes:
   - table_type: ENUM('TRANSIENT', 'TEMPORARY')
 ```
 
-## Data Flow Models
-
-### 1. SVG Generation Flow
-```mermaid
-graph TD
-    A[User Input] --> B[Session Validation]
-    B --> C[Context Setup]
-    C --> D[Prompt Construction]
-    D --> E[Cortex AI Call]
-    E --> F[SVG Content Extraction]
-    F --> G[Content Validation]
-    G --> H[Temporary Table Creation]
-    H --> I[Stage Upload]
-    I --> J[Cleanup]
-    J --> K[Success Response]
+#### 9. Context Discovery Log
+```yaml
+Entity: ContextDiscoveryLog
+Attributes:
+  - discovery_id: UUID (Primary Key)
+  - session_id: UUID (Foreign Key -> UserSession)
+  - discovery_type: ENUM('databases', 'schemas', 'stages', 'models', 'permissions')
+  - target_database: STRING (nullable)
+  - target_schema: STRING (nullable)
+  - discovered_count: INTEGER
+  - success: BOOLEAN
+  - error_message: STRING (nullable)
+  - discovery_time_ms: INTEGER
+  - discovered_at: TIMESTAMP
 ```
 
-### 2. Data Transformation Pipeline
+## Data Flow Models
+
+### 1. Enhanced SVG Generation Flow
+```mermaid
+graph TD
+    A[User Input] --> B[Context Discovery]
+    B --> C[Model Discovery]
+    C --> D[Permission Validation]
+    D --> E[Context Setup]
+    E --> F[Prompt Sandwich]
+    F --> G[Raw Prompt Refinement]
+    G --> H[SVG Generation]
+    H --> I[Content Validation]
+    I --> J[Storage Preparation]
+    J --> K[Stage Upload]
+    K --> L[Cleanup]
+    L --> M[Success/Error Response]
+```
+
+### 2. Error Handling Flow
+```mermaid
+graph TD
+    A[Operation] --> B[Error Detected]
+    B --> C[Error Classification]
+    C --> D[Mitigation/Reporting]
+    D --> E[User Notification]
+    D --> F[Logging]
+    D --> G[Stack Trace Capture]
+    D --> H[Risk Table Update]
+```
+
+### 3. Context Discovery Flow
+```mermaid
+graph TD
+    A[Session Established] --> B[Discover Databases]
+    B --> C[Validate Database Access]
+    C --> D[Discover Schemas]
+    D --> E[Validate Schema Access]
+    E --> F[Discover Stages]
+    F --> G[Validate Stage Access]
+    G --> H[Build Context Model]
+    H --> I[Cache Context]
+```
+
+### 4. Prompt Sandwich Flow
+```mermaid
+graph TD
+    A[Raw User Prompt] --> B[Prompt Analysis]
+    B --> C[Cortex Refinement]
+    C --> D[Refined Prompt]
+    D --> E[SVG Generation Prompt]
+    E --> F[Cortex Generation]
+    F --> G[SVG Content]
+    G --> H[Content Validation]
+    H --> I[Final SVG]
+```
+
+### 5. Data Transformation Pipeline
 ```yaml
-Pipeline: SVGGenerationPipeline
+Pipeline: EnhancedSVGGenerationPipeline
 Stages:
-  1. Input Processing:
+  1. Context Discovery:
+     - User session validation
+     - Database discovery
+     - Schema discovery
+     - Stage discovery
+     - Permission validation
+  2. Input Processing:
      - Text sanitization
      - Model validation
      - Filename generation
-  2. AI Processing:
-     - Prompt engineering
-     - Cortex API call
-     - Response parsing
-  3. Content Processing:
+     - Context validation
+  3. Prompt Sandwich Processing:
+     - Raw prompt analysis
+     - Cortex refinement
+     - Generation prompt creation
+     - AI processing
+  4. Content Processing:
      - SVG extraction
      - Format validation
      - Size calculation
-  4. Storage Processing:
+  5. Storage Processing:
      - Temporary table creation
      - Content insertion
      - Stage copy operation
-  5. Cleanup:
+  6. Cleanup:
      - Temporary table removal
      - Resource deallocation
 ```
@@ -131,15 +290,38 @@ CREATE OR REPLACE TABLE user_sessions (
 );
 ```
 
-### 2. SVG Generation Requests Schema
+### 2. User Context Schema
+```sql
+CREATE OR REPLACE TABLE user_contexts (
+    context_id STRING PRIMARY KEY,
+    session_id STRING REFERENCES user_sessions(session_id),
+    user_role STRING NOT NULL,
+    warehouse STRING NOT NULL,
+    current_database STRING,
+    current_schema STRING,
+    accessible_databases ARRAY,
+    accessible_schemas ARRAY,
+    accessible_stages ARRAY,
+    cortex_access BOOLEAN DEFAULT FALSE,
+    permissions_level STRING DEFAULT 'user',
+    discovered_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    last_validated TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CONSTRAINT valid_permissions_level CHECK (permissions_level IN ('admin', 'user', 'readonly'))
+);
+```
+
+### 3. SVG Generation Requests Schema
 ```sql
 CREATE OR REPLACE TABLE svg_generation_requests (
     request_id STRING PRIMARY KEY,
     session_id STRING REFERENCES user_sessions(session_id),
+    context_id STRING REFERENCES user_contexts(context_id),
     prompt_text STRING NOT NULL,
     selected_model STRING NOT NULL,
     filename STRING NOT NULL,
     stage_name STRING NOT NULL,
+    database STRING NOT NULL,
+    schema STRING NOT NULL,
     created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
     status STRING DEFAULT 'pending',
     error_message STRING,
@@ -147,11 +329,31 @@ CREATE OR REPLACE TABLE svg_generation_requests (
 );
 ```
 
-### 3. Generated SVGs Schema
+### 4. Prompt Sandwich Sessions Schema
+```sql
+CREATE OR REPLACE TABLE prompt_sandwich_sessions (
+    sandwich_id STRING PRIMARY KEY,
+    request_id STRING REFERENCES svg_generation_requests(request_id),
+    raw_prompt STRING NOT NULL,
+    refined_prompt STRING NOT NULL,
+    generation_prompt STRING NOT NULL,
+    model_used STRING NOT NULL,
+    refinement_time_ms INTEGER,
+    generation_time_ms INTEGER,
+    total_time_ms INTEGER,
+    refinement_success BOOLEAN DEFAULT FALSE,
+    generation_success BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CONSTRAINT positive_times CHECK (refinement_time_ms >= 0 AND generation_time_ms >= 0 AND total_time_ms >= 0)
+);
+```
+
+### 5. Generated SVGs Schema
 ```sql
 CREATE OR REPLACE TABLE generated_svgs (
     svg_id STRING PRIMARY KEY,
     request_id STRING REFERENCES svg_generation_requests(request_id),
+    sandwich_id STRING REFERENCES prompt_sandwich_sessions(sandwich_id),
     svg_content STRING NOT NULL,
     file_size INTEGER NOT NULL,
     stage_path STRING NOT NULL,
@@ -163,7 +365,26 @@ CREATE OR REPLACE TABLE generated_svgs (
 );
 ```
 
-### 4. Temporary Tables Schema
+### 6. Context Discovery Log Schema
+```sql
+CREATE OR REPLACE TABLE context_discovery_logs (
+    discovery_id STRING PRIMARY KEY,
+    session_id STRING REFERENCES user_sessions(session_id),
+    discovery_type STRING NOT NULL,
+    target_database STRING,
+    target_schema STRING,
+    discovered_count INTEGER DEFAULT 0,
+    success BOOLEAN DEFAULT FALSE,
+    error_message STRING,
+    discovery_time_ms INTEGER,
+    discovered_at TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP(),
+    CONSTRAINT valid_discovery_type CHECK (discovery_type IN ('databases', 'schemas', 'stages', 'permissions')),
+    CONSTRAINT positive_discovery_count CHECK (discovered_count >= 0),
+    CONSTRAINT positive_discovery_time CHECK (discovery_time_ms >= 0)
+);
+```
+
+### 7. Temporary Tables Schema
 ```sql
 CREATE OR REPLACE TABLE temporary_tables (
     table_name STRING PRIMARY KEY,
@@ -200,844 +421,305 @@ Validation Rules:
   - stage_name:
       - min_length: 1
       - max_length: 255
-      - pattern: "^[A-Z][A-Z0-9_]*$"
+      - pattern: "^[a-zA-Z][a-zA-Z0-9\\_]*$"
+      - required: true
+
+  - database:
+      - min_length: 1
+      - max_length: 255
+      - pattern: "^[a-zA-Z][a-zA-Z0-9\\_]*$"
+      - required: true
+
+  - schema:
+      - min_length: 1
+      - max_length: 255
+      - pattern: "^[a-zA-Z][a-zA-Z0-9\\_]*$"
       - required: true
 ```
 
-### 2. SVG Content Validation
+### 2. Context Validation
 ```yaml
-SVG Validation:
-  - must_start_with: "<svg"
-  - must_end_with: "</svg>"
-  - must_contain_viewbox: true
-  - max_size_bytes: 1048576  # 1MB
-  - allowed_elements: ["svg", "rect", "circle", "ellipse", "line", "polyline", "polygon", "path", "text", "g", "defs", "style"]
-  - forbidden_attributes: ["onclick", "onload", "onerror", "javascript:"]
+Context Validation Rules:
+  - accessible_databases:
+      - min_count: 1
+      - max_count: 1000
+      - unique_values: true
+      - valid_names: true
+
+  - accessible_schemas:
+      - min_count: 0
+      - max_count: 1000
+      - unique_values: true
+      - valid_names: true
+
+  - accessible_stages:
+      - min_count: 0
+      - max_count: 1000
+      - unique_values: true
+      - valid_names: true
+
+  - permissions_level:
+      - allowed_values: ["admin", "user", "readonly"]
+      - required: true
 ```
 
-## Data Access Patterns
-
-### 1. Read Patterns
+### 3. Prompt Sandwich Validation
 ```yaml
-Frequent Queries:
-  - Get active session info
-  - List stage contents
-  - Retrieve SVG by request ID
-  - Get generation history
-  - Check temporary table status
+Prompt Sandwich Validation:
+  - raw_prompt:
+      - min_length: 10
+      - max_length: 1000
+      - required: true
+
+  - refined_prompt:
+      - min_length: 10
+      - max_length: 2000
+      - required: true
+      - svg_optimized: true
+
+  - generation_prompt:
+      - min_length: 50
+      - max_length: 3000
+      - required: true
+      - contains_svg_instructions: true
+
+  - processing_times:
+      - refinement_time_ms: >= 0
+      - generation_time_ms: >= 0
+      - total_time_ms: >= 0
+      - max_total_time: 300000  # 5 minutes
 ```
 
-### 2. Write Patterns
+## Performance Optimization Strategies
+
+### 1. Context Caching
 ```yaml
-Write Operations:
-  - Create temporary table
-  - Insert SVG content
-  - Update request status
-  - Clean up temporary resources
-  - Log generation metrics
+Caching Strategy:
+  - Context Discovery Cache:
+      - TTL: 300 seconds (5 minutes)
+      - Invalidation: On session change
+      - Storage: Session state
+      - Scope: User session
+
+  - Permission Cache:
+      - TTL: 600 seconds (10 minutes)
+      - Invalidation: On role change
+      - Storage: Application cache
+      - Scope: User role
 ```
 
-## Performance Considerations
+### 2. Query Optimization
+```yaml
+Query Optimization:
+  - Database Discovery:
+      - Use SHOW DATABASES with LIMIT
+      - Cache results for 5 minutes
+      - Filter by user permissions
 
-### 1. Indexing Strategy
-```sql
--- Primary indexes (already defined)
--- Secondary indexes for performance
-CREATE INDEX idx_svg_requests_session ON svg_generation_requests(session_id);
-CREATE INDEX idx_svg_requests_status ON svg_generation_requests(status);
-CREATE INDEX idx_svg_requests_created ON svg_generation_requests(created_at);
-CREATE INDEX idx_generated_svgs_request ON generated_svgs(request_id);
-CREATE INDEX idx_temp_tables_request ON temporary_tables(request_id);
+  - Schema Discovery:
+      - Use SHOW SCHEMAS IN DATABASE
+      - Cache per database
+      - Lazy loading on demand
+
+  - Stage Discovery:
+      - Use SHOW STAGES IN SCHEMA
+      - Cache per schema
+      - Refresh on context change
 ```
 
-### 2. Partitioning Strategy
+### 3. Memory Management
 ```yaml
-Partitioning:
-  - svg_generation_requests: PARTITION BY DATE(created_at)
-  - generated_svgs: PARTITION BY DATE(generated_at)
-  - user_sessions: PARTITION BY DATE(created_at)
+Memory Management:
+  - SVG Content:
+      - Max size: 10MB per SVG
+      - Compression: GZIP for storage
+      - Streaming: For large files
+
+  - Context Data:
+      - Max databases: 1000
+      - Max schemas per database: 1000
+      - Max stages per schema: 1000
+      - Pagination: For large lists
 ```
 
-### 3. Clustering Strategy
+## Security Considerations
+
+### 1. Access Control
 ```yaml
-Clustering:
-  - svg_generation_requests: CLUSTER BY (session_id, status)
-  - generated_svgs: CLUSTER BY (request_id, model_used)
-  - temporary_tables: CLUSTER BY (request_id, table_type)
+Access Control:
+  - Database Access:
+      - Validate user permissions
+      - Check role assignments
+      - Audit access patterns
+
+  - Schema Access:
+      - Validate schema permissions
+      - Check ownership
+      - Monitor usage
+
+  - Stage Access:
+      - Validate stage permissions
+      - Check CREATE/INSERT privileges
+      - Audit file operations
 ```
 
-## Data Retention Policies
-
-### 1. Temporary Data
+### 2. Data Protection
 ```yaml
-Retention Rules:
-  - temporary_tables: Clean up immediately after use
-  - session_cache: TTL of 1 hour
-  - error_logs: Retain for 30 days
+Data Protection:
+  - Input Sanitization:
+      - SQL injection prevention
+      - XSS prevention
+      - Path traversal prevention
+
+  - Output Encoding:
+      - HTML encoding
+      - URL encoding
+      - JSON encoding
+
+  - Temporary Data:
+      - Automatic cleanup
+      - Secure deletion
+      - Access logging
 ```
 
-### 2. Persistent Data
+### 3. Audit Trail
 ```yaml
-Retention Rules:
-  - svg_generation_requests: Retain for 1 year
-  - generated_svgs: Retain for 2 years
-  - user_sessions: Retain for 90 days
-  - stage_files: Retain indefinitely (user managed)
+Audit Trail:
+  - User Actions:
+      - Context discovery
+      - SVG generation
+      - File uploads
+      - Error conditions
+
+  - System Events:
+      - Authentication
+      - Authorization
+      - Resource access
+      - Performance metrics
 ```
 
-## Data Security Model
+## Error Handling Models
 
-### 1. Encryption
+### 1. Context Discovery Errors
 ```yaml
-Encryption Standards:
-  - data_at_rest: AES-256
-  - data_in_transit: TLS 1.3
-  - temporary_data: Transient encryption
+Context Discovery Error Types:
+  - Permission Denied:
+      - Error Code: CONTEXT_001
+      - Severity: HIGH
+      - Action: Stop execution
+      - User Message: "Insufficient permissions"
+
+  - Resource Not Found:
+      - Error Code: CONTEXT_002
+      - Severity: MEDIUM
+      - Action: Skip resource
+      - User Message: "Resource not accessible"
+
+  - Network Timeout:
+      - Error Code: CONTEXT_003
+      - Severity: MEDIUM
+      - Action: Retry with backoff
+      - User Message: "Connection timeout"
 ```
 
-### 2. Access Control
+### 2. Prompt Sandwich Errors
 ```yaml
-Access Levels:
-  - user: Can only access own data
-  - admin: Can access all data
-  - system: Can access temporary resources
+Prompt Sandwich Error Types:
+  - Refinement Failure:
+      - Error Code: SANDWICH_001
+      - Severity: MEDIUM
+      - Action: Use original prompt
+      - User Message: "Using original prompt"
+
+  - Generation Failure:
+      - Error Code: SANDWICH_002
+      - Severity: HIGH
+      - Action: Stop execution
+      - User Message: "SVG generation failed"
+
+  - Model Unavailable:
+      - Error Code: SANDWICH_003
+      - Severity: HIGH
+      - Action: Suggest alternative
+      - User Message: "Model not available"
 ```
 
-### 3. Data Masking
+### 3. Storage Errors
 ```yaml
-Masking Rules:
-  - error_messages: Mask sensitive information
-  - session_details: Mask connection strings
-  - file_paths: Sanitize for logging
+Storage Error Types:
+  - Stage Creation Failure:
+      - Error Code: STORAGE_001
+      - Severity: HIGH
+      - Action: Stop execution
+      - User Message: "Cannot create stage"
+
+  - Upload Failure:
+      - Error Code: STORAGE_002
+      - Severity: HIGH
+      - Action: Retry upload
+      - User Message: "Upload failed"
+
+  - Cleanup Failure:
+      - Error Code: STORAGE_003
+      - Severity: LOW
+      - Action: Log and continue
+      - User Message: "Cleanup warning"
 ```
 
-## Core Data Models
+## Monitoring and Metrics
 
-### 1. Application State Models
-
-#### A. Session State Model
+### 1. Performance Metrics
 ```yaml
-Model: SessionState
-Purpose: Application session state management
-Properties:
-  - session: Snowflake session object
-  - is_connected: Boolean connection status
-  - current_context: Context information
-  - error_state: Error information
-  - cache_data: Cached data dictionary
+Performance Metrics:
+  - Context Discovery:
+      - Discovery time per resource type
+      - Success rate per resource type
+      - Cache hit rate
+      - Error rate
 
-Context Information:
-  - database: String database name
-  - schema: String schema name
-  - warehouse: String warehouse name
-  - role: String role name
+  - Prompt Sandwich:
+      - Refinement time
+      - Generation time
+      - Success rate
+      - Quality metrics
 
-Error Information:
-  - has_error: Boolean error status
-  - error_message: String error description
-  - error_type: String error category
-  - error_timestamp: DateTime error occurrence
-
-Cached Data:
-  - stage_contents: List of stage files
-  - configuration: Application configuration
-  - type_stubs: Type stub information
-  - validation_results: Validation cache
+  - Storage Operations:
+      - Upload time
+      - File size distribution
+      - Success rate
+      - Cleanup time
 ```
 
-#### B. User Input Model
+### 2. Business Metrics
 ```yaml
-Model: UserInput
-Purpose: User input validation and processing
-Properties:
-  - prompt_text: String SVG description
-  - selected_model: String AI model name
-  - filename: String output filename
-  - stage_name: String Snowflake stage name
-  - database: String target database
-  - schema: String target schema
+Business Metrics:
+  - User Engagement:
+      - Active sessions
+      - SVG generations per session
+      - Context switches
+      - Error frequency
 
-Validation Rules:
-  - prompt_text: Required, non-empty, max 1000 chars
-  - selected_model: Required, valid model name
-  - filename: Required, valid filename format
-  - stage_name: Required, valid Snowflake identifier
-  - database: Optional, valid Snowflake identifier
-  - schema: Optional, valid Snowflake identifier
-
-Model Options:
-  - openai-gpt-4.1
-  - claude-4-sonnet
-  - claude-3-7-sonnet
-  - claude-3-5-sonnet
+  - Resource Usage:
+      - Database access patterns
+      - Schema usage
+      - Stage utilization
+      - Model preferences
 ```
 
-#### C. Generation Request Model
+### 3. Error Metrics
 ```yaml
-Model: GenerationRequest
-Purpose: AI generation request structure
-Properties:
-  - request_id: String unique identifier
-  - prompt: String processed prompt
-  - model: String selected model
-  - parameters: Dictionary model parameters
-  - timestamp: DateTime request time
-  - user_context: User context information
-
-Model Parameters:
-  - temperature: Float creativity level (0.0-1.0)
-  - max_tokens: Integer maximum response length
-  - top_p: Float nucleus sampling parameter
-  - frequency_penalty: Float repetition penalty
-  - presence_penalty: Float topic penalty
-
-User Context:
-  - session_id: String session identifier
-  - user_id: String user identifier
-  - environment: String deployment environment
-  - permissions: List of user permissions
-```
-
-### 2. AI Response Models
-
-#### A. Cortex Response Model
-```yaml
-Model: CortexResponse
-Purpose: Snowflake Cortex AI response structure
-Properties:
-  - response_id: String unique identifier
-  - content: String raw response content
-  - model_used: String model identifier
-  - generation_time: Float processing time
-  - tokens_used: Integer token count
-  - cost: Float estimated cost
-  - status: String response status
-
-Response Status:
-  - success: Successful generation
-  - error: Generation error
-  - timeout: Request timeout
-  - rate_limited: Rate limit exceeded
-  - invalid_input: Invalid input error
-
-Content Processing:
-  - raw_content: String unprocessed content
-  - svg_content: String extracted SVG
-  - validation_status: String validation result
-  - processing_errors: List of processing errors
-```
-
-#### B. SVG Content Model
-```yaml
-Model: SVGContent
-Purpose: SVG content validation and processing
-Properties:
-  - content: String SVG markup
-  - filename: String output filename
-  - size_bytes: Integer content size
-  - validation_status: String validation result
-  - processing_metadata: Dictionary metadata
-
-Validation Status:
-  - valid: Valid SVG content
-  - invalid: Invalid SVG content
-  - partial: Partially valid content
-  - empty: Empty or null content
-
-Processing Metadata:
-  - extraction_method: String extraction method
-  - processing_time: Float processing duration
-  - content_type: String content type
-  - encoding: String character encoding
-  - compression: Boolean compression status
-```
-
-### 3. Storage Models
-
-#### A. Stage Information Model
-```yaml
-Model: StageInfo
-Purpose: Snowflake stage metadata and management
-Properties:
-  - stage_name: String stage identifier
-  - stage_url: String stage URL
-  - created_at: DateTime creation time
-  - file_count: Integer number of files
-  - total_size: Integer total size in bytes
-  - permissions: List of permissions
-  - metadata: Dictionary stage metadata
-
-Stage Metadata:
-  - owner: String stage owner
-  - comment: String stage description
-  - tags: List of stage tags
-  - retention_time: Integer retention period
-  - encryption: String encryption status
-
-File Information:
-  - files: List of file objects
-  - last_modified: DateTime last modification
-  - access_patterns: List of access patterns
-  - cleanup_policy: String cleanup policy
-```
-
-#### B. File Storage Model
-```yaml
-Model: FileStorage
-Purpose: File storage and retrieval information
-Properties:
-  - file_id: String unique identifier
-  - filename: String file name
-  - content: String file content
-  - size_bytes: Integer file size
-  - mime_type: String content type
-  - created_at: DateTime creation time
-  - expires_at: DateTime expiration time
-  - metadata: Dictionary file metadata
-
-File Metadata:
-  - checksum: String file checksum
-  - compression: Boolean compression status
-  - encryption: String encryption status
-  - access_count: Integer access count
-  - last_accessed: DateTime last access time
-
-Storage Information:
-  - storage_location: String storage location
-  - storage_type: String storage type
-  - access_url: String access URL
-  - permissions: List of access permissions
-```
-
-### 4. Development Data Models
-
-#### A. Type Stub Management Model
-```yaml
-Model: TypeStubInfo
-Purpose: Type stub detection and management
-Properties:
-  - package_name: String package identifier
-  - stub_package: String stub package name
-  - status: String stub status
-  - detection_time: DateTime detection time
-  - installation_time: DateTime installation time
-  - validation_status: String validation result
-
-Stub Status:
-  - missing: Stub not installed
-  - installed: Stub installed
-  - outdated: Stub needs update
-  - incompatible: Stub incompatible
-  - built_in: Built-in module
-
-Validation Status:
-  - valid: Stub works correctly
-  - invalid: Stub has issues
-  - untested: Stub not tested
-  - error: Validation error
-
-Package Mapping:
-  - original_name: String original package name
-  - mapped_name: String mapped stub name
-  - mapping_type: String mapping category
-  - special_case: Boolean special handling
-  - built_in: Boolean built-in module
-```
-
-#### B. Development Workflow Model
-```yaml
-Model: WorkflowState
-Purpose: Development workflow state tracking
-Properties:
-  - workflow_id: String unique identifier
-  - current_step: String current workflow step
-  - status: String workflow status
-  - start_time: DateTime workflow start
-  - end_time: DateTime workflow completion
-  - steps_completed: List of completed steps
-  - errors: List of workflow errors
-
-Workflow Steps:
-  - code_changes: Code modification step
-  - type_stub_check: Type stub validation
-  - auto_fix_stubs: Automatic stub fixing
-  - code_formatting: Code formatting
-  - linting: Code linting
-  - type_checking: Type checking
-  - security_scan: Security scanning
-  - testing: Test execution
-  - commit: Code commit
-
-Workflow Status:
-  - running: Workflow in progress
-  - completed: Workflow completed
-  - failed: Workflow failed
-  - paused: Workflow paused
-  - cancelled: Workflow cancelled
-```
-
-#### C. Code Quality Model
-```yaml
-Model: QualityMetrics
-Purpose: Code quality measurement and tracking
-Properties:
-  - metric_id: String unique identifier
-  - metric_type: String metric category
-  - value: Float metric value
-  - threshold: Float quality threshold
-  - status: String quality status
-  - timestamp: DateTime measurement time
-  - context: Dictionary measurement context
-
-Metric Types:
-  - type_coverage: Type annotation coverage
-  - test_coverage: Test coverage percentage
-  - code_complexity: Cyclomatic complexity
-  - security_score: Security assessment score
-  - performance_score: Performance metrics
-  - maintainability: Maintainability index
-
-Quality Status:
-  - excellent: Above threshold
-  - good: Near threshold
-  - acceptable: Below threshold
-  - poor: Well below threshold
-  - critical: Critical issues
-
-Measurement Context:
-  - file_path: String file being measured
-  - function_name: String function being measured
-  - tool_used: String measurement tool
-  - configuration: Dictionary tool configuration
-```
-
-### 5. Configuration Models
-
-#### A. Application Configuration Model
-```yaml
-Model: AppConfig
-Purpose: Application configuration management
-Properties:
-  - environment: String deployment environment
-  - version: String application version
-  - features: Dictionary feature flags
-  - settings: Dictionary application settings
-  - integrations: Dictionary integration configs
-  - security: Dictionary security settings
-
-Environment Types:
-  - development: Local development
-  - testing: Testing environment
-  - staging: Staging environment
-  - production: Production environment
-  - sis: Streamlit in Snowflake
-
-Feature Flags:
-  - type_checking: Boolean type checking enabled
-  - auto_stub_management: Boolean auto stub management
-  - security_scanning: Boolean security scanning
-  - performance_monitoring: Boolean performance monitoring
-  - debug_mode: Boolean debug mode
-
-Application Settings:
-  - cache_ttl: Integer cache time-to-live
-  - max_file_size: Integer maximum file size
-  - timeout_seconds: Integer operation timeout
-  - retry_attempts: Integer retry attempts
-  - log_level: String logging level
-```
-
-#### B. Development Configuration Model
-```yaml
-Model: DevConfig
-Purpose: Development environment configuration
-Properties:
-  - tools: Dictionary development tools
-  - workflows: Dictionary workflow configurations
-  - quality_gates: Dictionary quality thresholds
-  - automation: Dictionary automation settings
-  - monitoring: Dictionary monitoring settings
-
-Development Tools:
-  - mypy: Mypy configuration
-  - black: Black formatter configuration
-  - ruff: Ruff linter configuration
-  - pytest: Pytest configuration
-  - pre_commit: Pre-commit configuration
-
-Workflow Configurations:
-  - type_stub_management: Type stub workflow
-  - code_quality: Code quality workflow
-  - testing: Testing workflow
-  - deployment: Deployment workflow
-  - monitoring: Monitoring workflow
-
-Quality Gates:
-  - type_coverage_threshold: Float minimum type coverage
-  - test_coverage_threshold: Float minimum test coverage
-  - security_score_threshold: Float minimum security score
-  - performance_threshold: Float performance requirements
-  - maintainability_threshold: Float maintainability requirements
-```
-
-### 6. Error and Logging Models
-
-#### A. Error Model
-```yaml
-Model: ErrorInfo
-Purpose: Error tracking and management
-Properties:
-  - error_id: String unique identifier
-  - error_type: String error category
-  - error_message: String error description
-  - stack_trace: String stack trace
-  - timestamp: DateTime error occurrence
-  - context: Dictionary error context
-  - severity: String error severity
-  - resolution: String resolution status
-
-Error Categories:
-  - session_error: Session management errors
-  - ai_generation_error: AI generation errors
-  - storage_error: Storage operation errors
-  - validation_error: Input validation errors
-  - development_error: Development tool errors
-  - configuration_error: Configuration errors
-
-Error Severity:
-  - critical: System failure
-  - error: Operation failure
-  - warning: Potential issue
-  - info: Informational message
-  - debug: Debug information
-
-Error Context:
-  - user_id: String user identifier
-  - session_id: String session identifier
-  - operation: String operation being performed
-  - input_data: Dictionary input data
-  - environment: String environment information
-```
-
-#### B. Log Entry Model
-```yaml
-Model: LogEntry
-Purpose: Application logging structure
-Properties:
-  - log_id: String unique identifier
-  - timestamp: DateTime log time
-  - level: String log level
-  - message: String log message
-  - source: String log source
-  - context: Dictionary log context
-  - metadata: Dictionary additional metadata
-
-Log Levels:
-  - debug: Debug information
-  - info: General information
-  - warning: Warning messages
-  - error: Error messages
-  - critical: Critical errors
-
-Log Sources:
-  - application: Main application
-  - session_manager: Session management
-  - ai_generator: AI generation service
-  - storage_manager: Storage service
-  - type_stub_manager: Type stub management
-  - pre_commit: Pre-commit hooks
-  - development_tools: Development tools
-
-Log Context:
-  - user_id: String user identifier
-  - session_id: String session identifier
-  - request_id: String request identifier
-  - operation: String operation name
-  - duration: Float operation duration
-  - result: String operation result
-```
-
-### 7. Performance Models
-
-#### A. Performance Metrics Model
-```yaml
-Model: PerformanceMetrics
-Purpose: Performance measurement and tracking
-Properties:
-  - metric_id: String unique identifier
-  - metric_name: String metric name
-  - value: Float metric value
-  - unit: String measurement unit
-  - timestamp: DateTime measurement time
-  - context: Dictionary measurement context
-  - thresholds: Dictionary performance thresholds
-
-Metric Categories:
-  - response_time: Response time measurements
-  - throughput: Throughput measurements
-  - resource_usage: Resource utilization
-  - error_rate: Error rate measurements
-  - quality_metrics: Quality measurements
-
-Measurement Units:
-  - milliseconds: Time measurements
-  - requests_per_second: Throughput measurements
-  - percentage: Percentage measurements
-  - bytes: Size measurements
-  - count: Count measurements
-
-Performance Thresholds:
-  - warning: Warning threshold
-  - critical: Critical threshold
-  - target: Target performance
-  - minimum: Minimum acceptable
-  - maximum: Maximum acceptable
-```
-
-#### B. Cache Performance Model
-```yaml
-Model: CacheMetrics
-Purpose: Cache performance tracking
-Properties:
-  - cache_id: String cache identifier
-  - cache_type: String cache type
-  - hit_rate: Float cache hit rate
-  - miss_rate: Float cache miss rate
-  - size_bytes: Integer cache size
-  - max_size_bytes: Integer maximum size
-  - eviction_count: Integer eviction count
-  - access_count: Integer access count
-
-Cache Types:
-  - session_cache: Session caching
-  - data_cache: Data caching
-  - config_cache: Configuration caching
-  - type_stub_cache: Type stub caching
-  - validation_cache: Validation caching
-
-Cache Performance:
-  - hit_ratio: Float hit ratio percentage
-  - miss_ratio: Float miss ratio percentage
-  - efficiency: Float cache efficiency
-  - utilization: Float cache utilization
-  - performance_impact: Float performance impact
-```
-
-### 8. Security Models
-
-#### A. Security Assessment Model
-```yaml
-Model: SecurityAssessment
-Purpose: Security vulnerability assessment
-Properties:
-  - assessment_id: String unique identifier
-  - assessment_type: String assessment type
-  - scan_time: DateTime scan time
-  - vulnerabilities: List of vulnerabilities
-  - risk_score: Float overall risk score
-  - status: String assessment status
-  - recommendations: List of recommendations
-
-Assessment Types:
-  - code_scan: Code security scanning
-  - dependency_scan: Dependency vulnerability scanning
-  - configuration_scan: Configuration security scanning
-  - runtime_scan: Runtime security scanning
-  - compliance_scan: Compliance scanning
-
-Vulnerability Information:
-  - vulnerability_id: String vulnerability identifier
-  - severity: String vulnerability severity
-  - description: String vulnerability description
-  - cve_id: String CVE identifier
-  - affected_component: String affected component
-  - remediation: String remediation steps
-
-Risk Levels:
-  - critical: Critical security risk
-  - high: High security risk
-  - medium: Medium security risk
-  - low: Low security risk
-  - info: Informational finding
-```
-
-#### B. Access Control Model
-```yaml
-Model: AccessControl
-Purpose: Access control and permissions
-Properties:
-  - user_id: String user identifier
-  - role: String user role
-  - permissions: List of permissions
-  - access_level: String access level
-  - restrictions: List of restrictions
-  - audit_trail: List of access events
-
-Permission Types:
-  - read: Read permissions
-  - write: Write permissions
-  - execute: Execute permissions
-  - admin: Administrative permissions
-  - development: Development permissions
-
-Access Levels:
-  - full: Full access
-  - limited: Limited access
-  - read_only: Read-only access
-  - restricted: Restricted access
-  - no_access: No access
-
-Access Events:
-  - event_id: String event identifier
-  - timestamp: DateTime event time
-  - action: String action performed
-  - resource: String resource accessed
-  - result: String action result
-  - context: Dictionary event context
-```
-
-### 9. Testing Models
-
-#### A. Test Result Model
-```yaml
-Model: TestResult
-Purpose: Test execution and result tracking
-Properties:
-  - test_id: String test identifier
-  - test_name: String test name
-  - test_type: String test type
-  - status: String test status
-  - execution_time: Float execution time
-  - result_data: Dictionary test results
-  - coverage: Dictionary coverage information
-
-Test Types:
-  - unit_test: Unit tests
-  - integration_test: Integration tests
-  - type_test: Type checking tests
-  - security_test: Security tests
-  - performance_test: Performance tests
-
-Test Status:
-  - passed: Test passed
-  - failed: Test failed
-  - skipped: Test skipped
-  - error: Test error
-  - timeout: Test timeout
-
-Coverage Information:
-  - line_coverage: Float line coverage percentage
-  - branch_coverage: Float branch coverage percentage
-  - function_coverage: Float function coverage percentage
-  - type_coverage: Float type coverage percentage
-  - uncovered_lines: List of uncovered lines
-```
-
-#### B. Test Suite Model
-```yaml
-Model: TestSuite
-Purpose: Test suite organization and execution
-Properties:
-  - suite_id: String suite identifier
-  - suite_name: String suite name
-  - test_cases: List of test cases
-  - configuration: Dictionary suite configuration
-  - execution_plan: Dictionary execution plan
-  - results_summary: Dictionary results summary
-
-Test Cases:
-  - case_id: String case identifier
-  - case_name: String case name
-  - description: String case description
-  - prerequisites: List of prerequisites
-  - test_data: Dictionary test data
-  - expected_result: Dictionary expected result
-
-Execution Plan:
-  - execution_order: List of execution order
-  - parallel_execution: Boolean parallel execution
-  - timeout_settings: Dictionary timeout settings
-  - retry_policy: Dictionary retry policy
-  - cleanup_procedures: List of cleanup procedures
-
-Results Summary:
-  - total_tests: Integer total test count
-  - passed_tests: Integer passed test count
-  - failed_tests: Integer failed test count
-  - skipped_tests: Integer skipped test count
-  - execution_time: Float total execution time
-  - success_rate: Float success rate percentage
-```
-
-### 10. Deployment Models
-
-#### A. Deployment Configuration Model
-```yaml
-Model: DeploymentConfig
-Purpose: Deployment configuration and management
-Properties:
-  - deployment_id: String deployment identifier
-  - environment: String target environment
-  - version: String deployment version
-  - configuration: Dictionary deployment configuration
-  - dependencies: List of dependencies
-  - health_checks: List of health checks
-
-Deployment Configuration:
-  - resources: Dictionary resource requirements
-  - environment_variables: Dictionary environment variables
-  - service_configuration: Dictionary service configuration
-  - monitoring_configuration: Dictionary monitoring configuration
-  - security_configuration: Dictionary security configuration
-
-Health Checks:
-  - check_id: String check identifier
-  - check_type: String check type
-  - endpoint: String check endpoint
-  - timeout: Integer timeout seconds
-  - interval: Integer check interval
-  - threshold: Integer failure threshold
-
-Resource Requirements:
-  - cpu_cores: Integer CPU cores
-  - memory_mb: Integer memory in MB
-  - storage_gb: Integer storage in GB
-  - network_bandwidth: String network bandwidth
-  - gpu_requirements: Dictionary GPU requirements
-```
-
-#### B. Environment Model
-```yaml
-Model: Environment
-Purpose: Environment configuration and management
-Properties:
-  - environment_id: String environment identifier
-  - environment_name: String environment name
-  - environment_type: String environment type
-  - status: String environment status
-  - configuration: Dictionary environment configuration
-  - resources: Dictionary available resources
-
-Environment Types:
-  - development: Development environment
-  - testing: Testing environment
-  - staging: Staging environment
-  - production: Production environment
-  - sis: Streamlit in Snowflake
-
-Environment Status:
-  - active: Environment active
-  - inactive: Environment inactive
-  - maintenance: Environment in maintenance
-  - error: Environment error
-  - deploying: Environment deploying
-
-Environment Configuration:
-  - snowflake_config: Dictionary Snowflake configuration
-  - streamlit_config: Dictionary Streamlit configuration
-  - development_config: Dictionary development configuration
-  - monitoring_config: Dictionary monitoring configuration
-  - security_config: Dictionary security configuration
+Error Metrics:
+  - Error Distribution:
+      - Error types by frequency
+      - Error severity distribution
+      - Error resolution time
+      - User impact assessment
+
+  - Recovery Metrics:
+      - Automatic recovery rate
+      - Manual intervention rate
+      - Mean time to resolution
+      - User satisfaction impact
 ```
 
 This comprehensive data model structure ensures proper data organization, validation, and management across all system components and development workflows.
