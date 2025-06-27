@@ -1,51 +1,14 @@
 # Functional Dependencies for SVG Image Generation System
 
-## Requirements Traceability, Risk Management, and Stakeholder Mapping
+## 🔗 Core Functional Dependencies
 
-### 1. Requirements Traceability Matrix
-| Requirement ID | Description | Code/Model Component | Status |
-|---------------|-------------|----------------------|--------|
-| REQ-1 | Only show user-accessible databases, schemas, and stages | discover_user_context, get_accessible_databases, get_accessible_schemas, get_accessible_stages | Implemented |
-| REQ-2 | Prevent invalid model selection and runtime errors | get_available_cortex_models, validate_cortex_model, safe_cortex_call, UI model dropdown | Implemented |
-| REQ-3 | Provide clear, actionable error messages for all runtime errors | safe_cortex_call, handle_context_errors, Streamlit error reporting | Implemented |
-| REQ-4 | Log all errors and context for maintainers | logging in all error handling functions | Implemented |
-| REQ-5 | Allow user to create new stages if needed | UI logic for stage creation | Implemented |
-| REQ-6 | Support prompt sandwich approach for SVG generation | implement_prompt_sandwich, refine_prompt_with_cortex, generate_svg_with_refined_prompt | Implemented |
-| REQ-7 | Ensure all requirements are testable and tested | tests/test_runtime_errors.py, tests/test_context_discovery.py | Implemented |
-| REQ-8 | Document all requirements, risks, and stakeholder needs | ontologies/data_models.md, ontologies/functional_dependencies.md | Implemented |
+### 1. Authentication and Session Management
 
-### 2. Risk Management Table
-| Risk ID | Description | Mitigation/Status | Accepted/Deferred |
-|---------|-------------|-------------------|------------------|
-| RISK-1 | User selects a model not available in Snowflake | Dynamic model discovery, validation before use, user feedback | Mitigated |
-| RISK-2 | Permission errors for DB/schema/stage | Only show accessible resources, validate before use, clear error reporting | Mitigated |
-| RISK-3 | Cortex service outage or timeout | Error handling, user feedback, logging | Mitigated |
-| RISK-4 | Unclear error messages | All errors surfaced with actionable messages, logs for maintainers | Mitigated |
-| RISK-5 | User confusion about available models | UI only shows available models, instructions updated | Mitigated |
-| RISK-6 | Security: privilege escalation or data leak | Only show resources in user context, validate permissions | Mitigated |
-| RISK-7 | Deferred: Full audit logging for compliance | Not yet implemented | Deferred |
-| RISK-8 | Deferred: Automated recovery from service outages | Not yet implemented | Deferred |
-
-### 3. Stakeholder Mapping
-| Stakeholder | Perspective/Need | How Addressed |
-|-------------|------------------|---------------|
-| End User | Needs a simple, error-free UI that only shows what they can access | Dynamic dropdowns, error handling, clear instructions |
-| Admin | Needs to ensure users can't access unauthorized resources | Context discovery, permission validation |
-| Maintainer | Needs logs and error context for debugging | Logging, error reporting, test coverage |
-| Security/Compliance | Needs to ensure no privilege escalation or data leaks | Context-aware resource discovery, permission checks |
-| Developer | Needs requirements, risks, and flows to be documented and testable | Ontologies, traceability matrix, tests |
-
----
-
-## System Functional Dependencies
-
-### 1. Core Functional Dependencies
-
-#### A. Session Management Dependencies
+#### A. Session Creation Dependencies
 ```yaml
 Function: get_session()
 Dependencies:
-  - snowflake-snowpark-python package
+  - snowflake-snowpark-python[pandas]>=1.12.0 package
   - Three-tier authentication system:
     1. Active Snowflake connection (SiS environment) - get_active_session()
     2. Connection parameters (various Snowflake environments) - Session.builder.create()
@@ -98,706 +61,406 @@ Dependencies:
   - SQL execution permissions
   - Network connectivity
 Output: SVG content string
-Error Handling: AI service errors, timeout, invalid responses, model errors
+Error Handling: Model failures, timeouts, content validation errors, service errors
 ```
 
-#### E. Error Handling and Logging Dependencies
-```yaml
-Function: handle_context_errors(), safe_cortex_call(), logging
-Dependencies:
-  - All core functions
-  - Error classification logic
-  - Logging configuration
-  - Streamlit error reporting
-Output: User-facing error messages, logs, stack traces
-Error Handling: All known and unknown error cases
-```
+### 2. Data Transport Dependencies
 
-### 2. Development Workflow Dependencies
-
-#### A. Type Stub Management Dependencies
+#### A. DataFrame Operations Dependencies
 ```yaml
-Function: fix_missing_type_stubs()
+Function: session.sql().to_pandas(), session.table().to_pandas()
 Dependencies:
-  - mypy package
-  - Python executable
-  - requirements-dev.txt file
-  - Comprehensive package mapping
-  - Subprocess execution capabilities
-  - File system write permissions
-Output: Updated requirements-dev.txt, installed stubs
-Error Handling: Missing packages, installation failures, mapping errors
-```
-
-#### B. Pre-commit Hook Dependencies
-```yaml
-Function: pre_commit_hooks()
-Dependencies:
-  - pre-commit package
-  - Git repository
-  - All development tools (black, ruff, mypy, etc.)
-  - Type stub management script
-  - File system access
-Output: Clean commits, formatted code, type safety
-Error Handling: Hook failures, tool errors, configuration issues
-```
-
-#### C. Environment Management Dependencies
-```yaml
-Function: environment_setup()
-Dependencies:
-  - python-dotenv package (local development)
-  - Environment variable configuration
-  - Snowflake credentials (local development)
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - nanoarrow (internal, managed by Snowflake packages)
+  - Valid Snowflake session
+  - SQL execution permissions
   - Network connectivity
-  - File system permissions
-Output: Configured development environment
-Error Handling: Missing credentials, network issues, permission errors
+  - Memory for DataFrame storage
+Output: Pandas DataFrame
+Error Handling: Transport failures, memory errors, permission errors
+Transport Layer:
+  - Primary: nanoarrow (internal, automatic)
+  - Fallback: pyarrow (if available and needed)
+  - Detection: Runtime capability detection
 ```
 
-### 3. Data Flow Dependencies
-
-#### A. Input Processing Chain
-```mermaid
-graph TD
-    A[User Input] --> B[Input Validation]
-    B --> C[Session Validation]
-    C --> D[Context Setup]
-    D --> E[Model Discovery]
-    E --> F[Model Validation]
-    F --> G[Prompt Construction]
-    G --> H[AI Generation]
-    H --> I[Content Processing]
-    I --> J[Storage Preparation]
-    J --> K[File Upload]
-    K --> L[Cleanup]
-```
-
-#### B. Error Handling Chain
-```mermaid
-graph TD
-    A[Operation] --> B[Error Detected]
-    B --> C[Error Classification]
-    C --> D[Mitigation/Reporting]
-    D --> E[User Notification]
-    D --> F[Logging]
-    D --> G[Stack Trace Capture]
-    D --> H[Risk Table Update]
-```
-
-#### C. Development Workflow Chain
-```mermaid
-graph TD
-    A[Code Changes] --> B[Pre-commit Hooks]
-    B --> C[Type Stub Check]
-    C --> D[Auto-fix Stubs]
-    D --> E[Code Formatting]
-    E --> F[Linting]
-    F --> G[Type Checking]
-    G --> H[Security Scan]
-    H --> I[Commit]
-```
-
----
-
-## Component Dependencies
-
-### 1. Frontend Component Dependencies
-
-#### A. Streamlit UI Components
+#### B. Data Serialization Dependencies
 ```yaml
-Page Configuration:
-  - streamlit package
-  - Page title and icon
-  - Layout configuration
-  - Session state management
-
-Sidebar Components:
-  - Stage name input
-  - Database/schema inputs (dynamic dropdowns)
-  - Model selection dropdown (dynamic, validated)
-  - Configuration validation
-  - User feedback
-
-Main Interface:
-  - Text area for prompts
-  - Model selection dropdown
-  - File naming interface
-  - Generation button
-  - Progress indicators
-  - Result display
-  - Error reporting
+Function: DataFrame serialization/deserialization
+Dependencies:
+  - nanoarrow (internal, managed by Snowflake)
+  - Memory allocation for data
+  - Network bandwidth for data transfer
+  - CPU for serialization processing
+Output: Serialized/deserialized data
+Error Handling: Serialization errors, memory errors, network errors
+Performance Monitoring:
+  - Serialization time
+  - Memory usage
+  - Network transfer time
+  - Error rates
 ```
 
-#### B. UI State Management
+### 3. Storage and File Management Dependencies
+
+#### A. Stage Management Dependencies
 ```yaml
-State Dependencies:
-  - Session state persistence
-  - Form validation state
-  - Loading state management
-  - Error state handling
-  - Success state display
-  - Cache invalidation
+Function: create_stage(), list_stages(), drop_stage()
+Dependencies:
+  - Valid Snowflake session
+  - CREATE STAGE permissions
+  - Database and schema access
+  - Storage quota availability
+Output: Stage creation/management status
+Error Handling: Permission errors, quota exceeded, storage errors
 ```
 
-### 2. Backend Component Dependencies
-
-#### A. Context Discovery and Model Validation
+#### B. File Operations Dependencies
 ```yaml
-Backend Dependencies:
-  - discover_user_context()
-  - get_available_cortex_models()
-  - validate_cortex_model()
-  - get_accessible_databases(), get_accessible_schemas(), get_accessible_stages()
-  - Logging and error handling
+Function: upload_file(), download_file(), delete_file()
+Dependencies:
+  - Valid Snowflake session
+  - Stage access permissions
+  - File system access (local)
+  - Network connectivity
+  - Storage space availability
+Output: File operation status
+Error Handling: Permission errors, network errors, storage errors
 ```
 
-#### B. Prompt Sandwich and SVG Generation
+#### C. Metadata Management Dependencies
 ```yaml
-Backend Dependencies:
-  - implement_prompt_sandwich()
-  - refine_prompt_with_cortex()
-  - generate_svg_with_refined_prompt()
-  - safe_cortex_call()
-  - Error handling and logging
+Function: store_metadata(), retrieve_metadata(), update_metadata()
+Dependencies:
+  - Valid Snowflake session
+  - Table creation permissions
+  - Data insertion permissions
+  - Query execution permissions
+Output: Metadata operation status
+Error Handling: Permission errors, data errors, constraint violations
 ```
 
-#### C. Error Handling and Logging
+### 4. AI Service Dependencies
+
+#### A. Cortex AI Integration Dependencies
 ```yaml
-Backend Dependencies:
-  - handle_context_errors()
-  - Logging configuration
-  - User feedback via Streamlit
-  - Stack trace capture
-  - Risk table update
+Function: SNOWFLAKE.CORTEX.COMPLETE()
+Dependencies:
+  - Valid Snowflake session
+  - Cortex AI service enabled
+  - User permissions for Cortex
+  - Model availability
+  - Network connectivity to AI service
+  - Warehouse running
+Output: AI-generated content
+Error Handling: Service errors, model errors, timeout errors, permission errors
 ```
 
-### 3. Development Tools Dependencies
-
-#### A. Type Checking System
+#### B. Prompt Engineering Dependencies
 ```yaml
-Mypy Integration:
-  - mypy package
-  - Type stub packages (types-*)
-  - Configuration files
-  - Pre-commit integration
-  - IDE integration
-
-Stub Management:
-  - Automatic detection script
-  - Package mapping system
-  - Requirements file management
-  - Installation automation
-  - Error handling
+Function: refine_prompt(), implement_prompt_sandwich()
+Dependencies:
+  - Valid prompt input
+  - AI model capabilities
+  - Context information
+  - User preferences
+  - Content validation rules
+Output: Refined prompt
+Error Handling: Invalid input, model limitations, validation errors
 ```
 
-#### B. Code Quality Tools
+### 5. Error Handling and Recovery Dependencies
+
+#### A. Error Classification Dependencies
 ```yaml
-Formatting Tools:
-  - black (code formatter)
-  - isort (import sorter)
-  - ruff (fast linter)
-  - flake8 (style checker)
-
-Security Tools:
-  - bandit (security linter)
-  - safety (vulnerability scanner)
-  - Pre-commit hooks
-  - CI/CD integration
+Function: classify_error(), handle_error()
+Dependencies:
+  - Error information
+  - Error classification rules
+  - Context information
+  - Recovery strategies
+Output: Error classification and handling plan
+Error Handling: Classification failures, recovery failures
 ```
 
-### 4. AI Integration Dependencies
-
-#### A. Cortex AI Service
+#### B. Recovery Mechanism Dependencies
 ```yaml
-Model Selection:
-  - Available model list
-  - Model capabilities
-  - Performance characteristics
-  - Cost considerations
-  - Error handling
-
-Prompt Engineering:
-  - Input sanitization
-  - Prompt construction
-  - Context management
-  - Response parsing
-  - Validation
+Function: retry_operation(), fallback_operation()
+Dependencies:
+  - Original operation
+  - Retry configuration
+  - Fallback options
+  - Success criteria
+  - Timeout settings
+Output: Operation result or fallback result
+Error Handling: Retry exhaustion, fallback failures
 ```
 
-## Functional Workflows
+## 🔄 Data Flow Dependencies
 
-### 1. Primary Generation Workflow
+### 1. Primary Data Flow
 ```yaml
-Workflow: SVG_Generation_Main
-Steps:
-  1. User Input Collection:
-     - Validate prompt text
-     - Validate model selection
-     - Validate filename
-     - Validate stage name
-
-  2. Session Preparation:
-     - Get active session (SiS) or create session (local)
-     - Validate session state
-     - Switch context if needed
-
-  3. AI Generation:
-     - Construct Cortex prompt
-     - Execute AI query
-     - Parse response
-     - Validate SVG content
-
-  4. Storage Operations:
-     - Create stage if needed
-     - Create temporary table
-     - Insert SVG content
-     - Copy to stage
-     - Clean up temporary resources
-
-  5. Result Delivery:
-     - Display preview
-     - Provide download instructions
-     - Show success message
-     - Log metrics
+Flow: User Input → Session → Context → AI → Storage → Output
+Dependencies:
+  - User input validation
+  - Session establishment
+  - Context discovery
+  - AI service availability
+  - Storage access
+  - Output formatting
+Error Handling: Flow interruption, partial failures, rollback
 ```
 
-### 2. Development Workflow
+### 2. Error Recovery Flow
 ```yaml
-Workflow: Development_Process
-Steps:
-  1. Code Changes:
-     - Make code modifications
-     - Follow coding standards
-     - Add type annotations
-     - Write tests
-
-  2. Pre-commit Processing:
-     - Run type stub management
-     - Format code automatically
-     - Run linting checks
-     - Execute type checking
-     - Perform security scans
-
-  3. Testing:
-     - Run unit tests
-     - Execute integration tests
-     - Check test coverage
-     - Validate functionality
-
-  4. Documentation:
-     - Update README if needed
-     - Update CONTRIBUTING.md
-     - Update ontology files
-     - Review API documentation
-
-  5. Commit and Push:
-     - Create meaningful commit message
-     - Push to feature branch
-     - Create pull request
-     - Address review feedback
+Flow: Error Detection → Classification → Recovery → Continuation
+Dependencies:
+  - Error detection mechanisms
+  - Classification rules
+  - Recovery strategies
+  - State management
+  - User notification
+Error Handling: Recovery failures, cascading errors
 ```
 
-### 3. Type Stub Management Workflow
+## 🛠️ Technical Dependencies
+
+### 1. Runtime Dependencies
 ```yaml
-Workflow: Type_Stub_Management
-Steps:
-  1. Detection:
-     - Run mypy on codebase
-     - Parse output for missing stubs
-     - Identify package names
-     - Map to typeshed equivalents
+Core Runtime:
+  - streamlit>=1.30
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - snowflake-connector-python>=3.0.0
+  - cryptography>=41.0.0
 
-  2. Resolution:
-     - Check existing requirements
-     - Add missing stubs
-     - Handle special cases
-     - Skip built-in modules
+Optional Runtime:
+  - python-dotenv>=1.0.0 (local development)
+  - toml>=0.10.2 (connections.toml support)
 
-  3. Installation:
-     - Install new stubs
-     - Verify installation
-     - Test compatibility
-     - Update documentation
-
-  4. Validation:
-     - Re-run mypy
-     - Confirm errors resolved
-     - Check for new issues
-     - Update package mapping if needed
+Internal Dependencies:
+  - nanoarrow (managed by Snowflake packages)
+  - numpy (managed by Snowpark)
+  - pandas (managed by Snowpark)
 ```
 
-### 4. Error Recovery Workflow
+### 2. Development Dependencies
 ```yaml
-Workflow: Error_Recovery
-Steps:
-  1. Error Detection:
-     - Identify error type
-     - Capture error context
-     - Log error details
+Testing:
+  - pytest>=7.0.0
+  - pytest-mock>=3.10.0
+  - pytest-cov>=4.0.0
 
-  2. Error Classification:
-     - Session errors
-     - AI service errors
-     - Storage errors
-     - Validation errors
-     - Development tool errors
+Code Quality:
+  - black>=23.0.0
+  - flake8>=6.0.0
+  - mypy>=1.0.0
 
-  3. Recovery Actions:
-     - Retry logic
-     - Fallback options
-     - Resource cleanup
-     - User notification
-
-  4. State Recovery:
-     - Restore UI state
-     - Clear error conditions
-     - Reset form data
-     - Update status
+Security:
+  - bandit>=1.7.0
+  - safety>=2.0.0
 ```
 
-### 5. Cleanup Workflow
+### 3. Environment Dependencies
 ```yaml
-Workflow: Resource_Cleanup
-Steps:
-  1. Temporary Resource Identification:
-     - Temporary tables
-     - Cached data
-     - Session resources
-     - File handles
+SiS Environment:
+  - Python 3.9-3.11
+  - Snowflake-managed environment
+  - Limited package availability
+  - Active session authentication
 
-  2. Cleanup Execution:
-     - Drop temporary tables
-     - Clear caches
-     - Release connections
-     - Remove temporary files
+Local Development:
+  - Python >=3.9, <3.12
+  - Full package availability
+  - All authentication methods
+  - Development tools
 
-  3. Verification:
-     - Confirm cleanup success
-     - Log cleanup actions
-     - Update resource tracking
-     - Error handling
+Package Distribution:
+  - Python >=3.9, <3.12
+  - Full package availability
+  - All authentication methods
+  - User-managed environment
 ```
 
-## Dependency Injection Patterns
-
-### 1. Service Dependencies
-```python
-# Session service dependency
-@st.cache_resource
-def get_session_service():
-    return SessionService()
-
-# AI service dependency
-def get_ai_service(session):
-    return AIService(session)
-
-# Storage service dependency
-def get_storage_service(session):
-    return StorageService(session)
-
-# Type stub management service
-def get_stub_manager():
-    return StubManager()
-```
-
-### 2. Configuration Dependencies
-```yaml
-Configuration Dependencies:
-  - Environment variables
-  - Snowflake connection parameters
-  - AI model configurations
-  - Storage settings
-  - UI preferences
-  - Error handling policies
-  - Development tool configurations
-  - Type stub mappings
-```
-
-### 3. External Service Dependencies
-```yaml
-External Services:
-  - Snowflake Data Platform:
-      - Authentication service
-      - SQL execution engine
-      - File storage service
-      - AI service (Cortex)
-
-  - Streamlit Platform:
-      - Web server
-      - Session management
-      - UI rendering
-      - File handling
-
-  - Development Tools:
-      - PyPI (package installation)
-      - Typeshed (type stubs)
-      - Pre-commit hooks
-      - CI/CD services
-```
-
-## Performance Dependencies
-
-### 1. Caching Dependencies
-```yaml
-Cache Dependencies:
-  - Session caching:
-      - Cache key: user session
-      - TTL: 1 hour
-      - Invalidation: session timeout
-
-  - Data caching:
-      - Cache key: stage contents
-      - TTL: 1 hour
-      - Invalidation: manual refresh
-
-  - Configuration caching:
-      - Cache key: app configuration
-      - TTL: 24 hours
-      - Invalidation: config changes
-
-  - Type stub caching:
-      - Cache key: mypy results
-      - TTL: 1 hour
-      - Invalidation: requirements changes
-```
-
-### 2. Resource Management Dependencies
-```yaml
-Resource Dependencies:
-  - Memory management:
-      - Temporary data cleanup
-      - Result set limiting
-      - Connection pooling
-
-  - CPU management:
-      - Async operations
-      - Background processing
-      - Load balancing
-
-  - Network management:
-      - Connection pooling
-      - Retry logic
-      - Timeout handling
-
-  - Development resources:
-      - Type checking optimization
-      - Pre-commit hook efficiency
-      - Dependency resolution speed
-```
-
-## Security Dependencies
+## 🔐 Security Dependencies
 
 ### 1. Authentication Dependencies
+```yaml
+Tier 1 - Active Session:
+  - Snowflake session management
+  - Session validation
+  - Permission inheritance
+  - Session timeout handling
 
-#### Three-Tier Authentication System
+Tier 2 - Connection Parameters:
+  - connections.toml file
+  - Parameter validation
+  - Private key handling
+  - Certificate validation
 
-The application implements a robust three-tier authentication system with automatic fallback:
-
-1. **Tier 1: Active Session (Streamlit in Snowflake)**
-   - Primary method for SiS environments
-   - Uses `get_active_session()` from Snowpark
-   - Inherits current Snowflake context
-
-2. **Tier 2: Connection Parameters (connections.toml)**
-   - Secondary method for local development
-   - Parses `~/.snowflake/connections.toml` manually
-   - Handles both `[default]` and `[connections.default]` structures
-   - **Critical: Private Key Authentication Support**
-     - Detects `private_key_path` in configuration
-     - Reads and loads private key file content
-     - Converts path to actual key object for Snowpark
-     - Handles optional passphrase for encrypted keys
-     - Common error: `Expected bytes or RSAPrivateKey, got <class 'NoneType'>` when path is passed instead of content
-
-3. **Tier 3: Environment Variables**
-   - Fallback method for explicit configuration
-   - Requires manual setup of environment variables
-   - Supports all standard Snowflake auth methods
-
-#### Private Key Authentication Handling
-
-**Problem**: Snowflake Snowpark library expects private key content, not file paths. When `private_key_path` is specified in `connections.toml`, the library fails with cryptic errors like `Expected bytes or RSAPrivateKey, got <class 'NoneType'>`.
-
-**Solution**: Our application detects `private_key_path` and:
-1. Expands the path (handles `~` for home directory)
-2. Validates file existence
-3. Reads the key file content
-4. Loads it using cryptography library
-5. Handles optional passphrase
-6. Passes the actual key object to Snowpark
-
-**Dependencies**:
-- `cryptography` library for key loading
-- `pathlib.Path` for path handling
-- `toml` for configuration parsing
+Tier 3 - Environment Variables:
+  - Environment variable access
+  - Credential validation
+  - Secure storage
+  - Access control
+```
 
 ### 2. Authorization Dependencies
 ```yaml
-Authorization Dependencies:
-  - Role-based access:
-      - Database access
-      - Schema access
-      - Stage permissions
-      - AI service access
+Role-Based Access:
+  - User role validation
+  - Permission checking
+  - Resource access control
+  - Audit logging
 
-  - Resource permissions:
-      - Table creation
-      - File upload
-      - Stage management
-      - Query execution
-
-  - Development permissions:
-      - Package installation
-      - File system access
-      - Git operations
-      - CI/CD access
+Resource Permissions:
+  - Database access
+  - Schema access
+  - Stage access
+  - Table access
+  - AI service access
 ```
 
-## Monitoring Dependencies
+## 📊 Performance Dependencies
 
-### 1. Logging Dependencies
+### 1. Data Transport Performance
 ```yaml
-Logging Dependencies:
-  - Application logs:
-      - User actions
-      - System events
-      - Error conditions
-      - Performance metrics
+Nanoarrow Transport:
+  - Efficient serialization
+  - Minimal memory usage
+  - Fast data transfer
+  - Optimized for Snowflake
 
-  - Audit logs:
-      - Authentication events
-      - Authorization checks
-      - Data access
-      - Configuration changes
-
-  - Development logs:
-      - Type checking results
-      - Pre-commit hook execution
-      - Dependency management
-      - Build processes
+Performance Monitoring:
+  - Transport time measurement
+  - Memory usage tracking
+  - Error rate monitoring
+  - Performance alerts
 ```
 
-### 2. Metrics Dependencies
+### 2. Caching Dependencies
 ```yaml
-Metrics Dependencies:
-  - Performance metrics:
-      - Response times
-      - Throughput
-      - Error rates
-      - Resource usage
+Session Caching:
+  - Streamlit cache_resource
+  - Session object caching
+  - Connection pooling
+  - Cache invalidation
 
-  - Business metrics:
-      - Generation success rate
-      - User engagement
-      - Feature usage
-      - Quality metrics
-
-  - Development metrics:
-      - Type coverage
-      - Code quality scores
-      - Build times
-      - Test coverage
+Data Caching:
+  - Query result caching
+  - Resource list caching
+  - Metadata caching
+  - Cache management
 ```
 
-## Testing Dependencies
+## 🔄 Migration Dependencies
 
-### 1. Unit Test Dependencies
+### 1. PyArrow to NanoArrow Migration
 ```yaml
-Unit Test Dependencies:
-  - Test frameworks:
-      - pytest
-      - unittest
-      - mock libraries
+Migration Status: COMPLETED
+Version: 1.1.0
+Migration Date: 2025-01-27
 
-  - Test data:
-      - Mock responses
-      - Test fixtures
-      - Sample SVGs
-      - Error scenarios
+Dependencies:
+  - snowflake-snowpark-python[pandas]>=1.12.0
+  - nanoarrow (internal, managed by Snowflake)
+  - pyarrow (fallback only)
 
-  - Type checking:
-      - Type stub validation
-      - Type annotation testing
-      - Mock type checking
+Validation:
+  - SiS environment testing
+  - Performance benchmarking
+  - Error rate monitoring
+  - Rollback testing
+
+Rollback Plan:
+  - Automatic fallback to pyarrow
+  - Performance monitoring
+  - Error rate alerts
+  - Manual intervention
 ```
 
-### 2. Integration Test Dependencies
+### 2. Version Alignment Dependencies
 ```yaml
-Integration Test Dependencies:
-  - Test environment:
-      - Snowflake test account
-      - Test data setup
-      - Cleanup procedures
+Version Requirements:
+  - All configuration files aligned
+  - Consistent version constraints
+  - Dependency compatibility
+  - Environment compatibility
 
-  - Test scenarios:
-      - End-to-end workflows
-      - Error conditions
-      - Performance tests
-      - Security tests
-
-  - Development integration:
-      - Pre-commit hook testing
-      - Type stub management testing
-      - CI/CD pipeline testing
+Validation:
+  - Version consistency checking
+  - Dependency resolution
+  - Compatibility testing
+  - Deployment validation
 ```
 
-#### D. Real Connection Smoke Test Dependency
+## 🧪 Testing Dependencies
+
+### 1. Test Environment Dependencies
 ```yaml
-Test: test_smoke_connect_via_connections_toml
-Purpose: Validate real Snowflake connectivity using ~/.snowflake/connections.toml
-Default: Uses [default] profile
-Override: Set TEST_SNOWFLAKE_CONNECTION to use a different profile
-Validation: Runs SELECT 1 to confirm connection
-Skip: Test is skipped if connection cannot be established
+Unit Testing:
+  - pytest framework
+  - Mock objects
+  - Test data
+  - Isolation mechanisms
+
+Integration Testing:
+  - Snowflake test environment
+  - AI service access
+  - Network connectivity
+  - Test data management
+
+End-to-End Testing:
+  - Complete environment
+  - Real data flows
+  - Performance testing
+  - Error scenario testing
 ```
 
-## Deployment Dependencies
-
-### 1. Infrastructure Dependencies
+### 2. Test Data Dependencies
 ```yaml
-Infrastructure Dependencies:
-  - Runtime environment:
-      - Python 3.8+
-      - Required packages
-      - System libraries
+Test Data Management:
+  - Test database setup
+  - Test schema creation
+  - Test data generation
+  - Data cleanup
 
-  - Network connectivity:
-      - Snowflake API access
-      - HTTPS support
-      - DNS resolution
-
-  - Storage requirements:
-      - Temporary file space
-      - Log storage
-      - Configuration storage
-
-  - Development infrastructure:
-      - Git repository
-      - CI/CD pipeline
-      - Package registry access
-      - Documentation hosting
+Mock Services:
+  - Snowflake session mocking
+  - AI service mocking
+  - File system mocking
+  - Network mocking
 ```
 
-### 2. Configuration Dependencies
+## 📈 Monitoring Dependencies
+
+### 1. Performance Monitoring
 ```yaml
-Configuration Dependencies:
-  - Environment variables:
-      - Connection parameters
-      - Feature flags
-      - Logging levels
+Metrics Collection:
+  - Response time measurement
+  - Memory usage tracking
+  - Error rate monitoring
+  - Resource utilization
 
-  - Configuration files:
-      - Application settings
-      - Model configurations
-      - UI preferences
-      - Error policies
-
-  - Development configuration:
-      - Pre-commit hooks
-      - Type checking settings
-      - Linting rules
-      - Test configurations
+Alerting:
+  - Performance thresholds
+  - Error rate thresholds
+  - Resource usage alerts
+  - Service availability alerts
 ```
 
-This comprehensive dependency management system ensures reliable, secure, and maintainable development with automated type safety and quality assurance.
+### 2. Logging Dependencies
+```yaml
+Structured Logging:
+  - Log format specification
+  - Log level configuration
+  - Log storage management
+  - Log analysis tools
+
+Audit Logging:
+  - User action logging
+  - System event logging
+  - Security event logging
+  - Compliance reporting
+```
+
+This comprehensive dependency mapping ensures that all functional requirements are properly identified and managed throughout the system lifecycle.
