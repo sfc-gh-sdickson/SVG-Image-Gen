@@ -1,0 +1,34 @@
+@prefix ex: <http://example.org/project#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+ex:pyarrow a ex:DeprecatedLibrary ;
+    dct:title "Apache PyArrow" ;
+    dct:description "Removed as a runtime dependency due to unstable ABI and heavy dependency footprint. Retained temporarily for dev environments only." ;
+    ex:status "Quarantined" ;
+    ex:removedIn "pending-validation" ;
+    ex:replacedBy ex:nanoarrow ;
+    ex:hasFallbackCheck ex:checkPyarrowFallback .
+
+ex:nanoarrow a ex:ExperimentalLibrary ;
+    dct:title "Nanoarrow" ;
+    dct:description "Lightweight serialization backend intended to replace pyarrow in Snowpark DataFrame handling. Requires Snowpark >=1.6.0, assumed stable in >=1.12.0." ;
+    ex:status "PendingValidation" ;
+    ex:usedBy ex:SnowflakeDataBridge ;
+    ex:hasValidationScript ex:testNanoarrowIntegration .
+
+ex:SnowflakeDataBridge a ex:DataInterface ;
+    dct:description "Snowpark-based DataFrame interchange layer leveraging internal transport serialization. Intended to abstract away Arrow-specific mechanics." ;
+    ex:usesLibrary ex:nanoarrow ;
+    ex:fallbackLibrary ex:pyarrow .
+
+ex:testNanoarrowIntegration a ex:ValidationScript ;
+    dct:title "Nanoarrow Integration Validator" ;
+    dct:description "Runtime test to detect nanoarrow availability and verify Snowpark DataFrame operations without pyarrow." ;
+    ex:validates ex:nanoarrow ;
+    ex:runInContext "local, SiS, CI" .
+
+ex:checkPyarrowFallback a ex:ValidationScript ;
+    dct:title "PyArrow Fallback Check" ;
+    dct:description "Gracefully detects and uses pyarrow if nanoarrow is unavailable, ensuring legacy compatibility during transition." ;
+    ex:validates ex:pyarrow ;
+    ex:runInContext "local-dev" .

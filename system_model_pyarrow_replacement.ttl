@@ -1,0 +1,18 @@
+@prefix ex: <http://example.org/project#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+ex:pyarrow a ex:DeprecatedLibrary ;
+    dct:title "Apache PyArrow" ;
+    dct:description "Removed due to unstable ABI and heavy dependency footprint." ;
+    ex:deprecatedInVersion "1.1.0" ;
+    ex:replacedBy ex:nanoarrow .
+
+ex:nanoarrow a ex:Library ;
+    dct:title "Nanoarrow" ;
+    dct:description "Lightweight Arrow-compatible serialization layer used internally by Snowflake Snowpark Python >= 1.6.0" ;
+    ex:introducedInVersion "1.1.0" ;
+    ex:usedBy ex:SnowflakeDataBridge .
+
+ex:SnowflakeDataBridge a ex:DataInterface ;
+    dct:description "Handles Snowflake <-> Python DataFrame transport using native Snowpark methods." ;
+    ex:usesLibrary ex:nanoarrow .
