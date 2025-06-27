@@ -183,6 +183,11 @@ markers = [
     "e2e: marks tests as end-to-end tests",
     "snowflake: marks tests that require Snowflake connection",
     "ai: marks tests that require AI service",
+    "pdca_plan: marks tests for PDCA Plan phase",
+    "pdca_do: marks tests for PDCA Do phase",
+    "pdca_check: marks tests for PDCA Check phase",
+    "pdca_act: marks tests for PDCA Act phase",
+    "tdd: marks tests following Test-Driven Development approach",
 ]
 
 [tool.coverage.run]
