@@ -881,3 +881,246 @@ Maintainability:
 ```
 
 This comprehensive component architecture ensures reliable, secure, and maintainable development with automated quality assurance and flexible deployment options. Each component has clear responsibilities, well-defined interfaces, and comprehensive testing coverage.
+
+## Core Application Components
+
+### 1. Main Application Entry Points
+
+#### SVG-Image-Gen.py
+- **Type**: Primary application entry point
+- **Purpose**: User-facing SVG generation application
+- **Technology**: Streamlit + Snowflake Cortex
+- **Features**:
+  - SVG image generation via AI
+  - User interface and workflows
+  - Business logic and core functionality
+  - Runtime-aware operation execution
+
+#### admin_diagnostics.py
+- **Type**: Administrative diagnostics dashboard
+- **Purpose**: System diagnostics and environment inspection
+- **Technology**: Streamlit dashboard
+- **Security**: Admin-only access with clear warnings
+- **Features**:
+  - Runtime environment detection
+  - Capability assessment
+  - Session management validation
+  - Git integration status
+  - LLM logging verification
+  - File system access testing
+  - Environment variable inspection
+
+### 2. Core Modules
+
+#### Runtime Detection (`src/svg_image_generator/runtime_detection.py`)
+- **Purpose**: Detect and adapt to different runtime environments
+- **Key Functions**:
+  - `detect_runtime_environment()`: Identify current environment
+  - `get_environment_capabilities()`: Assess available capabilities
+  - `is_snowflake_runtime()`: Check if running in Snowflake
+  - `validate_operation()`: Verify operation suitability for environment
+- **Environments Supported**:
+  - Local development
+  - Streamlit in Snowflake
+  - Snowflake UDF
+  - Snowflake Task
+  - Stored procedure
+
+#### Session Management (`src/svg_image_generator/session_manager.py`)
+- **Purpose**: Three-tier authentication system for Snowflake
+- **Authentication Tiers**:
+  1. Active session (Streamlit-in-Snowflake)
+  2. Connections.toml configuration
+  3. Environment variables
+- **Key Functions**:
+  - `get_session()`: Get appropriate Snowflake session
+  - Automatic fallback between tiers
+  - Error handling and logging
+
+#### Git Integration (`src/svg_image_generator/git_integration.py`)
+- **Purpose**: Git repository operations via Snowflake API integration
+- **Key Functions**:
+  - `validate_git_integration()`: Check Git integration availability
+  - `list_accessible_repositories()`: List available repositories
+  - `read_file_from_repository()`: Read files from Git
+  - `write_file_to_repository()`: Write files to Git
+  - `create_branch()`: Create new branches
+- **Features**:
+  - Dynamic integration discovery
+  - State interrogation (always check state as precondition)
+  - Error handling and logging
+  - Runtime-aware operations
+
+#### LLM Logging (`src/svg_image_generator/llm_logging.py`)
+- **Purpose**: Structured, LLM-friendly logging system
+- **Key Functions**:
+  - `get_llm_logger()`: Get structured logger instance
+  - JSON-structured log entries
+  - Error codes and context
+  - Actionable guidance
+- **Features**:
+  - Environment-aware logging
+  - Parseable by LLMs
+  - Structured error reporting
+  - Context preservation
+
+#### SnowSQL Manager (`src/svg_image_generator/snowsql_manager.py`)
+- **Purpose**: SnowSQL CLI operations with runtime detection
+- **Key Functions**:
+  - `run_snowsql_command()`: Execute SnowSQL commands
+  - Runtime-aware operation validation
+  - Error handling and logging
+- **Features**:
+  - Graceful degradation in restricted environments
+  - LLM-friendly logging
+  - Environment capability checking
+
+### 3. Supporting Modules
+
+#### Core (`src/svg_image_generator/core.py`)
+- **Purpose**: Core SVG generation functionality
+- **Features**:
+  - SVG generation logic
+  - AI integration
+  - Core business operations
+
+#### Cortex (`src/svg_image_generator/cortex.py`)
+- **Purpose**: Snowflake Cortex AI integration
+- **Features**:
+  - AI model interaction
+  - Response processing
+  - Error handling
+
+#### Prompt Sandwich (`src/svg_image_generator/prompt_sandwich.py`)
+- **Purpose**: Prompt engineering and management
+- **Features**:
+  - Prompt construction
+  - Context management
+  - Response processing
+
+## Configuration and Setup
+
+### SQL Integration Script (`svggen_git_integration.sql`)
+- **Purpose**: Snowflake SQL setup for Git integration
+- **Features**:
+  - Database and schema creation
+  - API integration setup
+  - Secret management
+  - Role and privilege assignment
+- **Security**: Uses `REVOKE CURRENT GRANTS` for proper privilege management
+
+### Project Configuration (`pyproject.toml`)
+- **Purpose**: Project dependencies and configuration
+- **Features**:
+  - Python version requirements
+  - Dependency management
+  - Test configuration
+  - Build settings
+
+## Testing Infrastructure
+
+### Test Categories
+
+#### Authentication Tests (`tests/test_git_integration_authentication.py`)
+- **Purpose**: Validate Git integration authentication
+- **Features**:
+  - Three-tier authentication testing
+  - Dynamic discovery validation
+  - Error handling verification
+  - PDCA framework integration
+
+#### Runtime Detection Tests (`tests/test_runtime_detection.py`)
+- **Purpose**: Validate runtime environment detection
+- **Features**:
+  - Environment detection accuracy
+  - Capability assessment validation
+  - Operation validation testing
+
+#### LLM Logging Tests (`tests/test_llm_logging.py`)
+- **Purpose**: Validate structured logging system
+- **Features**:
+  - JSON serialization testing
+  - Error code validation
+  - Context preservation testing
+
+#### Ontology Tests (`tests/test_mdc2_ontology.py`, `tests/test_ontology_completeness.py`)
+- **Purpose**: Validate ontology and model completeness
+- **Features**:
+  - MDC2 ontology validation
+  - Rule completeness checking
+  - Semantic equivalence testing
+
+### Test Framework
+- **Framework**: pytest
+- **Coverage**: Comprehensive test coverage
+- **Pattern**: Test-driven development (TDD)
+- **Integration**: PDCA cycle integration
+
+## Documentation and Models
+
+### Ontology Files
+- **`ontologies/cursor_rules_ontology.ttl`**: Cursor rules ontology
+- **`ontologies/mdc2_ontology.ttl`**: MDC2 strategy ontology
+- **`ontologies/project_architecture.md`**: Project architecture documentation
+- **`ontologies/system_components.md`**: System components documentation
+
+### Strategy Documents
+- **`MDC2_STRATEGY.md`**: MDC2 development strategy
+- **`README.md`**: Project overview and setup
+- **`CONTRIBUTING.md`**: Contribution guidelines with business authority principles
+
+## Deployment Artifacts
+
+### Demo and Validation Scripts
+- **`demo_llm_logging.py`**: LLM logging demonstration
+- **`test_snowflake_capabilities.py`**: Snowflake capability testing
+- **`validate_nanoarrow_get_active_session.py`**: Session validation
+
+### Git Integration Artifacts
+- **`git_integration_spore.md`**: Git integration SPORE document
+- **`git_integration_spore.ttl`**: Git integration semantic representation
+- **`svggen_git_integration.ttl`**: Git integration TTL representation
+
+## Security and Access Control
+
+### Business Authority Principles
+- **Platform safety ≠ Business authority**: Vendor rules protect vendors, not businesses
+- **Don't cede control by default**: Maintain business agility
+- **CISO Problem**: Platform rules can degrade strategic CISO role
+
+### Admin Tool Security
+- **Clear warnings**: Prominent admin-only banners
+- **Fast failure**: Unauthorized access fails quickly
+- **Role-based access**: Requires appropriate permissions
+- **Documentation**: Clear purpose and usage guidelines
+
+## Integration Points
+
+### Snowflake Integration
+- **API Integrations**: Git, external services
+- **Secrets Management**: Secure credential storage
+- **Role Management**: Proper privilege assignment
+- **Database/Schema**: Organized data storage
+
+### Git Integration
+- **Dynamic Discovery**: No hardcoded integration names
+- **State Interrogation**: Always check state before operations
+- **Error Handling**: Graceful degradation
+- **Logging**: Comprehensive operation tracking
+
+## Key Principles
+
+### Resilience Over Latency
+- Always interrogate state as precondition
+- No assumptions about environment capabilities
+- Graceful degradation in restricted environments
+
+### Test-Driven Development
+- Tests must exist and fail before implementation
+- PDCA cycle integration
+- Comprehensive coverage of all environments
+
+### Dynamic Discovery
+- No hardcoded integration names
+- Runtime capability detection
+- Adaptive behavior based on environment

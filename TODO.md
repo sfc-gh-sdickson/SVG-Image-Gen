@@ -1,3 +1,124 @@
+# TODO
+
+## ✅ Completed
+
+### Core Infrastructure
+- [x] Runtime detection system for multiple environments
+- [x] Three-tier authentication system (active session, connections.toml, env vars)
+- [x] LLM-friendly structured logging system
+- [x] Git integration with dynamic discovery (no hardcoded names)
+- [x] Admin diagnostics dashboard with security warnings
+- [x] SQL integration script with proper privilege management
+- [x] Comprehensive test suite with PDCA framework integration
+- [x] Business authority principles documentation
+- [x] Ontology models and validation tests
+
+### Git Integration
+- [x] Dynamic integration discovery
+- [x] Repository listing, file read/write, branch creation
+- [x] State interrogation (always check state as precondition)
+- [x] Error handling and logging
+- [x] Runtime-aware operations
+
+### Testing
+- [x] Authentication tests with three-tier validation
+- [x] Runtime detection tests for all environments
+- [x] LLM logging tests with JSON serialization
+- [x] Git integration tests with dynamic discovery
+- [x] Ontology completeness and validation tests
+
+### Documentation
+- [x] Project architecture documentation
+- [x] System components documentation
+- [x] Business authority principles in README and CONTRIBUTING
+- [x] Admin tool security documentation
+
+## 🚧 In Progress
+
+### Deployment Preparation
+- [ ] Test admin diagnostics in Snowflake environment
+- [ ] Validate runtime detection in actual Snowflake runtime
+- [ ] Test Git integration with real Snowflake API integration
+- [ ] Verify LLM logging in restricted environments
+
+## 📋 Next Priorities
+
+### Snowflake Deployment
+- [ ] Deploy admin diagnostics to Snowflake workspace
+- [ ] Test capability detection in real Snowflake environment
+- [ ] Validate session management in Streamlit-in-Snowflake
+- [ ] Test Git integration with actual Snowflake API integration
+- [ ] Verify graceful degradation in restricted environments
+
+### Main Application Enhancement
+- [ ] Integrate runtime detection into main SVG-Image-Gen.py
+- [ ] Add capability-aware feature availability
+- [ ] Implement graceful degradation for restricted environments
+- [ ] Add LLM logging to main application workflows
+- [ ] Test main app in Snowflake environment
+
+### Cursor Integration
+- [ ] Research Cursor integration capabilities in Snowflake
+- [ ] Determine if Cursor can be used within Snowflake workspace
+- [ ] Explore Cursor API or extension possibilities
+- [ ] Test Cursor functionality in restricted environments
+
+### Production Readiness
+- [ ] Complete end-to-end testing in Snowflake
+- [ ] Validate all features work in production environment
+- [ ] Test error handling and recovery in Snowflake
+- [ ] Verify logging and monitoring in production
+- [ ] Performance testing in Snowflake environment
+
+### Documentation Updates
+- [ ] Update deployment guides for Snowflake
+- [ ] Document Cursor integration findings
+- [ ] Create troubleshooting guides for common issues
+- [ ] Update user documentation for production deployment
+
+## 🔮 Future Enhancements
+
+### Advanced Features
+- [ ] Multi-branch deployment support
+- [ ] Advanced Git workflow integration
+- [ ] Enhanced error recovery mechanisms
+- [ ] Performance optimization for Snowflake
+- [ ] Advanced monitoring and alerting
+
+### Integration Enhancements
+- [ ] Additional external service integrations
+- [ ] Enhanced API integration capabilities
+- [ ] Advanced secret management
+- [ ] Multi-environment deployment automation
+
+### MDC2 Development
+- [ ] Continue MDC2 strategy development
+- [ ] Implement MDC2 parser and validator
+- [ ] Create migration tools from MDC to MDC2
+- [ ] Develop MDC2 ecosystem tools
+
+## 🐛 Known Issues
+
+### Test Coverage
+- [ ] Improve test coverage to meet 75% requirement
+- [ ] Add more integration tests for Snowflake environment
+- [ ] Enhance error scenario testing
+- [ ] Add performance testing
+
+### Documentation
+- [ ] Add more detailed deployment instructions
+- [ ] Create troubleshooting guides
+- [ ] Document environment-specific configurations
+- [ ] Add user guides for admin tools
+
+## 📝 Notes
+
+- **Current Branch**: `feature/snowflake-deployment`
+- **Target Environment**: Snowflake Native Apps
+- **Key Principle**: Always interrogate state as precondition
+- **Business Authority**: Platform safety ≠ Business authority
+- **Testing Strategy**: Test-driven development with PDCA framework
+
 # TODOs for Codebase Quality and Conformance
 
 This file tracks actionable TODOs in the codebase. Each TODO is linked to a unique UUID and references the exact code location. Please check off items as you address them.
@@ -154,92 +275,3 @@ This file tracks actionable TODOs in the codebase. Each TODO is linked to a uniq
 - ❌ 10 missing type annotations in tests
 - ❌ 5 general TODOs (pre-commit hooks, line length, security, Node.js, docs)
 - ❌ 6 Snowflake identifier case sensitivity items
-
-# TODO
-
-## High Priority
-
-### Git Integration
-- [x] Implement Git integration authentication
-- [x] Add repository listing functionality
-- [x] Implement file read/write operations
-- [x] Add branch creation functionality
-- [x] Implement state interrogation for all operations
-- [x] Add dynamic integration discovery
-- [x] Create comprehensive test suite
-- [x] Add runtime detection for Snowflake environments
-- [x] Implement LLM-friendly logging
-
-### Ontology Framework
-- [x] Create cursor rules ontology
-- [x] Implement ontology validation tests
-- [x] Add semantic equivalence testing
-- [x] Create MDC2 ontology model
-- [ ] **MDC2 Implementation** - The format that actually works
-  - [ ] Create MDC2 schema validation
-  - [ ] Implement automatic MDC to MDC2 converter
-  - [ ] Add semantic validation against ontology
-  - [ ] Create migration tools and strategy
-  - [ ] Implement "move it or lose it" adoption strategy
-
-### Authentication & Security
-- [x] Implement three-tier authentication helper
-- [x] Add Snowflake session management
-- [x] Create secure credential handling
-- [x] Add runtime environment detection
-
-## Medium Priority
-
-### Documentation & Testing
-- [x] Create comprehensive test suite
-- [x] Add LLM-friendly logging
-- [x] Implement semantic equivalence validation
-- [ ] Create MDC2 documentation and examples
-- [ ] Add migration guide from legacy MDC
-
-### Performance & Monitoring
-- [x] Add runtime detection capabilities
-- [x] Implement LLM-friendly error reporting
-- [ ] Add performance monitoring for Git operations
-- [ ] Create adoption metrics for MDC2
-
-## Low Priority
-
-### Future Enhancements
-- [ ] **MDC2 Fork Strategy** - "Move it or lose it"
-  - [ ] Create MDC2 specification document
-  - [ ] Implement automatic migration tools
-  - [ ] Add backward compatibility layer
-  - [ ] Create adoption success metrics
-  - [ ] Plan legacy MDC deprecation strategy
-
-### Integration Features
-- [ ] Add support for other Git providers
-- [ ] Implement advanced branch management
-- [ ] Add merge request functionality
-- [ ] Create Git workflow automation
-
-## Completed
-
-### Core Infrastructure
-- [x] Set up project structure
-- [x] Implement Snowflake integration
-- [x] Create authentication framework
-- [x] Add comprehensive error handling
-- [x] Implement PDCA cycle framework
-- [x] Create semantic equivalence testing
-- [x] Model MDC2 format specification
-
-### Git Integration
-- [x] Basic Git operations (list, read, write, branch)
-- [x] Authentication and session management
-- [x] Runtime environment detection
-- [x] LLM-friendly logging and error reporting
-- [x] State interrogation for resilience
-- [x] Dynamic integration discovery
-
-### Ontology Framework
-- [x] Cursor rules ontology model
-- [x] Semantic equivalence validation
-- [x] MDC2 ontology specification
-- [x] Comprehensive test coverage
