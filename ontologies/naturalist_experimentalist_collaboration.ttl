@@ -1,0 +1,190 @@
+@prefix : <http://example.org/svg-image-gen/collaboration#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Naturalist-Experimentalist Collaboration Ontology
+# Captures the theoretical insight + empirical validation pattern
+
+:CollaborationRole a owl:Class ;
+    rdfs:label "Collaboration Role" ;
+    rdfs:comment "Role in the naturalist-experimentalist collaboration pattern" .
+
+:NaturalistTheorist a owl:NamedIndividual, :CollaborationRole ;
+    rdfs:label "Naturalist/Theorist" ;
+    rdfs:comment "Role that observes patterns and formulates theoretical insights" ;
+    :observesPatterns "Human behavior, system failures, business needs" ;
+    :formulatesPrinciples "Plan for failure, business authority, stochastic adaptation" ;
+    :identifiesWhy "The underlying reasons why certain approaches work" ;
+    :seesBigPicture "The forest - overall system robustness and user experience" ;
+    :providesFramework "Theoretical foundation for empirical work" .
+
+:ExperimentalistEmpiricist a owl:NamedIndividual, :CollaborationRole ;
+    rdfs:label "Experimentalist/Empiricist" ;
+    rdfs:comment "Role that implements and validates theoretical insights" ;
+    :implementsTheories "Concrete examples that prove theoretical principles" ;
+    :validatesEmpirically "Tests, error handling, user experience validation" ;
+    :measuresResults "Specific implementation details and outcomes" ;
+    :seesDetails "The trees - specific implementation that makes theory reality" ;
+    :providesProof "Empirical validation of theoretical insights" .
+
+# Collaboration Pattern
+:CollaborationPattern a owl:Class ;
+    rdfs:label "Collaboration Pattern" ;
+    rdfs:comment "Pattern for naturalist-experimentalist collaboration" .
+
+:TheoryToPracticePattern a owl:NamedIndividual, :CollaborationPattern ;
+    rdfs:label "Theory to Practice Pattern" ;
+    rdfs:comment "Pattern of theoretical insight leading to empirical validation" ;
+    :theoreticalInsight "Naturalist observes and formulates principle" ;
+    :empiricalValidation "Experimentalist implements and proves it works" ;
+    :example "Plan for failure principle → Actionable error handling implementation" .
+
+# Theoretical Insights
+:TheoreticalInsight a owl:Class ;
+    rdfs:label "Theoretical Insight" ;
+    rdfs:comment "Insight formulated by naturalist/theorist" .
+
+:PlanForFailurePrinciple a owl:NamedIndividual, :TheoreticalInsight ;
+    rdfs:label "Plan for Failure Principle" ;
+    rdfs:comment "No plan survives first contact with the enemy, but planning is vital" ;
+    :formulatedBy :NaturalistTheorist ;
+    :empiricalProof "Actionable error handling that turns failures into next steps" .
+
+:BusinessAuthorityPrinciple a owl:NamedIndividual, :TheoreticalInsight ;
+    rdfs:label "Business Authority Principle" ;
+    rdfs:comment "Business logic must be insulated from external API changes" ;
+    :formulatedBy :NaturalistTheorist ;
+    :empiricalProof "Config-driven insulation from external API chaos" .
+
+:StochasticAdaptationPrinciple a owl:NamedIndividual, :TheoreticalInsight ;
+    rdfs:label "Stochastic Adaptation Principle" ;
+    rdfs:comment "Stochastic machines excel at adaptive problem solving" ;
+    :formulatedBy :NaturalistTheorist ;
+    :empiricalProof "AI-native system design with ontologies and progressive disclosure" .
+
+# Empirical Validations
+:EmpiricalValidation a owl:Class ;
+    rdfs:label "Empirical Validation" ;
+    rdfs:comment "Concrete implementation that proves theoretical insight" .
+
+:ActionableErrorHandling a owl:NamedIndividual, :EmpiricalValidation ;
+    rdfs:label "Actionable Error Handling" ;
+    rdfs:comment "Error handling that provides clear next steps" ;
+    :validatesTheory :PlanForFailurePrinciple ;
+    :implementedBy :ExperimentalistEmpiricist ;
+    :providesStructure "Problem + Action + Escalation format" .
+
+:ConfigDrivenInsulation a owl:NamedIndividual, :EmpiricalValidation ;
+    rdfs:label "Config-Driven Insulation" ;
+    rdfs:comment "Configuration files that insulate business logic from external changes" ;
+    :validatesTheory :BusinessAuthorityPrinciple ;
+    :implementedBy :ExperimentalistEmpiricist ;
+    :providesStructure "Business-auditable configuration with rationale" .
+
+:PrivilegeBasedSecurity a owl:NamedIndividual, :EmpiricalValidation ;
+    rdfs:label "Privilege-Based Security" ;
+    rdfs:comment "Security based on actual capabilities, not just roles" ;
+    :validatesTheory :StochasticAdaptationPrinciple ;
+    :implementedBy :ExperimentalistEmpiricist ;
+    :providesStructure "Progressive disclosure based on actual privileges" .
+
+# Collaboration Benefits
+:CollaborationBenefit a owl:Class ;
+    rdfs:label "Collaboration Benefit" ;
+    rdfs:comment "Benefit of naturalist-experimentalist collaboration" .
+
+:TheoryInformedPractice a owl:NamedIndividual, :CollaborationBenefit ;
+    rdfs:label "Theory-Informed Practice" ;
+    rdfs:comment "Practice that is guided by theoretical understanding" ;
+    :benefit "Systems that are both principled and pragmatic" .
+
+:PracticeValidatedTheory a owl:NamedIndividual, :CollaborationBenefit ;
+    rdfs:label "Practice-Validated Theory" ;
+    rdfs:comment "Theory that is proven through empirical implementation" ;
+    :benefit "Insights that are both insightful and actionable" .
+
+:AdaptiveIntelligence a owl:NamedIndividual, :CollaborationBenefit ;
+    rdfs:label "Adaptive Intelligence" ;
+    rdfs:comment "Intelligence that can adapt to failures and changes" ;
+    :benefit "Systems designed for intelligent failure recovery" .
+
+# Properties
+:observesPatterns a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:formulatesPrinciples a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:identifiesWhy a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:seesBigPicture a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:providesFramework a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:implementsTheories a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:validatesEmpirically a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:measuresResults a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:seesDetails a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:providesProof a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationRole ;
+    rdfs:range xsd:string .
+
+:theoreticalInsight a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationPattern ;
+    rdfs:range xsd:string .
+
+:empiricalValidation a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationPattern ;
+    rdfs:range xsd:string .
+
+:example a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationPattern ;
+    rdfs:range xsd:string .
+
+:formulatedBy a owl:ObjectProperty ;
+    rdfs:domain :TheoreticalInsight ;
+    rdfs:range :CollaborationRole .
+
+:empiricalProof a owl:DatatypeProperty ;
+    rdfs:domain :TheoreticalInsight ;
+    rdfs:range xsd:string .
+
+:validatesTheory a owl:ObjectProperty ;
+    rdfs:domain :EmpiricalValidation ;
+    rdfs:range :TheoreticalInsight .
+
+:implementedBy a owl:ObjectProperty ;
+    rdfs:domain :EmpiricalValidation ;
+    rdfs:range :CollaborationRole .
+
+:providesStructure a owl:DatatypeProperty ;
+    rdfs:domain :EmpiricalValidation ;
+    rdfs:range xsd:string .
+
+:benefit a owl:DatatypeProperty ;
+    rdfs:domain :CollaborationBenefit ;
+    rdfs:range xsd:string .
