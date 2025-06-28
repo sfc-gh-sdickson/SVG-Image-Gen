@@ -1,0 +1,217 @@
+@prefix : <http://example.org/svg-image-gen/business-authority#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Business Authority Patterns Ontology
+# Captures patterns for maintaining business control over external dependencies
+
+:BusinessAuthorityPattern a owl:Class ;
+    rdfs:label "Business Authority Pattern" ;
+    rdfs:comment "Pattern for maintaining business control over external dependencies" .
+
+:InsulationStrategy a owl:Class ;
+    rdfs:subClassOf :BusinessAuthorityPattern ;
+    rdfs:label "Insulation Strategy" ;
+    rdfs:comment "Strategy for insulating business logic from external changes" .
+
+:ConfigDrivenPattern a owl:Class ;
+    rdfs:subClassOf :BusinessAuthorityPattern ;
+    rdfs:label "Config-Driven Pattern" ;
+    rdfs:comment "Pattern for driving business logic from configuration" .
+
+:AuditTrailPattern a owl:Class ;
+    rdfs:subClassOf :BusinessAuthorityPattern ;
+    rdfs:label "Audit Trail Pattern" ;
+    rdfs:comment "Pattern for maintaining audit trails of business decisions" .
+
+# Insulation Strategies
+:APIInsulation a owl:NamedIndividual, :InsulationStrategy ;
+    rdfs:label "API Insulation" ;
+    rdfs:comment "Insulating from external API changes and limitations" ;
+    :insulatesFrom "External API deprecations, changes, and limitations" ;
+    :method "Local configuration and business logic layer" ;
+    :example "GitHub token scopes config instead of relying on GitHub API" .
+
+:CLIInsulation a owl:NamedIndividual, :InsulationStrategy ;
+    rdfs:label "CLI Insulation" ;
+    rdfs:comment "Insulating from CLI tool changes and limitations" ;
+    :insulatesFrom "CLI tool updates, flag changes, and availability" ;
+    :method "Fallback to manual instructions and alternative methods" ;
+    :example "GitHub CLI fallback to manual token creation" .
+
+:GUIInsulation a owl:NamedIndividual, :InsulationStrategy ;
+    rdfs:label "GUI Insulation" ;
+    rdfs:comment "Insulating from GUI changes and user experience churn" ;
+    :insulatesFrom "UI/UX changes, feature moves, and interface updates" ;
+    :method "Configurable instructions and validation" ;
+    :example "Step-by-step GUI instructions that can be updated independently" .
+
+# Config-Driven Patterns
+:SingleSourceOfTruth a owl:NamedIndividual, :ConfigDrivenPattern ;
+    rdfs:label "Single Source of Truth" ;
+    rdfs:comment "Using a single configuration as the authoritative source" ;
+    :configType "Business requirements and constraints" ;
+    :drives "All automation, validation, and user guidance" ;
+    :example "github_token_scopes.py drives token generation and validation" .
+
+:BusinessRationale a owl:NamedIndividual, :ConfigDrivenPattern ;
+    rdfs:label "Business Rationale" ;
+    rdfs:comment "Documenting business justification for each configuration item" ;
+    :rationaleType "Business need, security requirement, compliance need" ;
+    :audience "Security experts, compliance officers, business owners" ;
+    :example "Each GitHub scope has documented business rationale" .
+
+:ValidationDriven a owl:NamedIndividual, :ConfigDrivenPattern ;
+    rdfs:label "Validation-Driven" ;
+    rdfs:comment "Using configuration to drive validation and error checking" ;
+    :validationType "Scope validation, privilege checking, capability testing" ;
+    :provides "Actionable error messages and guidance" ;
+    :example "Token scope validation against business config" .
+
+# Audit Trail Patterns
+:ChangeTracking a owl:NamedIndividual, :AuditTrailPattern ;
+    rdfs:label "Change Tracking" ;
+    rdfs:comment "Tracking when and why configurations change" ;
+    :tracks "Review dates, reviewers, change reasons" ;
+    :format "Structured metadata in configuration" ;
+    :example "Last reviewed date and reviewer in token config" .
+
+:DecisionLogging a owl:NamedIndividual, :AuditTrailPattern ;
+    rdfs:label "Decision Logging" ;
+    rdfs:comment "Logging business decisions and their rationale" ;
+    :logs "Configuration changes, privilege grants, scope modifications" ;
+    :audience "Security teams, compliance officers, auditors" ;
+    :example "Business rationale for each GitHub scope" .
+
+:ApprovalTracking a owl:NamedIndividual, :AuditTrailPattern ;
+    rdfs:label "Approval Tracking" ;
+    rdfs:comment "Tracking who approved what and when" ;
+    :tracks "Approvers, approval dates, approval scope" ;
+    :enforces "Separation of duties and approval workflows" ;
+    :example "Reviewer tracking in configuration metadata" .
+
+# External Dependency Management
+:ExternalDependency a owl:Class ;
+    rdfs:label "External Dependency" ;
+    rdfs:comment "External system or service that business logic depends on" .
+
+:GitHubAPI a owl:NamedIndividual, :ExternalDependency ;
+    rdfs:label "GitHub API" ;
+    rdfs:comment "GitHub's REST API for token creation and management" ;
+    :dependencyType "API" ;
+    :reliability "Unreliable - deprecated endpoints, changing requirements" ;
+    :insulationStrategy :APIInsulation .
+
+:GitHubCLI a owl:NamedIndividual, :ExternalDependency ;
+    rdfs:label "GitHub CLI" ;
+    rdfs:comment "GitHub's command-line interface tool" ;
+    :dependencyType "CLI Tool" ;
+    :reliability "Limited - doesn't support non-interactive token creation" ;
+    :insulationStrategy :CLIInsulation .
+
+:GitHubWebUI a owl:NamedIndividual, :ExternalDependency ;
+    rdfs:label "GitHub Web UI" ;
+    rdfs:comment "GitHub's web-based user interface" ;
+    :dependencyType "Web Interface" ;
+    :reliability "Stable but manual - requires human interaction" ;
+    :insulationStrategy :GUIInsulation .
+
+# Business Authority Principles
+:BusinessAuthorityPrinciple a owl:Class ;
+    rdfs:label "Business Authority Principle" ;
+    rdfs:comment "Principle for maintaining business control" .
+
+:LeastPrivilegePrinciple a owl:NamedIndividual, :BusinessAuthorityPrinciple ;
+    rdfs:label "Least Privilege Principle" ;
+    rdfs:comment "Grant only the minimum privileges necessary" ;
+    :appliesTo "Token scopes, user permissions, system access" ;
+    :enforcedBy "Configuration validation and business rationale" .
+
+:SeparationOfConcernsPrinciple a owl:NamedIndividual, :BusinessAuthorityPrinciple ;
+    rdfs:label "Separation of Concerns Principle" ;
+    rdfs:comment "Separate business logic from external dependencies" ;
+    :appliesTo "Configuration, validation, error handling" ;
+    :enforcedBy "Insulation layers and config-driven patterns" .
+
+:AuditabilityPrinciple a owl:NamedIndividual, :BusinessAuthorityPrinciple ;
+    rdfs:label "Auditability Principle" ;
+    rdfs:comment "All business decisions must be auditable" ;
+    :appliesTo "Configuration changes, privilege grants, scope modifications" ;
+    :enforcedBy "Audit trails and decision logging" .
+
+# Properties
+:insulatesFrom a owl:DatatypeProperty ;
+    rdfs:domain :InsulationStrategy ;
+    rdfs:range xsd:string .
+
+:method a owl:DatatypeProperty ;
+    rdfs:domain :InsulationStrategy ;
+    rdfs:range xsd:string .
+
+:example a owl:DatatypeProperty ;
+    rdfs:domain :InsulationStrategy ;
+    rdfs:range xsd:string .
+
+:configType a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenPattern ;
+    rdfs:range xsd:string .
+
+:drives a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenPattern ;
+    rdfs:range xsd:string .
+
+:rationaleType a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenPattern ;
+    rdfs:range xsd:string .
+
+:audience a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenPattern ;
+    rdfs:range xsd:string .
+
+:validationType a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenPattern ;
+    rdfs:range xsd:string .
+
+:provides a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenPattern ;
+    rdfs:range xsd:string .
+
+:tracks a owl:DatatypeProperty ;
+    rdfs:domain :AuditTrailPattern ;
+    rdfs:range xsd:string .
+
+:format a owl:DatatypeProperty ;
+    rdfs:domain :AuditTrailPattern ;
+    rdfs:range xsd:string .
+
+:logs a owl:DatatypeProperty ;
+    rdfs:domain :AuditTrailPattern ;
+    rdfs:range xsd:string .
+
+:enforces a owl:DatatypeProperty ;
+    rdfs:domain :AuditTrailPattern ;
+    rdfs:range xsd:string .
+
+:dependencyType a owl:DatatypeProperty ;
+    rdfs:domain :ExternalDependency ;
+    rdfs:range xsd:string .
+
+:reliability a owl:DatatypeProperty ;
+    rdfs:domain :ExternalDependency ;
+    rdfs:range xsd:string .
+
+:insulationStrategy a owl:ObjectProperty ;
+    rdfs:domain :ExternalDependency ;
+    rdfs:range :InsulationStrategy .
+
+:appliesTo a owl:DatatypeProperty ;
+    rdfs:domain :BusinessAuthorityPrinciple ;
+    rdfs:range xsd:string .
+
+:enforcedBy a owl:DatatypeProperty ;
+    rdfs:domain :BusinessAuthorityPrinciple ;
+    rdfs:range xsd:string .

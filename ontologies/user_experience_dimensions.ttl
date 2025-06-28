@@ -1,0 +1,219 @@
+@prefix : <http://example.org/svg-image-gen/user-experience#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# User Experience Dimensions Ontology
+# Captures the multi-dimensional user experience patterns
+
+:UserExperienceDimension a owl:Class ;
+    rdfs:label "User Experience Dimension" ;
+    rdfs:comment "A dimension of user experience that affects interaction design" .
+
+:AuthorizationLevel a owl:Class ;
+    rdfs:subClassOf :UserExperienceDimension ;
+    rdfs:label "Authorization Level" ;
+    rdfs:comment "Level of system access and capabilities" .
+
+:TechnicalProficiency a owl:Class ;
+    rdfs:subClassOf :UserExperienceDimension ;
+    rdfs:label "Technical Proficiency" ;
+    rdfs:comment "User's technical skill level and preferences" .
+
+:InteractionPreference a owl:Class ;
+    rdfs:subClassOf :UserExperienceDimension ;
+    rdfs:label "Interaction Preference" ;
+    rdfs:comment "Preferred way of interacting with the system" .
+
+:ErrorHandlingPreference a owl:Class ;
+    rdfs:subClassOf :UserExperienceDimension ;
+    rdfs:label "Error Handling Preference" ;
+    rdfs:comment "How user prefers to handle and resolve errors" .
+
+# Authorization Levels
+:FullAdmin a owl:NamedIndividual, :AuthorizationLevel ;
+    rdfs:label "Full Admin" ;
+    rdfs:comment "User with all privileges and capabilities" ;
+    :hasPrivileges "USAGE ON SECRET, USAGE ON API INTEGRATION, CREATE ON DATABASE" ;
+    :canAccess "All features and configuration options" .
+
+:LimitedAdmin a owl:NamedIndividual, :AuthorizationLevel ;
+    rdfs:label "Limited Admin" ;
+    rdfs:comment "User with some privileges but not all" ;
+    :hasPrivileges "Partial system access" ;
+    :canAccess "Some features, others greyed out" .
+
+:ReadOnly a owl:NamedIndividual, :AuthorizationLevel ;
+    rdfs:label "Read Only" ;
+    rdfs:comment "User with read-only access" ;
+    :hasPrivileges "Read access only" ;
+    :canAccess "Diagnostics and status information only" .
+
+# Technical Proficiency Levels
+:Noob a owl:NamedIndividual, :TechnicalProficiency ;
+    rdfs:label "Noob" ;
+    rdfs:comment "User with limited technical experience" ;
+    :prefersGUI "Yes" ;
+    :needsGuidance "Step-by-step instructions" ;
+    :errorTolerance "Low - needs clear guidance" .
+
+:SecurityExpert a owl:NamedIndividual, :TechnicalProficiency ;
+    rdfs:label "Security Expert" ;
+    rdfs:comment "User with security and compliance expertise" ;
+    :prefersGUI "No - prefers config and audit trails" ;
+    :needsGuidance "Business rationale and audit information" ;
+    :errorTolerance "High - needs detailed technical information" .
+
+:DevOps a owl:NamedIndividual, :TechnicalProficiency ;
+    rdfs:label "DevOps" ;
+    rdfs:comment "User with automation and operations expertise" ;
+    :prefersGUI "Mixed - GUI for monitoring, CLI for automation" ;
+    :needsGuidance "Scriptable interfaces and error handling" ;
+    :errorTolerance "Medium - needs actionable automation paths" .
+
+# Interaction Preferences
+:GUIPreference a owl:NamedIndividual, :InteractionPreference ;
+    rdfs:label "GUI Preference" ;
+    rdfs:comment "User prefers graphical user interfaces" ;
+    :interactionMethod "Mouse and keyboard" ;
+    :informationDensity "Visual and spatial" .
+
+:CLIPreference a owl:NamedIndividual, :InteractionPreference ;
+    rdfs:label "CLI Preference" ;
+    rdfs:comment "User prefers command-line interfaces" ;
+    :interactionMethod "Text commands" ;
+    :informationDensity "Textual and structured" .
+
+:ConfigPreference a owl:NamedIndividual, :InteractionPreference ;
+    rdfs:label "Config Preference" ;
+    rdfs:comment "User prefers configuration files" ;
+    :interactionMethod "File editing" ;
+    :informationDensity "Structured and versioned" .
+
+# Error Handling Preferences
+:ActionableErrorPreference a owl:NamedIndividual, :ErrorHandlingPreference ;
+    rdfs:label "Actionable Error Preference" ;
+    rdfs:comment "User prefers errors that tell them what to do next" ;
+    :errorFormat "Problem + Action + Escalation" ;
+    :escalationPath "Clear contact information and commands" .
+
+:DetailedErrorPreference a owl:NamedIndividual, :ErrorHandlingPreference ;
+    rdfs:label "Detailed Error Preference" ;
+    rdfs:comment "User prefers detailed technical error information" ;
+    :errorFormat "Technical details + Root cause + Fix" ;
+    :escalationPath "Technical documentation and logs" .
+
+:SimpleErrorPreference a owl:NamedIndividual, :ErrorHandlingPreference ;
+    rdfs:label "Simple Error Preference" ;
+    rdfs:comment "User prefers simple, non-technical error messages" ;
+    :errorFormat "Simple problem + Simple solution" ;
+    :escalationPath "Human contact for help" .
+
+# User Personas (Combinations of dimensions)
+:UserPersona a owl:Class ;
+    rdfs:label "User Persona" ;
+    rdfs:comment "A combination of user experience dimensions" .
+
+:NoobUser a owl:NamedIndividual, :UserPersona ;
+    rdfs:label "Noob User" ;
+    rdfs:comment "User with limited technical experience who prefers GUI" ;
+    :hasTechnicalProficiency :Noob ;
+    :hasInteractionPreference :GUIPreference ;
+    :hasErrorHandlingPreference :ActionableErrorPreference ;
+    :hasAuthorizationLevel :ReadOnly, :LimitedAdmin .
+
+:SecurityExpertUser a owl:NamedIndividual, :UserPersona ;
+    rdfs:label "Security Expert User" ;
+    rdfs:comment "User with security expertise who needs audit trails" ;
+    :hasTechnicalProficiency :SecurityExpert ;
+    :hasInteractionPreference :ConfigPreference ;
+    :hasErrorHandlingPreference :DetailedErrorPreference ;
+    :hasAuthorizationLevel :FullAdmin .
+
+:DevOpsUser a owl:NamedIndividual, :UserPersona ;
+    rdfs:label "DevOps User" ;
+    rdfs:comment "User with automation expertise who needs scriptable interfaces" ;
+    :hasTechnicalProficiency :DevOps ;
+    :hasInteractionPreference :CLIPreference ;
+    :hasErrorHandlingPreference :ActionableErrorPreference ;
+    :hasAuthorizationLevel :LimitedAdmin, :FullAdmin .
+
+# Progressive Disclosure Patterns
+:ProgressiveDisclosurePattern a owl:Class ;
+    rdfs:label "Progressive Disclosure Pattern" ;
+    rdfs:comment "Pattern for showing users only what they can actually do" .
+
+:RoleBasedDisclosure a owl:NamedIndividual, :ProgressiveDisclosurePattern ;
+    rdfs:label "Role-Based Disclosure" ;
+    rdfs:comment "Show features based on user's role" ;
+    :disclosureMethod "Check user role and show appropriate features" .
+
+:PrivilegeBasedDisclosure a owl:NamedIndividual, :ProgressiveDisclosurePattern ;
+    rdfs:label "Privilege-Based Disclosure" ;
+    rdfs:comment "Show features based on actual privileges" ;
+    :disclosureMethod "Check actual capabilities and show appropriate features" .
+
+:CapabilityBasedDisclosure a owl:NamedIndividual, :ProgressiveDisclosurePattern ;
+    rdfs:label "Capability-Based Disclosure" ;
+    rdfs:comment "Show features based on what user can actually do" ;
+    :disclosureMethod "Test capabilities and show actionable options" .
+
+# Properties
+:hasTechnicalProficiency a owl:ObjectProperty ;
+    rdfs:domain :UserPersona ;
+    rdfs:range :TechnicalProficiency .
+
+:hasInteractionPreference a owl:ObjectProperty ;
+    rdfs:domain :UserPersona ;
+    rdfs:range :InteractionPreference .
+
+:hasErrorHandlingPreference a owl:ObjectProperty ;
+    rdfs:domain :UserPersona ;
+    rdfs:range :ErrorHandlingPreference .
+
+:hasAuthorizationLevel a owl:ObjectProperty ;
+    rdfs:domain :UserPersona ;
+    rdfs:range :AuthorizationLevel .
+
+:prefersGUI a owl:DatatypeProperty ;
+    rdfs:domain :TechnicalProficiency ;
+    rdfs:range xsd:boolean .
+
+:needsGuidance a owl:DatatypeProperty ;
+    rdfs:domain :TechnicalProficiency ;
+    rdfs:range xsd:string .
+
+:errorTolerance a owl:DatatypeProperty ;
+    rdfs:domain :TechnicalProficiency ;
+    rdfs:range xsd:string .
+
+:hasPrivileges a owl:DatatypeProperty ;
+    rdfs:domain :AuthorizationLevel ;
+    rdfs:range xsd:string .
+
+:canAccess a owl:DatatypeProperty ;
+    rdfs:domain :AuthorizationLevel ;
+    rdfs:range xsd:string .
+
+:interactionMethod a owl:DatatypeProperty ;
+    rdfs:domain :InteractionPreference ;
+    rdfs:range xsd:string .
+
+:informationDensity a owl:DatatypeProperty ;
+    rdfs:domain :InteractionPreference ;
+    rdfs:range xsd:string .
+
+:errorFormat a owl:DatatypeProperty ;
+    rdfs:domain :ErrorHandlingPreference ;
+    rdfs:range xsd:string .
+
+:escalationPath a owl:DatatypeProperty ;
+    rdfs:domain :ErrorHandlingPreference ;
+    rdfs:range xsd:string .
+
+:disclosureMethod a owl:DatatypeProperty ;
+    rdfs:domain :ProgressiveDisclosurePattern ;
+    rdfs:range xsd:string .
