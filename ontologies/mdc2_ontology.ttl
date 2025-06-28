@@ -1,0 +1,188 @@
+@prefix : <http://example.org/mdc2#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+# MDC2 Ontology
+#
+# The proper format that actually works, with semantic validation
+# and backward compatibility to the broken MDC format.
+# "Move it or lose it" - convert or get left behind.
+#################################################################
+
+:Mdc2Rule a rdfs:Class ;
+    rdfs:label "MDC2 Rule" ;
+    rdfs:comment "A rule in MDC2 format - the format that actually works." .
+
+:Mdc2Format a rdfs:Class ;
+    rdfs:label "MDC2 Format" ;
+    rdfs:comment "The MDC2 file format specification." .
+
+:Mdc2Migration a rdfs:Class ;
+    rdfs:label "MDC2 Migration" ;
+    rdfs:comment "Migration from legacy MDC to MDC2 format." .
+
+# MDC2 Format Properties
+:version a rdfs:Property ;
+    rdfs:label "version" ;
+    rdfs:comment "MDC2 format version (e.g., '2.0')." .
+
+:priority a rdfs:Property ;
+    rdfs:label "priority" ;
+    rdfs:comment "Rule priority: low, medium, high, critical." .
+
+:enforcement a rdfs:Property ;
+    rdfs:label "enforcement" ;
+    rdfs:comment "Enforcement level: advisory, strict, mandatory." .
+
+:relatedRules a rdfs:Property ;
+    rdfs:label "related rules" ;
+    rdfs:comment "List of related rule identifiers." .
+
+:tags a rdfs:Property ;
+    rdfs:label "tags" ;
+    rdfs:comment "Categorization tags for the rule." .
+
+:appliesTo a rdfs:Property ;
+    rdfs:label "applies to" ;
+    rdfs:comment "File globs or contexts where the rule applies." .
+
+# Migration Properties
+:migrationStrategy a rdfs:Property ;
+    rdfs:label "migration strategy" ;
+    rdfs:comment "Strategy for migrating from legacy MDC format." .
+
+:backwardCompatibility a rdfs:Property ;
+    rdfs:label "backward compatibility" ;
+    rdfs:comment "Level of backward compatibility with legacy MDC." .
+
+:validationSchema a rdfs:Property ;
+    rdfs:label "validation schema" ;
+    rdfs:comment "JSON Schema or similar for validating MDC2 format." .
+
+# MDC2 Format Specification
+:mdc2FormatSpec a :Mdc2Format ;
+    rdfs:label "MDC2 Format Specification" ;
+    dct:description "The proper format that actually works, with semantic validation and backward compatibility." ;
+    :version "2.0" ;
+    :validationSchema "mdc2-schema.json" ;
+    :backwardCompatibility "full" ;
+    :migrationStrategy "automatic" .
+
+# MDC2 Rule Example
+:banEditToolMdc2 a :Mdc2Rule ;
+    rdfs:label "Ban Edit Tool Enhanced (MDC2)" ;
+    dct:description "Do not use edit_tool for code changes. Use deterministic, auditable tools instead." ;
+    :version "2.0" ;
+    :priority "high" ;
+    :enforcement "strict" ;
+    :appliesTo "*.py, *.yml, *.yaml, *.toml, *.ini, *.json, *.cfg, *.mdc, *.ttl, *.rdf" ;
+    :tags "security", "format", "validation" ;
+    :relatedRules "mdcCreationMdc2", "checkMdcImportMdc2" ;
+    :rationale "Prevents stochastic, non-reproducible edits and enforces use of structured libraries." ;
+    :fileLocation ".cursor/rules/ban-edit-tool-enhanced.mdc2" .
+
+# Migration Strategy
+:mdc2Migration a :Mdc2Migration ;
+    rdfs:label "MDC2 Migration Strategy" ;
+    dct:description "Strategy for migrating from broken MDC format to working MDC2 format." ;
+    :migrationStrategy "automatic" ;
+    :backwardCompatibility "full" ;
+    :validationSchema "migration-schema.json" .
+
+# MDC2 Advantages
+:mdc2Advantages a rdfs:Class ;
+    rdfs:label "MDC2 Advantages" ;
+    rdfs:comment "Advantages of MDC2 over legacy MDC format." .
+
+:properYamlSchema a :mdc2Advantages ;
+    rdfs:label "Proper YAML Schema" ;
+    dct:description "Validatable YAML schema instead of broken parsing." .
+
+:semanticValidation a :mdc2Advantages ;
+    rdfs:label "Semantic Validation" ;
+    dct:description "Semantic validation against ontology model." .
+
+:machineReadable a :mdc2Advantages ;
+    rdfs:label "Machine Readable" ;
+    dct:description "Consistent, parseable format for automation." .
+
+:backwardCompatible a :mdc2Advantages ;
+    rdfs:label "Backward Compatible" ;
+    dct:description "Automatic migration from legacy MDC format." .
+
+# Migration Tools
+:migrationTools a rdfs:Class ;
+    rdfs:label "Migration Tools" ;
+    rdfs:comment "Tools for migrating from MDC to MDC2." .
+
+:automaticConverter a :migrationTools ;
+    rdfs:label "Automatic MDC to MDC2 Converter" ;
+    dct:description "Converts any MDC format to proper MDC2 format." ;
+    :migrationStrategy "automatic" ;
+    :backwardCompatibility "full" .
+
+:semanticValidator a :migrationTools ;
+    rdfs:label "Semantic Validation Tool" ;
+    dct:description "Validates MDC2 rules against ontology model." ;
+    :validationSchema "ontology-validation.json" .
+
+# MDC2 File Structure
+:mdc2FileStructure a rdfs:Class ;
+    rdfs:label "MDC2 File Structure" ;
+    rdfs:comment "Standard structure for MDC2 files." .
+
+:yamlFrontmatter a :mdc2FileStructure ;
+    rdfs:label "YAML Frontmatter" ;
+    dct:description "Validatable YAML frontmatter with schema." ;
+    :validationSchema "mdc2-frontmatter-schema.json" .
+
+:markdownContent a :mdc2FileStructure ;
+    rdfs:label "Markdown Content" ;
+    dct:description "Standard Markdown content after YAML frontmatter." ;
+    :validationSchema "markdown-content-schema.json" .
+
+# Implementation Strategy
+:implementationStrategy a rdfs:Class ;
+    rdfs:label "MDC2 Implementation Strategy" ;
+    rdfs:comment "Strategy for implementing MDC2 format." .
+
+:phase1Launch a :implementationStrategy ;
+    rdfs:label "Phase 1: MDC2 Launch" ;
+    dct:description "Launch MDC2 with backward compatibility." ;
+    :priority "high" ;
+    :enforcement "advisory" .
+
+:phase2Migration a :implementationStrategy ;
+    rdfs:label "Phase 2: Migration Push" ;
+    dct:description "Push migration from legacy MDC to MDC2." ;
+    :priority "medium" ;
+    :enforcement "strict" .
+
+:phase3Deprecation a :implementationStrategy ;
+    rdfs:label "Phase 3: Legacy Deprecation" ;
+    dct:description "Deprecate legacy MDC format - move it or lose it." ;
+    :priority "low" ;
+    :enforcement "mandatory" .
+
+# Success Metrics
+:successMetrics a rdfs:Class ;
+    rdfs:label "MDC2 Success Metrics" ;
+    rdfs:comment "Metrics for measuring MDC2 adoption success." .
+
+:adoptionRate a :successMetrics ;
+    rdfs:label "Adoption Rate" ;
+    dct:description "Percentage of projects using MDC2 format." ;
+    :validationSchema "adoption-metrics.json" .
+
+:parsingSuccess a :successMetrics ;
+    rdfs:label "Parsing Success Rate" ;
+    dct:description "Percentage of MDC2 files that parse successfully." ;
+    :validationSchema "parsing-metrics.json" .
+
+:semanticValidation a :successMetrics ;
+    rdfs:label "Semantic Validation Rate" ;
+    dct:description "Percentage of MDC2 files that pass semantic validation." ;
+    :validationSchema "semantic-metrics.json" .
