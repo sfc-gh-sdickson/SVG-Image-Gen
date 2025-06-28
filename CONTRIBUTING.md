@@ -275,6 +275,35 @@ streamlit run SVG-Image-Gen.py
 
 By contributing to this project, you agree that your contributions will be licensed under the same license as the project.
 
+## Business Authority Principles
+
+Before contributing, understand this project's core principle: **The business owns the business**.
+
+### Platform Safety vs Business Authority
+
+Many enterprise platforms (including Snowflake) implement "safety" features that are actually designed to protect the platform's liability, not your business interests. These can accidentally expand compliance/IT authority at the expense of business agility.
+
+**Key principles for contributors:**
+- Platform safety rules protect the vendor, not your business
+- Don't cede business control to compliance/IT by default
+- Understand the difference between platform constraints and business needs
+- Business agility is essential for making money
+
+### The CISO Problem:
+Platform safety rules can degrade the respect and power that accrues to a sensible CISO. If your CISO is just a cop enforcing vendor-imposed restrictions, how is that helpful? A good CISO should be a strategic business partner who understands risk in business terms, not just a rule enforcer for platform vendors.
+
+### Examples in this codebase:
+- Runtime detection prevents operations that could expose Snowflake to liability
+- SQL scripts use `REVOKE CURRENT GRANTS` because Snowflake wants bulletproof audit trails
+- These are platform-protective measures, not user-protective features
+
+**When contributing:**
+- Question whether "safety" rules actually serve business interests
+- Don't assume platform constraints are user-friendly
+- Maintain business control while working within platform constraints
+- Avoid accidental compliance creep
+- Don't let platform rules turn your CISO into just another cop
+
 ---
 
 Thank you for contributing to SVG Image Generator! 🎨

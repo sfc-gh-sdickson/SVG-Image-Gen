@@ -268,3 +268,25 @@ uv run pytest tests/test_authentication.py -k "test_smoke_connect_via_connection
 ```
 
 This will attempt to connect and run `SELECT 1` using the specified profile. The test will be skipped if the connection cannot be established or the profile is missing.
+
+## Business Authority vs Platform Safety
+
+**IMPORTANT**: This project follows a key principle: **The business owns the business**.
+
+Snowflake (and many enterprise platforms) implement "safety" rules that are actually designed to protect the platform's liability, not your business interests. These rules can accidentally expand compliance/IT authority at the expense of business agility.
+
+### Key Principles:
+- **Platform safety ≠ Business authority**: Snowflake's grant/ownership rules protect Snowflake, not your business
+- **Don't cede control by default**: Bean-counters, lawyers, and compliance should not run your business
+- **Understand the difference**: Platform safety rules exist to protect the vendor's legal/operational risk
+- **Business agility matters**: If you want to make money, you need to move fast and own your decisions
+
+### The CISO Problem:
+Platform safety rules can degrade the respect and power that accrues to a sensible CISO. If your CISO is just a cop enforcing vendor-imposed restrictions, how is that helpful? A good CISO should be a strategic business partner who understands risk in business terms, not just a rule enforcer for platform vendors.
+
+### Examples in this codebase:
+- The `REVOKE CURRENT GRANTS` clause in SQL scripts exists because Snowflake wants bulletproof audit trails
+- Runtime detection prevents operations that could expose Snowflake to liability
+- These are platform-protective measures, not user-protective features
+
+**Bottom line**: Use these tools to maintain business control while working within platform constraints. Don't let compliance creep expand beyond what's actually necessary for your business success. And don't let platform rules turn your CISO into just another cop.

@@ -154,3 +154,92 @@ This file tracks actionable TODOs in the codebase. Each TODO is linked to a uniq
 - ❌ 10 missing type annotations in tests
 - ❌ 5 general TODOs (pre-commit hooks, line length, security, Node.js, docs)
 - ❌ 6 Snowflake identifier case sensitivity items
+
+# TODO
+
+## High Priority
+
+### Git Integration
+- [x] Implement Git integration authentication
+- [x] Add repository listing functionality
+- [x] Implement file read/write operations
+- [x] Add branch creation functionality
+- [x] Implement state interrogation for all operations
+- [x] Add dynamic integration discovery
+- [x] Create comprehensive test suite
+- [x] Add runtime detection for Snowflake environments
+- [x] Implement LLM-friendly logging
+
+### Ontology Framework
+- [x] Create cursor rules ontology
+- [x] Implement ontology validation tests
+- [x] Add semantic equivalence testing
+- [x] Create MDC2 ontology model
+- [ ] **MDC2 Implementation** - The format that actually works
+  - [ ] Create MDC2 schema validation
+  - [ ] Implement automatic MDC to MDC2 converter
+  - [ ] Add semantic validation against ontology
+  - [ ] Create migration tools and strategy
+  - [ ] Implement "move it or lose it" adoption strategy
+
+### Authentication & Security
+- [x] Implement three-tier authentication helper
+- [x] Add Snowflake session management
+- [x] Create secure credential handling
+- [x] Add runtime environment detection
+
+## Medium Priority
+
+### Documentation & Testing
+- [x] Create comprehensive test suite
+- [x] Add LLM-friendly logging
+- [x] Implement semantic equivalence validation
+- [ ] Create MDC2 documentation and examples
+- [ ] Add migration guide from legacy MDC
+
+### Performance & Monitoring
+- [x] Add runtime detection capabilities
+- [x] Implement LLM-friendly error reporting
+- [ ] Add performance monitoring for Git operations
+- [ ] Create adoption metrics for MDC2
+
+## Low Priority
+
+### Future Enhancements
+- [ ] **MDC2 Fork Strategy** - "Move it or lose it"
+  - [ ] Create MDC2 specification document
+  - [ ] Implement automatic migration tools
+  - [ ] Add backward compatibility layer
+  - [ ] Create adoption success metrics
+  - [ ] Plan legacy MDC deprecation strategy
+
+### Integration Features
+- [ ] Add support for other Git providers
+- [ ] Implement advanced branch management
+- [ ] Add merge request functionality
+- [ ] Create Git workflow automation
+
+## Completed
+
+### Core Infrastructure
+- [x] Set up project structure
+- [x] Implement Snowflake integration
+- [x] Create authentication framework
+- [x] Add comprehensive error handling
+- [x] Implement PDCA cycle framework
+- [x] Create semantic equivalence testing
+- [x] Model MDC2 format specification
+
+### Git Integration
+- [x] Basic Git operations (list, read, write, branch)
+- [x] Authentication and session management
+- [x] Runtime environment detection
+- [x] LLM-friendly logging and error reporting
+- [x] State interrogation for resilience
+- [x] Dynamic integration discovery
+
+### Ontology Framework
+- [x] Cursor rules ontology model
+- [x] Semantic equivalence validation
+- [x] MDC2 ontology specification
+- [x] Comprehensive test coverage

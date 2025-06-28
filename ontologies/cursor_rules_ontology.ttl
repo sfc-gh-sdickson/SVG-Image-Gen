@@ -55,4 +55,12 @@
     :appliesTo ".cursor/rules/*.mdc" ;
     :rationale "Ensures consistent naming, metadata, and rule structure across the project." .
 
+:banHardcodedIntegrationNames a :CursorRule ;
+    rdfs:label "Ban Hardcoded Integration Names" ;
+    dct:description "Prohibits hardcoding integration names (e.g., 'git_api_integration') in code, tests, or configuration. Enforces dynamic discovery and validation of integrations for resilience, portability, and testability." ;
+    :fileLocation ".cursor/rules/ban-hardcoded-integration-names.mdc" ;
+    :appliesTo "*.py, *.sql, *.yaml, *.yml, *.json, *.toml" ;
+    :rationale "Hardcoding integration names leads to brittle, non-portable, and untestable code. Dynamic discovery ensures resilience, testability, and compliance with evolving environments." ;
+    :relatedRule :banEditToolEnhanced .
+
 # (Add additional :CursorRule individuals for each MDC file as needed)
