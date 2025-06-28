@@ -1,0 +1,151 @@
+@prefix : <http://example.org/svg-image-gen/actionable-errors#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+
+# Actionable Error Patterns Ontology
+# Captures the business authority and error handling patterns implemented
+
+:ActionableErrorPattern a owl:Class ;
+    rdfs:label "Actionable Error Pattern" ;
+    rdfs:comment "A pattern for creating errors that tell users exactly what to do next" .
+
+:BusinessAuthorityPattern a owl:Class ;
+    rdfs:label "Business Authority Pattern" ;
+    rdfs:comment "Pattern for maintaining business control over external dependencies" .
+
+:PrivilegeBasedAuthorization a owl:Class ;
+    rdfs:label "Privilege-Based Authorization" ;
+    rdfs:comment "Authorization based on actual capabilities, not just roles" .
+
+:ProgressiveDisclosure a owl:Class ;
+    rdfs:label "Progressive Disclosure" ;
+    rdfs:comment "Showing users only what they can actually do" .
+
+# Error Structure Components
+:ErrorStructure a owl:Class ;
+    rdfs:label "Error Structure" ;
+    rdfs:comment "Components of an actionable error message" .
+
+:ProblemDescription a owl:Class ;
+    rdfs:subClassOf :ErrorStructure ;
+    rdfs:label "Problem Description" ;
+    rdfs:comment "Clear description of what's wrong" .
+
+:RequiredAction a owl:Class ;
+    rdfs:subClassOf :ErrorStructure ;
+    rdfs:label "Required Action" ;
+    rdfs:comment "Specific action needed to fix the problem" .
+
+:EscalationPath a owl:Class ;
+    rdfs:subClassOf :ErrorStructure ;
+    rdfs:label "Escalation Path" ;
+    rdfs:comment "Who to contact if user can't fix it themselves" .
+
+# Business Authority Components
+:ConfigDrivenApproach a owl:Class ;
+    rdfs:subClassOf :BusinessAuthorityPattern ;
+    rdfs:label "Config-Driven Approach" ;
+    rdfs:comment "Using configuration files to drive business logic" .
+
+:AuditTrail a owl:Class ;
+    rdfs:subClassOf :BusinessAuthorityPattern ;
+    rdfs:label "Audit Trail" ;
+    rdfs:comment "Tracking changes and decisions for business review" .
+
+:InsulationLayer a owl:Class ;
+    rdfs:subClassOf :BusinessAuthorityPattern ;
+    rdfs:label "Insulation Layer" ;
+    rdfs:comment "Protecting business logic from external API changes" .
+
+# User Types
+:UserType a owl:Class ;
+    rdfs:label "User Type" ;
+    rdfs:comment "Different types of users with different needs" .
+
+:NoobUser a owl:Class ;
+    rdfs:subClassOf :UserType ;
+    rdfs:label "Noob User" ;
+    rdfs:comment "User who prefers GUI and needs clear guidance" .
+
+:SecurityExpert a owl:Class ;
+    rdfs:subClassOf :UserType ;
+    rdfs:label "Security Expert" ;
+    rdfs:comment "User who needs audit trails and business control" .
+
+:DevOpsUser a owl:Class ;
+    rdfs:subClassOf :UserType ;
+    rdfs:label "DevOps User" ;
+    rdfs:comment "User who needs automation and scripting capabilities" .
+
+# Implementation Examples
+:GitHubTokenGeneration a owl:NamedIndividual, :ActionableErrorPattern ;
+    rdfs:label "GitHub Token Generation" ;
+    rdfs:comment "Example of actionable error handling for token creation" ;
+    :hasProblemDescription "GitHub CLI doesn't support non-interactive token creation" ;
+    :hasRequiredAction "Manual token creation via GitHub UI with specific scopes" ;
+    :hasEscalationPath "Contact lou@company.com with error details" .
+
+:PrivilegeChecking a owl:NamedIndividual, :PrivilegeBasedAuthorization ;
+    rdfs:label "Snowflake Privilege Checking" ;
+    rdfs:comment "Checking actual privileges instead of just roles" ;
+    :checksPrivileges "USAGE ON SECRET, USAGE ON API INTEGRATION, CREATE ON DATABASE" ;
+    :providesActionableMessage "Specific GRANT commands for missing privileges" .
+
+:ConfigDrivenScopes a owl:NamedIndividual, :ConfigDrivenApproach ;
+    rdfs:label "GitHub Token Scopes Configuration" ;
+    rdfs:comment "Python config for business-auditable token scopes" ;
+    :hasAuditTrail "Last reviewed date and reviewer name" ;
+    :hasBusinessRationale "Each scope has documented business justification" .
+
+# Properties
+:hasProblemDescription a owl:ObjectProperty ;
+    rdfs:domain :ActionableErrorPattern ;
+    rdfs:range :ProblemDescription .
+
+:hasRequiredAction a owl:ObjectProperty ;
+    rdfs:domain :ActionableErrorPattern ;
+    rdfs:range :RequiredAction .
+
+:hasEscalationPath a owl:ObjectProperty ;
+    rdfs:domain :ActionableErrorPattern ;
+    rdfs:range :EscalationPath .
+
+:checksPrivileges a owl:DatatypeProperty ;
+    rdfs:domain :PrivilegeBasedAuthorization ;
+    rdfs:range xsd:string .
+
+:providesActionableMessage a owl:DatatypeProperty ;
+    rdfs:domain :PrivilegeBasedAuthorization ;
+    rdfs:range xsd:string .
+
+:hasAuditTrail a owl:ObjectProperty ;
+    rdfs:domain :ConfigDrivenApproach ;
+    rdfs:range :AuditTrail .
+
+:hasBusinessRationale a owl:DatatypeProperty ;
+    rdfs:domain :ConfigDrivenApproach ;
+    rdfs:range xsd:string .
+
+# Principles
+:ActionableErrorPrinciple a owl:NamedIndividual ;
+    rdfs:label "Actionable Error Principle" ;
+    rdfs:comment "Every error must tell the user exactly what to do next" ;
+    :appliesTo :NoobUser, :SecurityExpert, :DevOpsUser .
+
+:BusinessAuthorityPrinciple a owl:NamedIndividual ;
+    rdfs:label "Business Authority Principle" ;
+    rdfs:comment "Business logic must be insulated from external API changes" ;
+    :appliesTo :SecurityExpert, :DevOpsUser .
+
+:PrivilegeBasedPrinciple a owl:NamedIndividual ;
+    rdfs:label "Privilege-Based Principle" ;
+    rdfs:comment "Check actual capabilities, not just roles" ;
+    :appliesTo :SecurityExpert, :NoobUser .
+
+:appliesTo a owl:ObjectProperty ;
+    rdfs:domain owl:Thing ;
+    rdfs:range :UserType .
