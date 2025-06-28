@@ -2,7 +2,7 @@
 
 ## 🏗️ System Overview
 
-The SVG Image Generator is a Streamlit-based application that leverages Snowflake Cortex AI to generate SVG images from natural language descriptions. The system is designed for deployment in multiple environments with a focus on Streamlit in Snowflake (SiS) as the primary production target.
+The SVG Image Generator is a comprehensive Streamlit application with advanced Snowflake integration, runtime detection, and administrative capabilities.
 
 ## 🎯 Architecture Principles
 
@@ -646,3 +646,176 @@ Maintenance:
   - User feedback
   - Continuous improvement
 ```
+
+## Core Architecture
+
+### 1. Main Application (`SVG-Image-Gen.py`)
+- **Purpose**: Primary user-facing SVG generation application
+- **Technology**: Streamlit + Snowflake Cortex
+- **Features**:
+  - SVG image generation via AI
+  - User interface and workflows
+  - Business logic and core functionality
+
+### 2. Admin Diagnostics (`admin_diagnostics.py`)
+- **Purpose**: Administrative tool for system diagnostics and environment inspection
+- **Technology**: Streamlit dashboard
+- **Features**:
+  - Runtime environment detection
+  - Capability assessment
+  - Session management validation
+  - Git integration status
+  - LLM logging verification
+  - File system access testing
+  - Environment variable inspection
+
+## Core Modules
+
+### Runtime Detection (`src/svg_image_generator/runtime_detection.py`)
+- **Purpose**: Detect and adapt to different runtime environments
+- **Capabilities**:
+  - Local development detection
+  - Snowflake runtime detection
+  - Streamlit-in-Snowflake detection
+  - UDF/Task environment detection
+  - Capability assessment per environment
+  - Operation validation
+
+### Session Management (`src/svg_image_generator/session_manager.py`)
+- **Purpose**: Three-tier authentication system for Snowflake
+- **Tiers**:
+  1. Active session (Streamlit-in-Snowflake)
+  2. Connections.toml configuration
+  3. Environment variables
+- **Features**: Automatic fallback, error handling, logging
+
+### Git Integration (`src/svg_image_generator/git_integration.py`)
+- **Purpose**: Git repository operations via Snowflake API integration
+- **Features**:
+  - Dynamic integration discovery
+  - Repository listing
+  - File read/write operations
+  - Branch creation
+  - State interrogation (always interrogate state as precondition)
+  - Error handling and logging
+
+### LLM Logging (`src/svg_image_generator/llm_logging.py`)
+- **Purpose**: Structured, LLM-friendly logging system
+- **Features**:
+  - JSON-structured logs
+  - Error codes and context
+  - Actionable guidance
+  - Environment-aware logging
+  - Parseable by LLMs
+
+### SnowSQL Manager (`src/svg_image_generator/snowsql_manager.py`)
+- **Purpose**: SnowSQL CLI operations with runtime detection
+- **Features**:
+  - Runtime-aware operations
+  - Error handling
+  - LLM-friendly logging
+  - Graceful degradation in restricted environments
+
+## Deployment Architecture
+
+### Local Development
+- **Environment**: `RuntimeEnvironment.LOCAL_DEVELOPMENT`
+- **Capabilities**: Full access (filesystem, network, subprocess, etc.)
+- **Testing**: Complete test suite execution
+- **Development**: Full IDE and tooling support
+
+### Snowflake Native App
+- **Environment**: `RuntimeEnvironment.STREAMLIT_IN_SNOWFLAKE`
+- **Capabilities**: Limited but sufficient for app functionality
+- **Restrictions**: No local file I/O, no subprocess execution
+- **Features**: Native Snowflake session, Cortex AI access
+
+### Snowflake UDF/Task
+- **Environment**: `RuntimeEnvironment.SNOWFLAKE_UDF` or `RuntimeEnvironment.SNOWFLAKE_TASK`
+- **Capabilities**: Highly restricted
+- **Restrictions**: No file I/O, no network access, no subprocess
+- **Features**: SQL execution, basic Python operations
+
+## Security and Access Control
+
+### Business Authority Principles
+- **Platform safety ≠ Business authority**: Snowflake's rules protect Snowflake, not your business
+- **Don't cede control by default**: Bean-counters, lawyers, and compliance should not run your business
+- **CISO Problem**: Platform safety rules can degrade the role of a sensible CISO
+
+### Admin Tool Security
+- **Clear warnings**: Prominent banners indicating admin-only access
+- **Fast failure**: Unauthorized access fails quickly
+- **Role-based**: Requires appropriate permissions
+- **Documentation**: Clear purpose and usage guidelines
+
+## Integration Points
+
+### Snowflake Integration
+- **API Integrations**: Git, external services
+- **Secrets Management**: Secure credential storage
+- **Role Management**: Proper privilege assignment
+- **Database/Schema**: Organized data storage
+
+### Git Integration
+- **Dynamic Discovery**: No hardcoded integration names
+- **State Interrogation**: Always check state before operations
+- **Error Handling**: Graceful degradation
+- **Logging**: Comprehensive operation tracking
+
+## Testing Strategy
+
+### Test Coverage
+- **Unit Tests**: Individual module testing
+- **Integration Tests**: Cross-module functionality
+- **Runtime Tests**: Environment-specific testing
+- **PDCA Framework**: Plan-Do-Check-Act cycle integration
+
+### Test Categories
+- **Authentication Tests**: Session management validation
+- **Runtime Detection Tests**: Environment capability verification
+- **Git Integration Tests**: Repository operation validation
+- **LLM Logging Tests**: Structured logging verification
+- **Admin Diagnostics Tests**: System inspection validation
+
+## Deployment Workflow
+
+### Pre-Deployment
+1. **Local Testing**: Full test suite execution
+2. **Environment Validation**: Runtime detection verification
+3. **Admin Diagnostics**: System capability assessment
+4. **Git Integration**: Repository access validation
+
+### Deployment
+1. **Branch Selection**: Non-main branch support
+2. **Environment Detection**: Automatic capability assessment
+3. **Graceful Degradation**: Feature availability based on environment
+4. **Monitoring**: LLM-friendly logging and diagnostics
+
+### Post-Deployment
+1. **Admin Diagnostics**: Verify environment capabilities
+2. **User Testing**: Main application functionality
+3. **Monitoring**: Continuous logging and error tracking
+4. **Iteration**: PDCA cycle for improvements
+
+## Key Principles
+
+### Resilience Over Latency
+- Always interrogate state as precondition
+- No assumptions about environment capabilities
+- Graceful degradation in restricted environments
+
+### Business Authority
+- Platform safety rules protect vendors, not businesses
+- Maintain business agility and control
+- Don't let compliance expand authority by accident
+
+### Test-Driven Development
+- Tests must exist and fail before implementation
+- PDCA cycle integration
+- Comprehensive coverage of all environments
+
+### Dynamic Discovery
+- No hardcoded integration names
+- Runtime capability detection
+- Adaptive behavior based on environment
