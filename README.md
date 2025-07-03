@@ -73,29 +73,36 @@ For development, testing, and local use:
    ```
 
 3. **Set up environment variables**:
-   ```bash
-   # Copy the example configuration
-   cp config.example.env .env
 
-   # Edit .env with your Snowflake credentials
-   nano .env
+   You must set the following environment variables in your shell or environment before running the application. **Never create or use a .env or example .env file in the project directory.**
+
+   **Required:**
+   - `SNOWFLAKE_ACCOUNT` (e.g., xy12345.us-east-1)
+   - `SNOWFLAKE_USER` (your Snowflake username)
+   - `SNOWFLAKE_PASSWORD` (your Snowflake password)
+   - `SNOWFLAKE_WAREHOUSE` (your Snowflake warehouse name)
+
+   **Optional:**
+   - `SNOWFLAKE_DATABASE` (your database name)
+   - `SNOWFLAKE_SCHEMA` (your schema name)
+   - `SNOWFLAKE_ROLE` (your role name)
+   - `STREAMLIT_SERVER_PORT` (default: 8501)
+   - `STREAMLIT_SERVER_ADDRESS` (default: 0.0.0.0)
+   - `STREAMLIT_SERVER_HEADLESS` (default: true)
+
+   Example (bash):
+   ```bash
+   export SNOWFLAKE_ACCOUNT=xy12345.us-east-1
+   export SNOWFLAKE_USER=myuser
+   export SNOWFLAKE_PASSWORD=mypassword123
+   export SNOWFLAKE_WAREHOUSE=COMPUTE_WH
+   # Optional:
+   export SNOWFLAKE_DATABASE=MY_DB
+   export SNOWFLAKE_SCHEMA=PUBLIC
+   export SNOWFLAKE_ROLE=MY_ROLE
    ```
 
-4. **Configure your Snowflake credentials** in `.env`:
-   ```bash
-   # Required
-   SNOWFLAKE_ACCOUNT=your-account-identifier
-   SNOWFLAKE_USER=your-username
-   SNOWFLAKE_PASSWORD=your-password
-   SNOWFLAKE_WAREHOUSE=your-warehouse-name
-
-   # Optional
-   SNOWFLAKE_DATABASE=your-database-name
-   SNOWFLAKE_SCHEMA=your-schema-name
-   SNOWFLAKE_ROLE=your-role-name
-   ```
-
-5. **Run the application**:
+4. **Run the application**:
    ```bash
    streamlit run src/svg_image_generator/app.py
    ```
@@ -121,7 +128,7 @@ The application supports a three-tier authentication system with graceful fallba
 
 ### 3. Environment Variables (Local Development) - Fallback
 - Uses `Session.builder.configs()` with explicit environment variables
-- Requires setting up `.env` file with your Snowflake credentials
+- Requires setting up environment variables in your shell or environment
 - Supports all standard Snowflake authentication methods
 - Ideal for local development and testing
 
@@ -189,7 +196,7 @@ For detailed development guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 **Authentication Errors**:
 - **Active Session (SiS)**: Ensure you're logged into Snowflake and have an active session
 - **Connection Parameters**: Verify connection parameters are properly configured in your Snowflake environment
-- **Environment Variables**: Verify your `.env` file contains correct credentials for local development
+- **Environment Variables**: Verify your environment variables are set correctly for local development
 - **General**: The system automatically tries three authentication methods - check the status messages for which method succeeded or failed
 
 **Private Key Authentication Gotcha**:
@@ -240,17 +247,42 @@ Please add your own license information here. A common choice for open-source pr
 
 ## 🛠️ Local Development with python-dotenv
 
-This project supports [python-dotenv](https://pypi.org/project/python-dotenv/). If you have a `.env` file in your project root, environment variables will be loaded automatically when you run the app locally. This is the recommended way to manage secrets and configuration for local development.
+This project supports [python-dotenv](https://pypi.org/project/python-dotenv/). If you have a `.env` file in your project root, environment variables will be loaded automatically when you run the app locally. **However, .env files must never be present in the project repository or committed to version control.**
 
-To use:
+To use for local, untracked development only:
 1. Install dependencies (python-dotenv is included in requirements.txt)
-2. Copy `config.example.env` to `.env` and fill in your credentials
+2. Set environment variables in your shell, or create a `.env` file locally (never tracked or committed)
 3. Run the app as usual
 
-```bash
-cp config.example.env .env
-streamlit run src/svg_image_generator/app.py
+Example `.env` (for local, untracked use only):
 ```
+SNOWFLAKE_ACCOUNT=xy12345.us-east-1
+SNOWFLAKE_USER=myuser
+SNOWFLAKE_PASSWORD=mypassword123
+SNOWFLAKE_WAREHOUSE=COMPUTE_WH
+# Optional:
+SNOWFLAKE_DATABASE=MY_DB
+SNOWFLAKE_SCHEMA=PUBLIC
+SNOWFLAKE_ROLE=MY_ROLE
+```
+
+**Never commit or share .env files. All environment variable documentation is in this README.**
+
+### Environment Validation
+
+The project includes tools to validate your environment setup:
+
+```bash
+# Validate environment variables
+make validate-env
+
+# Or run the validation script directly
+python scripts/validate_env.py
+```
+
+This will check that all required environment variables are present and provide clear error messages if any are missing.
+
+**Security Note**: Never commit `.env` files to version control. The project includes pre-commit hooks and `.gitignore` rules to prevent accidental credential exposure.
 
 ## 🔥 Real Connection Smoke Test
 

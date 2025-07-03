@@ -1,0 +1,166 @@
+meta:
+  name: Environment Variable Security
+  description: >
+    Enforces secure environment variable management using python-dotenv.
+    Strictly prohibits .env and example env files from being present in the project directory or repository.
+    All environment variable requirements must be documented in the README or other documentation, never in a template file.
+
+rules:
+  - when: environment.variables
+    then:
+      - "Always use python-dotenv for environment variable management"
+      - "Never allow .env or any example env files in the project directory or repository"
+      - "Document all required environment variables in the README or other documentation"
+      - "Load environment variables using load_dotenv() at application startup"
+      - "Validate required environment variables are present before application execution"
+
+  - when: credential.management
+    then:
+      - "Never hardcode credentials in source code"
+      - "Never store credentials in project files"
+      - "Use environment variables for all sensitive configuration"
+      - "Validate credential presence before establishing connections"
+      - "Provide clear error messages when required credentials are missing"
+
+  - when: file.creation
+    then:
+      - "Never create .env or example env files in the project directory"
+      - "Document all required environment variables in the README or other documentation"
+      - "Do not provide any template env files"
+
+  - when: git.operations
+    then:
+      - "Ensure .env files are in .gitignore"
+      - "Never commit .env or example env files to version control"
+      - "Validate .gitignore includes .env patterns before commits"
+
+  - when: application.startup
+    then:
+      - "Call load_dotenv() at the beginning of main application files"
+      - "Validate required environment variables are present"
+      - "Provide clear error messages for missing environment variables"
+      - "Use os.getenv() or os.environ.get() to access environment variables"
+
+  - when: development.setup
+    then:
+      - "Document environment setup process in README.md"
+      - "Provide a list of required environment variables in documentation"
+      - "Include validation scripts to check environment variable presence"
+      - "Use make commands for environment setup where possible"
+
+  - when: testing.environment
+    then:
+      - "Use test-specific environment variables for testing"
+      - "Never use production credentials in tests"
+      - "Mock environment variables in unit tests"
+      - "Use .env.test for test-specific configuration if needed, but never commit it"
+
+  - when: deployment.environment
+    then:
+      - "Use deployment platform environment variable management"
+      - "Never include .env or example env files in deployment artifacts"
+      - "Validate environment variables in deployment scripts"
+      - "Use secure secret management for production credentials"
+
+  - when: error.handling
+    then:
+      - "Provide clear error messages when environment variables are missing"
+      - "Include the name of missing environment variables in error messages"
+      - "Reference documentation for required variables in error messages"
+      - "Log environment variable validation failures"
+
+validation:
+  required_patterns:
+    - "load_dotenv() called at application startup"
+    - "Environment variables accessed via os.getenv() or os.environ.get()"
+    - "Required environment variables documented in README.md"
+    - ".env files in .gitignore"
+
+  forbidden_patterns:
+    - ".env or example env files in project directory or repository"
+    - "Hardcoded credentials in source code"
+    - "Direct credential file references"
+    - "Environment variables committed to version control"
+
+examples:
+  correct_usage:
+    scenario: "Application startup with environment variables"
+    code: |
+      from dotenv import load_dotenv
+      import os
+
+      # Load environment variables
+      load_dotenv()
+
+      # Validate required variables
+      required_vars = ['SNOWFLAKE_ACCOUNT', 'SNOWFLAKE_USER', 'SNOWFLAKE_PASSWORD']
+      missing_vars = [var for var in required_vars if not os.getenv(var)]
+
+      if missing_vars:
+          raise ValueError(f"Missing required environment variables: {missing_vars}. "
+                         f"Please see the README for required variables.")
+
+  incorrect_usage:
+    scenario: "Hardcoded credentials or example env files (forbidden)"
+    code: |
+      # NEVER DO THIS
+      SNOWFLAKE_PASSWORD = "mypassword123"  # Hardcoded credential
+
+      # NEVER DO THIS
+      with open('.env', 'r') as f:  # Direct .env file access
+          credentials = f.read()
+
+      # NEVER DO THIS
+      # Provide a config.example.env or .env.example file in the repo
+
+  setup_instructions:
+    scenario: "Development environment setup"
+    steps:
+      - "Set required environment variables in your shell or deployment platform"
+      - "Never create or use .env or example env files in the project directory"
+      - "Use load_dotenv() in application code if you want to load from a local .env (never committed)"
+      - "See the README for the list of required variables"
+
+  validation_script:
+    scenario: "Environment variable validation"
+    code: |
+      import os
+      from dotenv import load_dotenv
+
+      def validate_environment():
+          load_dotenv()
+          required = ['SNOWFLAKE_ACCOUNT', 'SNOWFLAKE_USER', 'SNOWFLAKE_PASSWORD']
+          missing = [var for var in required if not os.getenv(var)]
+
+          if missing:
+              print(f"Missing environment variables: {missing}")
+              print("Please see the README for required variables.")
+              return False
+          return True
+
+rationale: >
+  This rule ensures:
+  - Credentials are never stored in the project repository
+  - Environment variables are managed securely using python-dotenv
+  - All requirements are documented in the README, not in template files
+  - Consistent environment variable access patterns
+  - Proper error handling for missing environment variables
+  - Secure development and deployment practices
+
+  This prevents:
+  - Accidental credential exposure in version control
+  - Hardcoded credentials in source code
+  - Inconsistent environment variable management
+  - Security vulnerabilities from credential mismanagement
+  - Deployment issues from missing environment variables
+
+  Recent violations that this rule addresses:
+  - Creating .env or example env files in project directory
+  - Hardcoding credentials in source code
+  - Not using python-dotenv for environment variable management
+  - Missing environment variable validation
+  - Inconsistent environment variable access patterns
+
+---
+
+This rule ensures secure environment variable management using python-dotenv and prevents credential exposure in the project repository.
