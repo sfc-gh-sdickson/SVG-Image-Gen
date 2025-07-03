@@ -17,6 +17,8 @@ help:
 	@echo "  run-svg-display - Run the SVG Display app"
 	@echo "  test-svg-display - Test SVG Display app imports"
 	@echo "  pre-commit   - Run pre-commit hooks"
+	@echo "  validate-env - Validate environment variables"
+	@echo "  check-env    - Check environment setup"
 
 # Installation
 install:
@@ -109,6 +111,13 @@ validate-svg-display: test-svg-display
 setup-dev: install-dev
 	pre-commit install
 	@echo "Development environment setup complete!"
+
+# Environment validation
+validate-env:
+	.venv/bin/python scripts/validate_env.py
+
+check-env: validate-env
+	@echo "Environment validation complete!"
 
 # Quick checks
 check: lint test

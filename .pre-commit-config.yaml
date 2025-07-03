@@ -71,6 +71,15 @@ repos:
         stages: [pre-commit]
         description: "Automatically detect and add missing type stubs to requirements-dev.txt"
 
+      - id: check-env-files
+        name: Check for .env files
+        entry: scripts/check_env_files.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+        description: "Prevent .env files from being committed to version control"
+
       - id: pytest-check
         name: pytest
         entry: pytest
