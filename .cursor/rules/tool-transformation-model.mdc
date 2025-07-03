@@ -1,0 +1,280 @@
+# tool-transformation-model.mdc
+
+meta:
+  name: Tool Transformation Model
+  description: >
+    Defines all development tools as transformation agents that convert input artifacts
+    to output artifacts. Includes build tools, testing tools, documentation generators,
+    and development workflow orchestration through Makefile and UV integration.
+
+rules:
+  - when: tool.execution
+    then:
+      - "All tools are transformation agents converting input to output"
+      - "Use make targets for development workflow orchestration"
+      - "Prefer uv over pip for Python package management"
+      - "Map PDCA phases to appropriate make targets"
+      - "Validate transformations with appropriate tools"
+
+  - when: build.workflow
+    then:
+      - "Use make build for package building"
+      - "Use uv build for modern Python builds"
+      - "Use hatchling for package distribution"
+      - "Validate build artifacts with appropriate tests"
+
+  - when: test.workflow
+    then:
+      - "Use make test for test execution"
+      - "Use pytest for test framework"
+      - "Use coverage for test coverage measurement"
+      - "Use mypy for type checking"
+      - "Map PDCA phases to test targets"
+
+  - when: development.workflow
+    then:
+      - "Use make run for application execution"
+      - "Use make run-dev for development mode"
+      - "Use make setup-dev for environment setup"
+      - "Use make check for comprehensive validation"
+
+  - when: code.quality
+    then:
+      - "Use make lint for all linting checks"
+      - "Use make format for code formatting"
+      - "Use black for code formatting"
+      - "Use ruff for fast linting"
+      - "Use flake8 for style enforcement"
+      - "Use bandit for security checks"
+
+  - when: documentation.workflow
+    then:
+      - "Use make docs for documentation building"
+      - "Use make docs-serve for local documentation"
+      - "Use mkdocs for documentation site generation"
+      - "Use markdown processors for content transformation"
+
+  - when: artifact.processing
+    then:
+      - "Use PyYAML/ruamel.yaml for MDC processing"
+      - "Use rdflib for TTL/RDF processing"
+      - "Use markdown processors for markdown transformation"
+      - "Use pip-tools for requirements management"
+
+  - when: dependency.management
+    then:
+      - "Use uv pip install for package installation"
+      - "Use uv pip install -r requirements-dev.txt for dev dependencies"
+      - "Use uv build for package building"
+      - "Use uv sync for dependency synchronization"
+
+  - when: pdca.workflow
+    then:
+      - "PLAN: make test, make lint"
+      - "DO: make docs, read relevant files"
+      - "CHECK: make test-cov, make lint"
+      - "ACT: make format, make build, make test"
+
+transformation_model:
+  build_tools:
+    make:
+      input: "Makefile, source files"
+      output: "Built artifacts, test results"
+      command: "make [target]"
+      description: "Build and development workflow orchestration"
+
+    uv:
+      input: "pyproject.toml, requirements files"
+      output: "Installed packages, built distributions"
+      command: "uv [command]"
+      description: "Python package and dependency management"
+
+    hatchling:
+      input: "pyproject.toml, source files"
+      output: "Built packages"
+      command: "hatchling build"
+      description: "Python package building"
+
+  testing_tools:
+    pytest:
+      input: "Test files, source files"
+      output: "Test results, coverage data"
+      command: "pytest [options]"
+      description: "Test execution and PDCA phase tracking"
+
+    coverage:
+      input: "Test execution data"
+      output: "Coverage reports"
+      command: "coverage [command]"
+      description: "Test coverage measurement"
+
+    mypy:
+      input: "Python source files"
+      output: "Type checking results"
+      command: "mypy [files]"
+      description: "Type checking and model validation"
+
+  code_quality:
+    black:
+      input: "Python source files"
+      output: "Formatted Python files"
+      command: "black [files]"
+      description: "Code formatting"
+
+    ruff:
+      input: "Python source files"
+      output: "Linting results, auto-fixes"
+      command: "ruff [command]"
+      description: "Fast Python linter"
+
+    flake8:
+      input: "Python source files"
+      output: "Style violations"
+      command: "flake8 [files]"
+      description: "Style guide enforcement"
+
+    bandit:
+      input: "Python source files"
+      output: "Security issues"
+      command: "bandit [files]"
+      description: "Security linting"
+
+  documentation:
+    mkdocs:
+      input: "Markdown files, configuration"
+      output: "Documentation site"
+      command: "mkdocs [command]"
+      description: "Documentation site generation"
+
+    markdown_processors:
+      input: "Markdown files"
+      output: "Processed markdown"
+      libraries: ["markdown-it-py", "mistune", "panflute"]
+      description: "Markdown content transformation"
+
+  artifact_processors:
+    mdc:
+      input: "MDC files"
+      output: "Processed MDC content"
+      libraries: ["PyYAML", "ruamel.yaml"]
+      description: "Model Definition Card processing"
+
+    ttl:
+      input: "TTL/RDF files"
+      output: "Processed RDF data"
+      libraries: ["rdflib"]
+      description: "Turtle/RDF processing"
+
+    requirements:
+      input: "Requirements files"
+      output: "Resolved dependencies"
+      libraries: ["pip-tools"]
+      description: "Requirements file management"
+
+  development:
+    streamlit:
+      input: "Streamlit app files"
+      output: "Web application"
+      command: "streamlit run [app]"
+      description: "Web application framework"
+
+    snowflake:
+      input: "SQL files, configuration"
+      output: "Database operations"
+      command: "snowsql [options]"
+      description: "Snowflake database interaction"
+
+makefile_integration:
+  targets:
+    install: "make install - Install runtime dependencies"
+    install_dev: "make install-dev - Install development dependencies"
+    test: "make test - Run all tests"
+    test_cov: "make test-cov - Run tests with coverage"
+    test_fast: "make test-fast - Run fast tests only"
+    test_integration: "make test-integration - Run integration tests"
+    test_unit: "make test-unit - Run unit tests"
+    lint: "make lint - Run all linting checks"
+    format: "make format - Format code"
+    clean: "make clean - Clean build artifacts"
+    build: "make build - Build package"
+    run: "make run - Run Streamlit app"
+    run_dev: "make run-dev - Run Streamlit app in development mode"
+    docs: "make docs - Build documentation"
+    docs_serve: "make docs-serve - Serve documentation locally"
+    check: "make check - Run lint and test"
+    pre_commit: "make pre-commit - Run pre-commit hooks"
+    setup_dev: "make setup-dev - Setup development environment"
+
+  pdca_mapping:
+    plan: ["test", "lint"]
+    do: ["docs"]
+    check: ["test-cov", "lint"]
+    act: ["format", "build", "test"]
+
+uv_integration:
+  commands:
+    install: "uv pip install - Install packages"
+    install_dev: "uv pip install -r requirements-dev.txt - Install dev dependencies"
+    build: "uv build - Build package"
+    publish: "uv publish - Publish package"
+    run: "uv run - Run Python scripts"
+    sync: "uv sync - Sync dependencies"
+    update: "uv pip install --upgrade - Update packages"
+
+examples:
+  build_workflow:
+    scenario: "Building and testing the application"
+    steps:
+      - "make clean - Clean previous artifacts"
+      - "make install-dev - Install development dependencies"
+      - "make lint - Check code quality"
+      - "make test - Run all tests"
+      - "make build - Build the package"
+      - "make test-cov - Validate with coverage"
+
+  pdca_workflow:
+    scenario: "Following PDCA cycle with make targets"
+    plan:
+      - "make test - Identify failing tests"
+      - "make lint - Identify code quality issues"
+    do:
+      - "make docs - Generate current documentation"
+      - "Read relevant source files"
+    check:
+      - "make test-cov - Validate with coverage"
+      - "make lint - Verify code quality"
+    act:
+      - "make format - Format code changes"
+      - "make build - Build updated package"
+      - "make test - Validate all changes"
+
+  tool_transformation:
+    scenario: "Processing MDC files"
+    input: "MDC file with YAML frontmatter and markdown content"
+    transformation: "PyYAML for YAML parsing + markdown processor for content"
+    output: "Structured MDC data with validated content"
+
+rationale: >
+  The tool transformation model ensures:
+  - Consistent tool usage across the project
+  - Clear mapping of tools to their transformation purpose
+  - Integration of PDCA workflow with build tools
+  - Standardized development workflow through Makefile
+  - Modern Python development practices with UV
+  - Proper artifact processing for all file types
+  - Systematic approach to tool selection and usage
+
+  This model prevents:
+  - Inconsistent tool usage
+  - Manual workflow steps
+  - Tool conflicts and version issues
+  - Lack of integration between tools
+  - Inefficient development workflows
+
+---
+
+This rule ensures all tools are properly modeled as transformation agents with clear input/output relationships and integrated workflows.
+description:
+globs:
+alwaysApply: false
+---

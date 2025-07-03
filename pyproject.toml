@@ -186,11 +186,13 @@ markers = [
     "e2e: marks tests as end-to-end tests",
     "snowflake: marks tests that require Snowflake connection",
     "ai: marks tests that require AI service",
-    "pdca_plan: marks tests for PDCA Plan phase",
-    "pdca_do: marks tests for PDCA Do phase",
-    "pdca_check: marks tests for PDCA Check phase",
-    "pdca_act: marks tests for PDCA Act phase",
-    "tdd: marks tests following Test-Driven Development approach",
+    "pdca_plan: marks tests for PDCA Plan phase - analyze test failures to understand what's broken",
+    "pdca_do: marks tests for PDCA Do phase - read relevant files to understand current state",
+    "pdca_check: marks tests for PDCA Check phase - validate what's actually wrong vs what tests expect",
+    "pdca_act: marks tests for PDCA Act phase - implement specific fixes after analysis",
+    "tdd: marks tests following Test-Driven Development approach - tests must exist and fail before implementation",
+    "logging: marks tests that verify logging behavior and error visibility",
+    "model_driven: marks tests that validate model-driven development patterns",
 ]
 
 [tool.coverage.run]
@@ -331,3 +333,175 @@ svg-generator = "svg_image_generator.cli:main"
 dev = [
     "snowflake-cli",
 ]
+
+# PDCA Development Methodology Configuration
+[tool.pdca]
+# Development workflow configuration for Plan-Do-Check-Act cycle
+methodology = "test-driven-model-driven"
+description = """
+PDCA (Plan-Do-Check-Act) Development Methodology with Test-Driven, Model-Driven Approach
+
+Core Principles:
+1. Tests and logs must exist and fail before implementing any function
+2. Always fix tests first and add logging to make test failures evident
+3. Follow the PDCA cycle for all development work
+
+Workflow:
+- PLAN: Analyze test failures to understand what's broken
+- DO: Read relevant files to understand current state
+- CHECK: Validate what's actually wrong vs what tests expect
+- ACT: Only then propose specific fixes
+
+Required Tools:
+- pytest with PDCA markers for workflow tracking
+- structlog for comprehensive logging
+- coverage reporting for validation
+- mypy for type checking and model validation
+- make for build and development workflow orchestration
+- uv for dependency and task management
+"""
+
+# Tool Transformation Model Configuration
+[tool.transformations]
+# Defines tools as transformation agents for different artifact types
+description = """
+Tool Transformation Model: All development tools are modeled as transformation agents
+that convert input artifacts to output artifacts. This includes build tools, testing tools,
+documentation generators, and development workflow orchestration.
+
+Transformation Categories:
+- Build Tools: pyproject.toml, Makefile, uv
+- Testing Tools: pytest, coverage, mypy
+- Documentation: mkdocs, markdown processors
+- Code Quality: black, ruff, flake8, bandit
+- Development: streamlit, snowflake tools
+- Artifact Processing: MDC, TTL, PDF, requirements files
+"""
+
+[tool.transformations.build_tools]
+make = {command = "make", description = "Build and development workflow orchestration"}
+uv = {command = "uv", description = "Python package and dependency management"}
+hatchling = {command = "hatchling", description = "Python package building"}
+pip = {command = "pip", description = "Python package installation"}
+
+[tool.transformations.testing_tools]
+pytest = {command = "pytest", description = "Test execution and PDCA phase tracking"}
+coverage = {command = "coverage", description = "Test coverage measurement"}
+mypy = {command = "mypy", description = "Type checking and model validation"}
+
+[tool.transformations.code_quality]
+black = {command = "black", description = "Code formatting"}
+ruff = {command = "ruff", description = "Fast Python linter"}
+flake8 = {command = "flake8", description = "Style guide enforcement"}
+bandit = {command = "bandit", description = "Security linting"}
+isort = {command = "isort", description = "Import sorting"}
+
+[tool.transformations.documentation]
+mkdocs = {command = "mkdocs", description = "Documentation site generation"}
+markdown_processors = ["markdown-it-py", "mistune", "panflute"]
+
+[tool.transformations.artifact_processors]
+mdc = {libraries = ["PyYAML", "ruamel.yaml"], description = "Model Definition Card processing"}
+ttl = {libraries = ["rdflib"], description = "Turtle/RDF processing"}
+pdf = {libraries = ["reportlab", "weasyprint"], description = "PDF generation"}
+requirements = {libraries = ["pip-tools"], description = "Requirements file management"}
+
+[tool.transformations.development]
+streamlit = {command = "streamlit", description = "Web application framework"}
+snowflake = {command = "snowsql", description = "Snowflake database interaction"}
+
+# Makefile Integration Configuration
+[tool.make]
+# Integration with Makefile for build and development workflows
+description = """
+Makefile integration for development workflow orchestration.
+All development tasks are mapped to make targets for consistency.
+"""
+
+[tool.make.targets]
+install = {command = "make install", description = "Install runtime dependencies"}
+install_dev = {command = "make install-dev", description = "Install development dependencies"}
+test = {command = "make test", description = "Run all tests"}
+test_cov = {command = "make test-cov", description = "Run tests with coverage"}
+test_fast = {command = "make test-fast", description = "Run fast tests only"}
+test_integration = {command = "make test-integration", description = "Run integration tests"}
+test_unit = {command = "make test-unit", description = "Run unit tests"}
+lint = {command = "make lint", description = "Run all linting checks"}
+format = {command = "make format", description = "Format code"}
+clean = {command = "make clean", description = "Clean build artifacts"}
+build = {command = "make build", description = "Build package"}
+run = {command = "make run", description = "Run Streamlit app"}
+run_dev = {command = "make run-dev", description = "Run Streamlit app in development mode"}
+docs = {command = "make docs", description = "Build documentation"}
+docs_serve = {command = "make docs-serve", description = "Serve documentation locally"}
+check = {command = "make check", description = "Run lint and test"}
+pre_commit = {command = "make pre-commit", description = "Run pre-commit hooks"}
+setup_dev = {command = "make setup-dev", description = "Setup development environment"}
+
+[tool.make.pdca_integration]
+# PDCA workflow mapped to make targets
+plan = {targets = ["test", "lint"], description = "Run tests and checks to identify issues"}
+do = {targets = ["docs"], description = "Generate documentation for current state"}
+check = {targets = ["test-cov", "lint"], description = "Validate with coverage and quality checks"}
+act = {targets = ["format", "build", "test"], description = "Format, build, and test changes"}
+
+# UV Integration Configuration
+[tool.uv]
+# UV tool integration for modern Python development
+description = """
+UV integration for fast Python package management and task execution.
+Preferred over pip for dependency management and build tasks.
+"""
+
+[tool.uv.commands]
+install = {command = "uv pip install", description = "Install packages"}
+install_dev = {command = "uv pip install -r requirements-dev.txt", description = "Install dev dependencies"}
+build = {command = "uv build", description = "Build package"}
+publish = {command = "uv publish", description = "Publish package"}
+run = {command = "uv run", description = "Run Python scripts"}
+sync = {command = "uv sync", description = "Sync dependencies"}
+update = {command = "uv pip install --upgrade", description = "Update packages"}
+
+[tool.pdca.workflow]
+plan_phase = [
+    "run existing tests to identify failures",
+    "analyze test output and error messages",
+    "understand the expected vs actual behavior",
+    "identify root cause of failures"
+]
+do_phase = [
+    "read relevant source files",
+    "examine current implementation state",
+    "review related test files",
+    "understand dependencies and context"
+]
+check_phase = [
+    "validate actual behavior against test expectations",
+    "verify logging output for error visibility",
+    "check type annotations and model compliance",
+    "confirm test coverage requirements"
+]
+act_phase = [
+    "implement specific fixes based on analysis",
+    "add comprehensive logging for debugging",
+    "update tests if necessary",
+    "validate changes against all test suites"
+]
+
+[tool.pdca.requirements]
+test_first = true
+logging_required = true
+coverage_minimum = 75
+type_checking = true
+model_validation = true
+scope_discipline = true
+tool_compliance = true
+change_minimization = true
+
+[tool.pdca.enforcement]
+scope_control = "strict"
+change_minimization = "mandatory"
+tool_compliance = "strict"
+pdca_phase_completion = "required"
+unauthorized_changes = "prohibited"
+make_command_usage = "mandatory"

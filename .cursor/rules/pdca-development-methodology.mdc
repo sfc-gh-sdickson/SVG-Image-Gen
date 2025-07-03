@@ -1,0 +1,308 @@
+---
+description: Defines the Plan-Do-Check-Act development cycle with test-driven, model-driven approach and strict scope discipline
+globs: **/*
+alwaysApply: true
+---
+
+# pdca-development-methodology.mdc
+
+meta:
+  name: PDCA Development Methodology
+  description: >
+    Defines the Plan-Do-Check-Act development cycle with test-driven, model-driven approach.
+    Ensures systematic problem-solving and quality assurance in all development work.
+    Requires tests and logs to exist and fail before implementing any function.
+    Enforces strict discipline to prevent scope creep and maintain focus.
+
+rules:
+  - when: development.workflow
+    then:
+      - "Follow PDCA cycle: Plan → Do → Check → Act"
+      - "Tests and logs must exist and fail before implementing any function"
+      - "Always fix tests first and add logging to make test failures evident"
+      - "Use pytest markers to track PDCA phases"
+      - "Validate changes against all test suites before completion"
+      - "Maintain strict scope discipline - only address identified issues"
+      - "Use make commands for all development operations"
+
+  - when: pdca.plan
+    then:
+      - "Run existing tests to identify failures"
+      - "Analyze test output and error messages"
+      - "Understand expected vs actual behavior"
+      - "Identify root cause of failures"
+      - "Document findings and hypothesis"
+      - "Define specific scope of work - no scope creep allowed"
+      - "Use make test to execute test suite"
+
+  - when: pdca.do
+    then:
+      - "Read relevant source files"
+      - "Examine current implementation state"
+      - "Review related test files"
+      - "Understand dependencies and context"
+      - "Gather all necessary information"
+      - "Focus only on identified issues - do not make unrelated changes"
+      - "Use make commands for file operations where possible"
+
+  - when: pdca.check
+    then:
+      - "Validate actual behavior against test expectations"
+      - "Verify logging output for error visibility"
+      - "Check type annotations and model compliance"
+      - "Confirm test coverage requirements"
+      - "Ensure all requirements are met"
+      - "Verify scope compliance - no unauthorized changes"
+      - "Use make test-cov for coverage validation"
+
+  - when: pdca.act
+    then:
+      - "Implement specific fixes based on analysis"
+      - "Add comprehensive logging for debugging"
+      - "Update tests if necessary"
+      - "Validate changes against all test suites"
+      - "Document changes and rationale"
+      - "Make minimal changes to address only identified issues"
+      - "Use make format and make test for validation"
+
+  - when: test.driven
+    then:
+      - "Write tests before implementation"
+      - "Ensure tests fail initially (red phase)"
+      - "Implement minimal code to pass tests (green phase)"
+      - "Refactor while maintaining test coverage (refactor phase)"
+      - "Maintain test coverage above 75%"
+      - "Never implement without failing tests first"
+      - "Use make test for test execution"
+
+  - when: logging.required
+    then:
+      - "Use structlog for structured logging"
+      - "Log all error conditions with context"
+      - "Make test failures evident through logging"
+      - "Include relevant data in log messages"
+      - "Use appropriate log levels (DEBUG, INFO, WARNING, ERROR)"
+      - "Add logging before implementing any fixes"
+
+  - when: model.driven
+    then:
+      - "Use type annotations throughout codebase"
+      - "Validate models with mypy"
+      - "Follow ontology-driven development patterns"
+      - "Ensure semantic consistency"
+      - "Document model relationships and constraints"
+      - "Use make lint for type checking"
+
+  - when: code.implementation
+    then:
+      - "Never implement without failing tests first"
+      - "Add logging before implementing fixes"
+      - "Use pytest markers for PDCA phase tracking"
+      - "Follow the exact workflow: Plan → Do → Check → Act"
+      - "Validate all changes against test suites"
+      - "Make minimal, focused changes only"
+      - "Use make commands for all operations"
+
+  - when: scope.discipline
+    then:
+      - "Define specific scope before starting any work"
+      - "Only address identified issues - no scope creep"
+      - "Do not make unrelated changes or improvements"
+      - "Focus on one problem at a time"
+      - "Document scope boundaries clearly"
+      - "Validate scope compliance before completion"
+
+  - when: tool.usage
+    then:
+      - "Use make commands for all development operations"
+      - "Prefer uv over pip for package management"
+      - "Use structured libraries for file operations"
+      - "Follow tool transformation model"
+      - "Validate tool outputs before proceeding"
+
+  - when: change.control
+    then:
+      - "Make minimal changes to address only identified issues"
+      - "Do not refactor unrelated code"
+      - "Do not add new features unless explicitly requested"
+      - "Focus on fixing what's broken, not improving what works"
+      - "Document all changes with clear rationale"
+
+workflow:
+  pdca_cycle:
+    plan:
+      - action: "run_tests"
+        description: "Execute existing test suite"
+        expected: "Identify failing tests and error patterns"
+        command: "make test"
+      - action: "analyze_failures"
+        description: "Understand what's broken"
+        expected: "Clear understanding of root cause"
+      - action: "document_hypothesis"
+        description: "Record findings and proposed solution"
+        expected: "Written hypothesis for fix"
+      - action: "define_scope"
+        description: "Define specific scope of work"
+        expected: "Clear scope boundaries"
+
+    do:
+      - action: "read_source_files"
+        description: "Examine relevant code"
+        expected: "Understanding of current implementation"
+      - action: "review_tests"
+        description: "Analyze test expectations"
+        expected: "Clear test requirements"
+      - action: "gather_context"
+        description: "Understand dependencies and environment"
+        expected: "Complete context for implementation"
+
+    check:
+      - action: "validate_behavior"
+        description: "Compare actual vs expected"
+        expected: "Confirmed understanding of issue"
+      - action: "verify_logging"
+        description: "Ensure error visibility"
+        expected: "Comprehensive logging in place"
+      - action: "check_coverage"
+        description: "Validate test coverage"
+        expected: "Coverage requirements met"
+        command: "make test-cov"
+      - action: "verify_scope"
+        description: "Ensure scope compliance"
+        expected: "No unauthorized changes"
+
+    act:
+      - action: "implement_fix"
+        description: "Apply specific solution"
+        expected: "Code changes address root cause"
+      - action: "add_logging"
+        description: "Enhance debugging capability"
+        expected: "Clear error visibility"
+      - action: "validate_changes"
+        description: "Test all affected areas"
+        expected: "All tests pass"
+        command: "make test"
+
+validation:
+  pytest_markers:
+    - "pdca_plan: Plan phase tests"
+    - "pdca_do: Do phase tests"
+    - "pdca_check: Check phase tests"
+    - "pdca_act: Act phase tests"
+    - "tdd: Test-driven development tests"
+    - "logging: Logging behavior tests"
+    - "model_driven: Model validation tests"
+
+  requirements:
+    test_coverage: ">=75%"
+    logging_framework: "structlog"
+    type_checking: "mypy"
+    test_framework: "pytest"
+    coverage_tool: "coverage[toml]"
+    scope_discipline: "mandatory"
+    tool_usage: "make commands required"
+
+  enforcement:
+    scope_control: "strict"
+    change_minimization: "mandatory"
+    tool_compliance: "strict"
+    pdca_phase_completion: "required"
+
+examples:
+  pdca_workflow:
+    scenario: "Fixing a failing test in authentication module"
+    plan:
+      - "Run: make test tests/test_authentication.py"
+      - "Analyze: Test failure shows missing token validation"
+      - "Document: Need to implement token expiry check"
+      - "Scope: Only fix token validation, no other changes"
+    do:
+      - "Read: src/svg_image_generator/authentication.py"
+      - "Review: tests/test_authentication.py"
+      - "Context: Token validation requirements"
+    check:
+      - "Validate: Current implementation vs requirements"
+      - "Verify: Logging shows token expiry errors"
+      - "Coverage: make test-cov to ensure coverage"
+      - "Scope: Verify no unrelated changes"
+    act:
+      - "Implement: Token expiry validation (minimal change)"
+      - "Add: Structured logging for token errors"
+      - "Test: make test to validate all changes"
+
+  test_driven_example:
+    scenario: "Adding new feature with TDD"
+    red_phase:
+      - "Write failing test for new functionality"
+      - "Ensure test captures expected behavior"
+      - "Run: make test to confirm it fails"
+    green_phase:
+      - "Implement minimal code to pass test"
+      - "Focus on making test pass, not perfect code"
+      - "Verify test now passes with: make test"
+    refactor_phase:
+      - "Improve code quality while maintaining tests"
+      - "Add comprehensive logging"
+      - "Ensure all tests still pass: make test"
+
+  scope_discipline_example:
+    scenario: "Fixing authentication bug"
+    allowed:
+      - "Fix token validation logic"
+      - "Add logging for token errors"
+      - "Update related tests"
+    forbidden:
+      - "Refactor unrelated authentication methods"
+      - "Add new authentication features"
+      - "Change other modules"
+      - "Improve code style of working code"
+
+  tool_compliance_example:
+    scenario: "Development workflow"
+    commands:
+      - "make test - Run test suite"
+      - "make test-cov - Run tests with coverage"
+      - "make lint - Check code quality"
+      - "make format - Format code"
+      - "make build - Build package"
+    forbidden:
+      - "Direct pytest calls (use make test)"
+      - "Direct pip install (use uv)"
+      - "Manual file operations (use structured tools)"
+
+rationale: >
+  The PDCA methodology ensures systematic problem-solving and quality assurance.
+  Combined with test-driven and model-driven approaches, it provides:
+  - Systematic approach to problem-solving
+  - Quality assurance through comprehensive testing
+  - Error visibility through structured logging
+  - Model consistency through type checking
+  - Reproducible and auditable development process
+  - Reduced debugging time through proactive error handling
+  - Strict scope discipline to prevent scope creep
+  - Tool compliance to ensure consistent workflows
+
+  This methodology prevents common development pitfalls:
+  - Implementing without understanding the problem
+  - Missing edge cases in testing
+  - Poor error visibility and debugging
+  - Inconsistent code quality
+  - Lack of systematic approach to fixes
+  - Scope creep and unauthorized changes
+  - Inconsistent tool usage
+  - Excessive changes beyond identified issues
+
+  Recent violations observed:
+  - Making unrelated changes beyond scope
+  - Not following make command requirements
+  - Implementing without proper test-first approach
+  - Adding features not requested
+  - Refactoring working code unnecessarily
+
+---
+
+This rule ensures all development work follows a systematic, test-driven, model-driven approach with comprehensive logging, validation, and strict scope discipline.
+description:
+globs:
+alwaysApply: false
+---
