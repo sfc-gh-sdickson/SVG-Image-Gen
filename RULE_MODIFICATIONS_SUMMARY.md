@@ -134,6 +134,20 @@ Enhanced PDCA development methodology rules to address specific violations obser
 - Branch naming conventions (fix/, feature/, refactor/)
 - Clean git history for easy troubleshooting and rollback
 
+### 8. Enhanced edit_tool Ban (`.cursor/rules/ban-edit-tool-enhanced.mdc`)
+**Added**:
+- Explicit TOML file ban for edit_tool usage
+- Critical warnings for pyproject.toml modifications
+- Enhanced examples for structured format handling
+- Clear decision tree for tool selection
+
+### 9. Updated Test Prompt (`gemini_pdca_test_prompt.md`)
+**Added**:
+- Explicit edit_tool ban for TOML files in test instructions
+- Enhanced scope discipline requirements
+- Critical rule violation warnings
+- Clear success criteria for rule compliance
+
 ## Enforcement Mechanisms
 
 ### 1. Scope Control
@@ -192,7 +206,9 @@ Enhanced PDCA development methodology rules to address specific violations obser
 - ✅ `.cursor/rules/pdca-development-methodology.mdc` (enhanced)
 - ✅ `.cursor/rules/scope-discipline-enforcement.mdc` (new)
 - ✅ `.cursor/rules/tool-transformation-enforcement.mdc` (new)
+- ✅ `.cursor/rules/ban-edit-tool-enhanced.mdc` (enhanced)
 - ✅ `pyproject.toml` (modified with enforcement requirements)
+- ✅ `gemini_pdca_test_prompt.md` (updated test prompt)
 - ✅ `RULE_MODIFICATIONS_SUMMARY.md` (documentation)
 
 ### Files We Removed (Gemini's Unauthorized Changes)
