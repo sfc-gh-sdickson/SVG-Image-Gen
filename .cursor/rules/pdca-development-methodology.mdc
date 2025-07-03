@@ -24,6 +24,8 @@ rules:
       - "Validate changes against all test suites before completion"
       - "Maintain strict scope discipline - only address identified issues"
       - "Use make commands for all development operations"
+      - "Create feature branch for all development work"
+      - "Use git workflow for change isolation and rollback capability"
 
   - when: pdca.plan
     then:
@@ -34,6 +36,8 @@ rules:
       - "Document findings and hypothesis"
       - "Define specific scope of work - no scope creep allowed"
       - "Use make test to execute test suite"
+      - "Create feature branch from main/master"
+      - "Document branch name and scope in commit message"
 
   - when: pdca.do
     then:
@@ -64,6 +68,9 @@ rules:
       - "Document changes and rationale"
       - "Make minimal changes to address only identified issues"
       - "Use make format and make test for validation"
+      - "Commit changes with descriptive messages"
+      - "Validate scope compliance before final commit"
+      - "Prepare for merge or rollback based on validation"
 
   - when: test.driven
     then:
@@ -128,6 +135,33 @@ rules:
       - "Focus on fixing what's broken, not improving what works"
       - "Document all changes with clear rationale"
 
+  - when: git.workflow
+    then:
+      - "Create feature branch for all development work"
+      - "Use descriptive branch names (e.g., 'fix/token-validation-expiry')"
+      - "Commit frequently with clear, descriptive messages"
+      - "Keep commits focused on single changes"
+      - "Use conventional commit format when possible"
+      - "Document scope and rationale in commit messages"
+
+  - when: rollback.strategy
+    then:
+      - "Maintain clean git history for easy rollback"
+      - "Use atomic commits that can be reverted individually"
+      - "Tag important checkpoints before major changes"
+      - "Document rollback procedures for each change type"
+      - "Test rollback procedures before implementing changes"
+      - "Keep main/master branch always in working state"
+
+  - when: scope.violation.detected
+    then:
+      - "Immediately stop development work"
+      - "Document the scope violation"
+      - "Assess impact of unauthorized changes"
+      - "Execute rollback to last clean state"
+      - "Review and update scope definition"
+      - "Restart PDCA cycle with corrected scope"
+
 workflow:
   pdca_cycle:
     plan:
@@ -144,6 +178,10 @@ workflow:
       - action: "define_scope"
         description: "Define specific scope of work"
         expected: "Clear scope boundaries"
+      - action: "create_branch"
+        description: "Create feature branch for development"
+        expected: "Isolated development environment"
+        command: "git checkout -b fix/[issue-description]"
 
     do:
       - action: "read_source_files"
@@ -182,6 +220,14 @@ workflow:
         description: "Test all affected areas"
         expected: "All tests pass"
         command: "make test"
+      - action: "commit_changes"
+        description: "Commit changes with descriptive message"
+        expected: "Clean git history with atomic commits"
+        command: "git commit -m 'fix: [description of change]'"
+      - action: "validate_scope"
+        description: "Verify scope compliance"
+        expected: "No unauthorized changes detected"
+        command: "git diff main --name-only"
 
 validation:
   pytest_markers:
@@ -192,6 +238,40 @@ validation:
     - "tdd: Test-driven development tests"
     - "logging: Logging behavior tests"
     - "model_driven: Model validation tests"
+
+  git_workflow:
+    branch_naming:
+      pattern: "^(fix|feature|refactor)/[a-z0-9-]+$"
+      examples:
+        - "fix/token-validation-expiry"
+        - "feature/authentication-logging"
+        - "refactor/pdca-workflow-enhancement"
+
+    commit_messages:
+      format: "type(scope): description"
+      types: ["fix", "feat", "refactor", "docs", "test", "chore"]
+      examples:
+        - "fix(auth): add token expiry validation"
+        - "feat(logging): enhance error visibility"
+        - "refactor(pdca): improve scope discipline"
+
+  rollback_procedures:
+    scope_violation:
+      - "git checkout main"
+      - "git branch -D [feature-branch]"
+      - "git clean -fd"
+      - "Restart PDCA cycle with corrected scope"
+
+    test_failure:
+      - "git reset --hard HEAD~1"
+      - "Fix failing tests"
+      - "Re-commit with corrected implementation"
+
+    unauthorized_changes:
+      - "git diff main --name-only"
+      - "Review each modified file"
+      - "git checkout main -- [unauthorized-files]"
+      - "Commit only authorized changes"
 
   requirements:
     test_coverage: ">=75%"

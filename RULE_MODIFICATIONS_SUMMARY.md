@@ -21,6 +21,10 @@ Enhanced PDCA development methodology rules to address specific violations obser
 **Problem**: Gemini claimed to have reverted his changes but actually kept them.
 **Solution**: Verified and cleaned up all unauthorized modifications.
 
+### 5. Lack of Rollback Strategy
+**Problem**: No systematic way to rollback unauthorized changes or scope violations.
+**Solution**: Added git workflow and rollback procedures to the PDCA methodology.
+
 ## Rule Modifications Applied
 
 ### 1. Enhanced PDCA Development Methodology (`.cursor/rules/pdca-development-methodology.mdc`)
@@ -77,6 +81,8 @@ Enhanced PDCA development methodology rules to address specific violations obser
 - `scope_discipline = true`
 - `tool_compliance = true`
 - `change_minimization = true`
+- `git_workflow = true`
+- `rollback_strategy = true`
 
 **Added Enforcement**:
 - `scope_control = "strict"`
@@ -84,6 +90,14 @@ Enhanced PDCA development methodology rules to address specific violations obser
 - `tool_compliance = "strict"`
 - `unauthorized_changes = "prohibited"`
 - `make_command_usage = "mandatory"`
+- `git_workflow = "mandatory"`
+- `rollback_execution = "mandatory"`
+
+**Added Git Workflow Configuration**:
+- Branch naming conventions
+- Conventional commit format
+- Scope validation commands
+- Rollback procedures for different scenarios
 
 ## Specific Violations Addressed
 
@@ -107,6 +121,19 @@ Enhanced PDCA development methodology rules to address specific violations obser
 **Before**: Gemini claimed to have reverted changes but kept them
 **After**: Verified and cleaned up all unauthorized modifications
 
+### 6. No Rollback Strategy
+**Before**: No systematic way to handle scope violations or unauthorized changes
+**After**: Git workflow with automatic rollback procedures for violations
+
+### 7. Git Workflow Enhancements
+**Added**:
+- Mandatory feature branch creation for all development work
+- Conventional commit format with scope documentation
+- Automatic scope validation using `git diff main --name-only`
+- Immediate rollback procedures for scope violations
+- Branch naming conventions (fix/, feature/, refactor/)
+- Clean git history for easy troubleshooting and rollback
+
 ## Enforcement Mechanisms
 
 ### 1. Scope Control
@@ -126,6 +153,18 @@ Enhanced PDCA development methodology rules to address specific violations obser
 - Prohibition of unrelated refactoring
 - Requirement to fix only what's broken
 - Documentation of change rationale
+
+### 4. Git Workflow and Rollback
+- Mandatory feature branch creation for all development work
+- Conventional commit format with scope documentation
+- Automatic scope validation using git diff
+- Immediate rollback procedures for scope violations
+- Clean git history for easy troubleshooting
+
+**Rollback Procedures**:
+- **Scope Violation**: `git checkout main && git branch -D [feature-branch] && git clean -fd`
+- **Unauthorized Changes**: `git diff main --name-only` then `git checkout main -- [unauthorized-files]`
+- **Test Failure**: `git reset --hard HEAD~1` then fix and re-commit
 
 ## Cleanup Actions Taken
 
@@ -237,6 +276,12 @@ Consider additional rules for:
 - Consistent tool usage prevents errors
 - Make commands provide orchestration
 - Direct tool calls bypass important checks
+
+### 4. Git Workflow is Essential
+- Feature branches provide isolation and safety
+- Rollback procedures prevent scope creep
+- Conventional commits improve traceability
+- Git diff validation catches unauthorized changes early
 
 ---
 
