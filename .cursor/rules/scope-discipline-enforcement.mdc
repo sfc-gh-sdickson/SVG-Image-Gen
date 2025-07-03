@@ -1,0 +1,189 @@
+# scope-discipline-enforcement.mdc
+
+meta:
+  name: Scope Discipline Enforcement
+  description: >
+    Enforces strict scope discipline and change control to prevent unauthorized modifications,
+    scope creep, and excessive changes beyond identified issues. Ensures focused, minimal
+    changes that address only the specific problems identified.
+
+rules:
+  - when: development.task
+    then:
+      - "Define specific scope before starting any work"
+      - "Document scope boundaries clearly"
+      - "Only address identified issues - no scope creep"
+      - "Focus on one problem at a time"
+      - "Validate scope compliance before completion"
+
+  - when: code.changes
+    then:
+      - "Make minimal changes to address only identified issues"
+      - "Do not refactor unrelated code"
+      - "Do not add new features unless explicitly requested"
+      - "Focus on fixing what's broken, not improving what works"
+      - "Document all changes with clear rationale"
+
+  - when: scope.definition
+    then:
+      - "Identify specific failing tests or issues"
+      - "Define exact files and functions to modify"
+      - "List specific changes required"
+      - "Exclude unrelated improvements or refactoring"
+      - "Set clear boundaries for what is and is not allowed"
+
+  - when: scope.validation
+    then:
+      - "Review all changes against defined scope"
+      - "Reject changes outside scope boundaries"
+      - "Verify no unrelated modifications"
+      - "Ensure changes address only identified issues"
+      - "Document scope compliance"
+
+  - when: unauthorized.changes
+    then:
+      - "Do not modify unrelated files or functions"
+      - "Do not add new features or improvements"
+      - "Do not refactor working code"
+      - "Do not change code style of unrelated code"
+      - "Do not add new dependencies unless required"
+
+  - when: change.minimization
+    then:
+      - "Make smallest possible change to fix issue"
+      - "Avoid comprehensive refactoring"
+      - "Focus on specific bug or test failure"
+      - "Do not improve code that is not broken"
+      - "Keep changes focused and targeted"
+
+  - when: tool.compliance
+    then:
+      - "Use make commands for all development operations"
+      - "Follow tool transformation model"
+      - "Use structured libraries for file operations"
+      - "Validate tool outputs before proceeding"
+      - "Prefer uv over pip for package management"
+
+  - when: pdca.scope
+    then:
+      - "PLAN: Define specific scope based on test failures"
+      - "DO: Focus only on identified issues"
+      - "CHECK: Verify scope compliance"
+      - "ACT: Make minimal changes within scope"
+
+scope_control:
+  required_actions:
+    - "Define scope before starting work"
+    - "Document scope boundaries"
+    - "Validate changes against scope"
+    - "Reject out-of-scope changes"
+    - "Focus on identified issues only"
+
+  forbidden_actions:
+    - "Making unrelated changes"
+    - "Adding new features"
+    - "Refactoring working code"
+    - "Improving code style of unrelated code"
+    - "Adding unnecessary dependencies"
+
+  validation_steps:
+    - "Review all modified files"
+    - "Check against defined scope"
+    - "Verify changes address identified issues"
+    - "Ensure no unauthorized modifications"
+    - "Document scope compliance"
+
+examples:
+  scope_definition:
+    scenario: "Fixing authentication token validation"
+    scope:
+      allowed:
+        - "Modify token validation logic in authentication.py"
+        - "Add logging for token expiry errors"
+        - "Update related tests in test_authentication.py"
+      forbidden:
+        - "Refactor other authentication methods"
+        - "Add new authentication features"
+        - "Change other modules"
+        - "Improve code style of working code"
+
+  change_minimization:
+    scenario: "Fixing failing test"
+    approach:
+      correct:
+        - "Identify specific test failure"
+        - "Make minimal change to fix that test"
+        - "Add logging for debugging"
+        - "Verify test passes"
+      incorrect:
+        - "Refactor entire module"
+        - "Add new features"
+        - "Improve unrelated code"
+        - "Change multiple files unnecessarily"
+
+  scope_violation_examples:
+    scenario: "Recent violations observed"
+    violations:
+      - "Making unrelated changes beyond scope"
+      - "Adding new features not requested"
+      - "Refactoring working code unnecessarily"
+      - "Changing multiple files for single issue"
+      - "Improving code style of unrelated functions"
+
+  tool_compliance:
+    scenario: "Development workflow"
+    required:
+      - "make test - Run test suite"
+      - "make test-cov - Run tests with coverage"
+      - "make lint - Check code quality"
+      - "make format - Format code"
+    forbidden:
+      - "Direct pytest calls (use make test)"
+      - "Direct pip install (use uv)"
+      - "Manual file operations (use structured tools)"
+
+validation:
+  scope_checklist:
+    - "Is the change within defined scope?"
+    - "Does it address only identified issues?"
+    - "Are there any unrelated modifications?"
+    - "Is the change minimal and focused?"
+    - "Is scope compliance documented?"
+
+  enforcement_level:
+    scope_control: "strict"
+    change_minimization: "mandatory"
+    tool_compliance: "strict"
+    unauthorized_changes: "prohibited"
+
+rationale: >
+  Scope discipline enforcement prevents common development problems:
+  - Scope creep leading to excessive changes
+  - Unauthorized modifications to unrelated code
+  - Adding features not requested
+  - Refactoring working code unnecessarily
+  - Inconsistent tool usage
+  - Loss of focus on identified issues
+
+  This rule ensures:
+  - Focused, targeted development work
+  - Minimal changes to address specific issues
+  - Consistent tool usage and workflows
+  - Clear boundaries for what changes are allowed
+  - Prevention of unauthorized modifications
+  - Systematic approach to problem-solving
+
+  Recent violations that this rule addresses:
+  - Making unrelated changes beyond scope
+  - Not following make command requirements
+  - Adding features not requested
+  - Refactoring working code unnecessarily
+  - Changing multiple files for single issues
+
+---
+
+This rule ensures all development work maintains strict scope discipline and makes only authorized, minimal changes to address identified issues.
+description:
+globs:
+alwaysApply: false
+---
