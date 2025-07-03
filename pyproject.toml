@@ -462,6 +462,40 @@ run = {command = "uv run", description = "Run Python scripts"}
 sync = {command = "uv sync", description = "Sync dependencies"}
 update = {command = "uv pip install --upgrade", description = "Update packages"}
 
+# Git Workflow Configuration
+[tool.git]
+# Git workflow integration for development and rollback
+description = """
+Git workflow integration for development isolation and rollback capability.
+Ensures all changes are made in feature branches with proper rollback procedures.
+"""
+
+[tool.git.workflow]
+branch_creation = {command = "git checkout -b", description = "Create feature branch"}
+branch_naming = {pattern = "^(fix|feature|refactor)/[a-z0-9-]+$", description = "Branch naming convention"}
+commit_format = {format = "type(scope): description", description = "Conventional commit format"}
+scope_validation = {command = "git diff main --name-only", description = "Validate scope compliance"}
+rollback_procedure = {command = "git checkout main && git branch -D", description = "Rollback to clean state"}
+
+[tool.git.rollback]
+scope_violation = [
+    "git checkout main",
+    "git branch -D [feature-branch]",
+    "git clean -fd",
+    "Restart PDCA cycle with corrected scope"
+]
+unauthorized_changes = [
+    "git diff main --name-only",
+    "Review each modified file",
+    "git checkout main -- [unauthorized-files]",
+    "Commit only authorized changes"
+]
+test_failure = [
+    "git reset --hard HEAD~1",
+    "Fix failing tests",
+    "Re-commit with corrected implementation"
+]
+
 [tool.pdca.workflow]
 plan_phase = [
     "run existing tests to identify failures",
@@ -497,6 +531,8 @@ model_validation = true
 scope_discipline = true
 tool_compliance = true
 change_minimization = true
+git_workflow = true
+rollback_strategy = true
 
 [tool.pdca.enforcement]
 scope_control = "strict"
@@ -505,3 +541,5 @@ tool_compliance = "strict"
 pdca_phase_completion = "required"
 unauthorized_changes = "prohibited"
 make_command_usage = "mandatory"
+git_workflow = "mandatory"
+rollback_execution = "mandatory"

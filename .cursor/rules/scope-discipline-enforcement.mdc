@@ -15,6 +15,8 @@ rules:
       - "Only address identified issues - no scope creep"
       - "Focus on one problem at a time"
       - "Validate scope compliance before completion"
+      - "Create feature branch for isolated development"
+      - "Use git workflow for change tracking and rollback"
 
   - when: code.changes
     then:
@@ -39,6 +41,8 @@ rules:
       - "Verify no unrelated modifications"
       - "Ensure changes address only identified issues"
       - "Document scope compliance"
+      - "Use git diff to verify scope compliance"
+      - "Execute rollback if scope violations detected"
 
   - when: unauthorized.changes
     then:
@@ -47,6 +51,8 @@ rules:
       - "Do not refactor working code"
       - "Do not change code style of unrelated code"
       - "Do not add new dependencies unless required"
+      - "Immediately execute rollback procedure"
+      - "Document violation and restart with corrected scope"
 
   - when: change.minimization
     then:
@@ -71,6 +77,24 @@ rules:
       - "CHECK: Verify scope compliance"
       - "ACT: Make minimal changes within scope"
 
+  - when: git.workflow
+    then:
+      - "Create feature branch before starting work"
+      - "Use descriptive branch names with issue type"
+      - "Commit frequently with clear messages"
+      - "Keep commits atomic and focused"
+      - "Use conventional commit format"
+      - "Document scope in commit messages"
+
+  - when: rollback.execution
+    then:
+      - "Stop development immediately upon scope violation"
+      - "Document the violation and its impact"
+      - "Execute git rollback procedures"
+      - "Clean up any unauthorized changes"
+      - "Restart PDCA cycle with corrected scope"
+      - "Update scope definition based on lessons learned"
+
 scope_control:
   required_actions:
     - "Define scope before starting work"
@@ -92,6 +116,26 @@ scope_control:
     - "Verify changes address identified issues"
     - "Ensure no unauthorized modifications"
     - "Document scope compliance"
+    - "Use git diff to verify scope compliance"
+    - "Execute rollback if violations detected"
+
+  rollback_procedures:
+    scope_violation:
+      - "git checkout main"
+      - "git branch -D [feature-branch]"
+      - "git clean -fd"
+      - "Restart PDCA cycle with corrected scope"
+
+    unauthorized_changes:
+      - "git diff main --name-only"
+      - "Review each modified file"
+      - "git checkout main -- [unauthorized-files]"
+      - "Commit only authorized changes"
+
+    test_failure:
+      - "git reset --hard HEAD~1"
+      - "Fix failing tests"
+      - "Re-commit with corrected implementation"
 
 examples:
   scope_definition:
@@ -141,6 +185,28 @@ examples:
       - "Direct pytest calls (use make test)"
       - "Direct pip install (use uv)"
       - "Manual file operations (use structured tools)"
+
+  git_workflow_example:
+    scenario: "Feature branch development"
+    workflow:
+      - "git checkout main"
+      - "git pull origin main"
+      - "git checkout -b fix/token-validation-expiry"
+      - "Make changes within defined scope"
+      - "git add [specific-files]"
+      - "git commit -m 'fix(auth): add token expiry validation'"
+      - "git diff main --name-only (verify scope)"
+      - "git push origin fix/token-validation-expiry"
+
+  rollback_example:
+    scenario: "Scope violation detected"
+    response:
+      - "Stop development immediately"
+      - "Document violation: 'Modified unrelated files'"
+      - "git checkout main"
+      - "git branch -D fix/token-validation-expiry"
+      - "git clean -fd"
+      - "Restart PDCA cycle with corrected scope"
 
 validation:
   scope_checklist:
