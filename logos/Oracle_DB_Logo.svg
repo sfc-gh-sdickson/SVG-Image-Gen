@@ -1,0 +1,88 @@
+<svg width="400" height="150" viewBox="0 0 400 150" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <!-- Gradients for the Oracle text -->
+    <linearGradient id="oracle-red-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#D43B2D; stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F44336; stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B71C1C; stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="oracle-shadow-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8C140A; stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#5A0B04; stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="oracle-depth-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#A12C22" />
+        <stop offset="100%" stop-color="#B71C1C" />
+    </linearGradient>
+
+    <!-- Gradients from the provided database SVG -->
+    <linearGradient id="linearGradient8128">
+      <stop stop-color="#dcdcdc" offset="0" />
+      <stop stop-color="#a0a0a0" offset="0.117985"/>
+      <stop stop-color="#d9dada" offset="0.235969"/>
+      <stop stop-color="#838686" offset="0.471939"/>
+      <stop stop-color="#c8c5c8" offset="1" />
+    </linearGradient>
+    <linearGradient id="linearGradient13043">
+      <stop stop-color="#000000" offset="0"/>
+      <stop stop-color="#93969e" offset="1"/>
+    </linearGradient>
+    <linearGradient y2="-1.133188" x2="0.9918" y1="-1.133188" x1="-0.008199" gradientTransform="translate(0.828403,79.1897)" id="linearGradient14903" xlink:href="#linearGradient8128"/>
+    <linearGradient y2="-0.307409" x2="0.9918" y1="-0.307409" x1="-0.008199" gradientTransform="translate(0.828358,39.14951)" id="linearGradient14901" xlink:href="#linearGradient8128"/>
+    <linearGradient y2="1" x2="0.394372" y1="1" x1="0.025026" id="linearGradient14899" xlink:href="#linearGradient13043"/>
+    <linearGradient y2="0.518368" x2="0.9918" y1="0.518368" x1="-0.008199" gradientTransform="translate(0.8284,-0.890625)" id="linearGradient14897" xlink:href="#linearGradient8128"/>
+    <linearGradient y2="1" x2="0.394372" y1="1" x1="0.025026" id="linearGradient14895" xlink:href="#linearGradient13043"/>
+    <linearGradient y2="1" x2="0.394372" y1="1" x1="0.025026" id="linearGradient14893" xlink:href="#linearGradient13043"/>
+
+    <!-- Reusable database cylinder shape from provided SVG -->
+    <g id="database-cylinder">
+        <path fill="url(#linearGradient14893)" d="m467.861816,82.022957a145.84549,57.022964 0 1 1-291.690979,0a145.84549,57.022964 0 1 1291.690979,0z"/>
+        <path fill="url(#linearGradient14895)" d="m467.861816,200.406006a145.84549,57.022964 0 1 1-291.690979,0a145.84549,57.022964 0 1 1291.690979,0z"/>
+        <path fill="url(#linearGradient14897)" d="m467.553802,69.534836c0.00528,0.199356 0,0.379318 0,0.57917c0,31.476677 -65.313843,57.022957 -145.820374,57.022957c-77.676529,0 -141.273544,-23.781998 -145.646301,-53.726318l0,80.277649c-0.007431,0.11319 0.009171,0.242035 0,0.3564c-0.049591,0.610138 -0.087158,1.211731 -0.087158,1.826492c0,31.476685 65.395859,57.022964 145.951172,57.022964c78.456116,0.000046 142.49173,-24.23024 145.776978,-54.572769c0.001221,-0.003189 0,-0.040771 0,-0.044525c0.006348,-0.059769 0.033142,-0.159561 0.043396,-0.222733c0.150696,-0.442291 0.261475,-0.929535 0.261475,-1.425598l0,-85.044426c0,-0.740417 -0.158081,-1.443161 -0.479187,-2.049263z"/>
+        <path fill="url(#linearGradient14899)" d="m467.861816,318.788788a145.84549,57.022964 0 1 1-291.690979,0a145.84549,57.022964 0 1 1291.690979,0z"/>
+        <path fill="url(#linearGradient14901)" d="m467.553802,187.917709c0.00528,0.19931 0,0.379318 0,0.579132c0,31.476685 -65.313843,57.022964 -145.820374,57.022964c-77.676529,0 -141.273544,-23.781967 -145.646301,-53.726334l0,80.277664c-0.007431,0.11322 0.009171,0.242004 0,0.356415c-0.049591,0.610107 -0.087158,1.2117 -0.087158,1.826447c0,31.476746 65.395859,57.023041 145.951172,57.023041c78.456116,0 142.49173,-24.230316 145.776978,-54.572815c0.001221,-0.003174 0,-0.040741 0,-0.044525c0.006348,-0.059753 0.033142,-0.159515 0.043396,-0.222748c0.150696,-0.442261 0.261475,-0.929535 0.261475,-1.425598l0,-85.044418c0,-0.740372 -0.158081,-1.443161 -0.479187,-2.049225z"/>
+        <path fill="url(#linearGradient14903)" d="m467.553802,306.30072c0.00528,0.19931 0,0.379333 0,0.579132c0,31.476654 -65.313843,57.022949 -145.820374,57.022949c-77.676529,0 -141.273544,-23.781952 -145.646301,-53.726318l0,80.277649c-0.007431,0.113251 0.009171,0.241974 0,0.356415c-0.049591,0.610107 -0.087158,1.211761 -0.087158,1.826477c0,31.476746 65.395859,57.02301 145.951172,57.02301c78.456116,0 142.49173,-24.230286 145.776978,-54.572754c0.001221,-0.003265 0,-0.040802 0,-0.044586c0.006348,-0.059723 0.033142,-0.159515 0.043396,-0.222748c0.150696,-0.442322 0.261475,-0.929565 0.261475,-1.425507l0,-85.044495c0,-0.740387 -0.158081,-1.443176 -0.479187,-2.049225z"/>
+    </g>
+
+    <!-- Animation for the spinning 'O' -->
+    <style>
+      @keyframes true-3d-spin {
+        from {
+          transform: rotateY(0deg);
+        }
+        to {
+          transform: rotateY(360deg);
+        }
+      }
+      .spinning-o {
+        animation: true-3d-spin 8s linear infinite;
+        transform-origin: 37px 75px;
+        transform-style: preserve-3d;
+      }
+    </style>
+  </defs>
+
+  <!-- Database Cylinders (placed first to be in the background) -->
+  <g opacity="1" transform="translate(20, -10) scale(0.25)">
+    <use href="#database-cylinder" x="0" />
+    <use href="#database-cylinder" x="320" />
+    <use href="#database-cylinder" x="640" />
+  </g>
+
+  <!-- Spinning "O" part -->
+  <g class="spinning-o">
+    <!-- Back of the "O" to create depth -->
+    <text x="6" y="91" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="80" font-weight="bold" fill="#8C140A">O</text>
+    <!-- Front of the "O" -->
+    <text x="5" y="90" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="80" font-weight="bold" fill="url(#oracle-red-gradient)">O</text>
+  </g>
+
+  <!-- Static "RACLE" part (shadow and main text grouped) -->
+  <g font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="80" font-weight="bold" letter-spacing="-1">
+    <!-- Shadow - offset by (2, 2) -->
+    <text x="72" y="92" fill="url(#oracle-shadow-gradient)">RACLE</text>
+    <!-- Main Text -->
+    <text x="70" y="90" fill="url(#oracle-red-gradient)">RACLE</text>
+  </g>
+
+</svg>

@@ -14,6 +14,8 @@ help:
 	@echo "  publish      - Publish to PyPI"
 	@echo "  docs         - Build documentation"
 	@echo "  run          - Run the Streamlit app"
+	@echo "  run-svg-display - Run the SVG Display app"
+	@echo "  test-svg-display - Test SVG Display app imports"
 	@echo "  pre-commit   - Run pre-commit hooks"
 
 # Installation
@@ -87,6 +89,21 @@ run:
 
 run-dev:
 	streamlit run src/svg_image_generator/app.py --server.port 8502
+
+# SVG Display App
+run-svg-display:
+	streamlit run display_svg_from_stage.py
+
+run-svg-display-dev:
+	streamlit run display_svg_from_stage.py --server.port 8503
+
+# Test SVG Display App
+test-svg-display:
+	.venv/bin/python -c "import display_svg_from_stage; print('SVG Display app imports successfully')"
+
+# Validate SVG Display App
+validate-svg-display: test-svg-display
+	@echo "SVG Display app validation complete!"
 
 # Environment setup
 setup-dev: install-dev

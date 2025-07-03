@@ -1,9 +1,3 @@
----
-description: Defines the Plan-Do-Check-Act development cycle with test-driven, model-driven approach and strict scope discipline
-globs: **/*
-alwaysApply: true
----
-
 # pdca-development-methodology.mdc
 
 meta:
@@ -235,262 +229,31 @@ rules:
       - "Document workaround in project until vendor fixes"
       - "Update project documentation to reference the bug report"
 
-workflow:
-  pdca_cycle:
-    plan:
-      - action: "run_tests"
-        description: "Execute existing test suite"
-        expected: "Identify failing tests and error patterns"
-        command: "make test"
-      - action: "analyze_failures"
-        description: "Understand what's broken"
-        expected: "Clear understanding of root cause"
-      - action: "document_hypothesis"
-        description: "Record findings and proposed solution"
-        expected: "Written hypothesis for fix"
-      - action: "define_scope"
-        description: "Define specific scope of work"
-        expected: "Clear scope boundaries"
-      - action: "create_branch"
-        description: "Create feature branch for development"
-        expected: "Isolated development environment"
-        command: "git checkout -b fix/[issue-description]"
+  - when: proven.solution.testing
+    then:
+      - "NEVER retest solutions that have been proven to work in CLI"
+      - "When CLI test confirms functionality, implement immediately"
+      - "Do not create multiple test scripts for the same proven behavior"
+      - "Do not ask for permission to implement proven solutions"
+      - "Do not repeat testing of identical functionality"
+      - "When user says 'proven to work', accept it and implement"
+      - "Focus on implementation, not re-verification"
+      - "Do not overcomplicate simple, proven solutions"
+      - "Do not create artificial problems where none exist"
+      - "Respect user's direct experience and knowledge"
 
-    do:
-      - action: "read_source_files"
-        description: "Examine relevant code"
-        expected: "Understanding of current implementation"
-      - action: "review_tests"
-        description: "Analyze test expectations"
-        expected: "Clear test requirements"
-      - action: "gather_context"
-        description: "Understand dependencies and environment"
-        expected: "Complete context for implementation"
-
-    check:
-      - action: "validate_behavior"
-        description: "Compare actual vs expected"
-        expected: "Confirmed understanding of issue"
-      - action: "verify_logging"
-        description: "Ensure error visibility"
-        expected: "Comprehensive logging in place"
-      - action: "check_coverage"
-        description: "Validate test coverage"
-        expected: "Coverage requirements met"
-        command: "make test-cov"
-      - action: "verify_scope"
-        description: "Ensure scope compliance"
-        expected: "No unauthorized changes"
-
-    act:
-      - action: "implement_fix"
-        description: "Apply specific solution"
-        expected: "Code changes address root cause"
-      - action: "add_logging"
-        description: "Enhance debugging capability"
-        expected: "Clear error visibility"
-      - action: "validate_changes"
-        description: "Test all affected areas"
-        expected: "All tests pass"
-        command: "make test"
-      - action: "commit_changes"
-        description: "Commit changes with descriptive message"
-        expected: "Clean git history with atomic commits"
-        command: "git commit -m 'fix: [description of change]'"
-      - action: "validate_scope"
-        description: "Verify scope compliance"
-        expected: "No unauthorized changes detected"
-        command: "git diff main --name-only"
-
-validation:
-  pytest_markers:
-    - "pdca_plan: Plan phase tests"
-    - "pdca_do: Do phase tests"
-    - "pdca_check: Check phase tests"
-    - "pdca_act: Act phase tests"
-    - "tdd: Test-driven development tests"
-    - "logging: Logging behavior tests"
-    - "model_driven: Model validation tests"
-
-  git_workflow:
-    branch_naming:
-      pattern: "^(fix|feature|refactor)/[a-z0-9-]+$"
-      examples:
-        - "fix/token-validation-expiry"
-        - "feature/authentication-logging"
-        - "refactor/pdca-workflow-enhancement"
-
-    commit_messages:
-      format: "type(scope): description"
-      types: ["fix", "feat", "refactor", "docs", "test", "chore"]
-      examples:
-        - "fix(auth): add token expiry validation"
-        - "feat(logging): enhance error visibility"
-        - "refactor(pdca): improve scope discipline"
-
-  rollback_procedures:
-    scope_violation:
-      - "git checkout main"
-      - "git branch -D [feature-branch]"
-      - "git clean -fd"
-      - "Restart PDCA cycle with corrected scope"
-
-    test_failure:
-      - "git reset --hard HEAD~1"
-      - "Fix failing tests"
-      - "Re-commit with corrected implementation"
-
-    unauthorized_changes:
-      - "git diff main --name-only"
-      - "Review each modified file"
-      - "git checkout main -- [unauthorized-files]"
-      - "Commit only authorized changes"
-
-  requirements:
-    test_coverage: ">=75%"
-    logging_framework: "structlog"
-    type_checking: "mypy"
-    test_framework: "pytest"
-    coverage_tool: "coverage[toml]"
-    scope_discipline: "mandatory"
-    tool_usage: "make commands required"
-    api_bug_investigation: "mandatory CLI testing"
-    documentation_verification: "vendor docs required"
-
-  enforcement:
-    scope_control: "strict"
-    change_minimization: "mandatory"
-    tool_compliance: "strict"
-    pdca_phase_completion: "required"
-
-examples:
-  pdca_workflow:
-    scenario: "Fixing a failing test in authentication module"
-    plan:
-      - "Run: make test tests/test_authentication.py"
-      - "Analyze: Test failure shows missing token validation"
-      - "Document: Need to implement token expiry check"
-      - "Scope: Only fix token validation, no other changes"
-    do:
-      - "Read: src/svg_image_generator/authentication.py"
-      - "Review: tests/test_authentication.py"
-      - "Context: Token validation requirements"
-    check:
-      - "Validate: Current implementation vs requirements"
-      - "Verify: Logging shows token expiry errors"
-      - "Coverage: make test-cov to ensure coverage"
-      - "Scope: Verify no unrelated changes"
-    act:
-      - "Implement: Token expiry validation (minimal change)"
-      - "Add: Structured logging for token errors"
-      - "Test: make test to validate all changes"
-
-  test_driven_example:
-    scenario: "Adding new feature with TDD"
-    red_phase:
-      - "Write failing test for new functionality"
-      - "Ensure test captures expected behavior"
-      - "Run: make test to confirm it fails"
-    green_phase:
-      - "Implement minimal code to pass test"
-      - "Focus on making test pass, not perfect code"
-      - "Verify test now passes with: make test"
-    refactor_phase:
-      - "Improve code quality while maintaining tests"
-      - "Add comprehensive logging"
-      - "Ensure all tests still pass: make test"
-
-  scope_discipline_example:
-    scenario: "Fixing authentication bug"
-    allowed:
-      - "Fix token validation logic"
-      - "Add logging for token errors"
-      - "Update related tests"
-    forbidden:
-      - "Refactor unrelated authentication methods"
-      - "Add new authentication features"
-      - "Change other modules"
-      - "Improve code style of working code"
-
-  tool_compliance_example:
-    scenario: "Development workflow"
-    commands:
-      - "make test - Run test suite"
-      - "make test-cov - Run tests with coverage"
-      - "make lint - Check code quality"
-      - "make format - Format code"
-      - "make build - Build package"
-    forbidden:
-      - "Direct pytest calls (use make test)"
-      - "Direct pip install (use uv)"
-      - "Manual file operations (use structured tools)"
-
-  api_bug_investigation_example:
-    scenario: "Investigating Snowflake file API limitation"
-    step_1_listing:
-      - "Create CLI script: test_stage_listing.py"
-      - "Test: python test_stage_listing.py CONTAINER_DB PUBLIC SPECS"
-      - "Verify: Files are visible via LIST command"
-    step_2_reading:
-      - "Create CLI script: test_file_reading.py"
-      - "Test: python test_file_reading.py '@stage/path/file.svg'"
-      - "Verify: Root files work, subdirectories fail"
-    step_3_bulk_testing:
-      - "Create CLI script: test_file_api_bulk_read.py"
-      - "Test: python test_file_api_bulk_read.py CONTAINER_DB PUBLIC SPECS"
-      - "Verify: All subdirectory files fail systematically"
-    step_4_documentation:
-      - "Check: help(FileOperation.get_stream)"
-      - "Verify: Official docs show no subdirectory limitations"
-      - "Document: Discrepancy between docs and behavior"
-    step_5_bug_report:
-      - "Create: snowflake_file_api_bug_report.md"
-      - "Include: All test code with narrative"
-      - "Submit: To vendor with reproduction steps"
-    step_6_workaround:
-      - "Document: Workaround in project (upload to root only)"
-      - "Update: Application code to use workaround"
-      - "Track: Bug report status with vendor"
-      - "Monitor: Vendor updates for fix"
-
-rationale: >
-  The PDCA methodology ensures systematic problem-solving and quality assurance.
-  Combined with test-driven and model-driven approaches, it provides:
-  - Systematic approach to problem-solving
-  - Quality assurance through comprehensive testing
-  - Error visibility through structured logging
-  - Model consistency through type checking
-  - Reproducible and auditable development process
-  - Reduced debugging time through proactive error handling
-  - Strict scope discipline to prevent scope creep
-  - Tool compliance to ensure consistent workflows
-
-  This methodology prevents common development pitfalls:
-  - Implementing without understanding the problem
-  - Missing edge cases in testing
-  - Poor error visibility and debugging
-  - Inconsistent code quality
-  - Lack of systematic approach to fixes
-  - Scope creep and unauthorized changes
-  - Inconsistent tool usage
-  - Excessive changes beyond identified issues
-
-  Recent violations observed:
-  - Making unrelated changes beyond scope
-  - Not following make command requirements
-  - Implementing without proper test-first approach
-  - Adding features not requested
-  - Refactoring working code unnecessarily
-  - Inventing function names and parameters instead of reading documentation
-  - Ignoring user feedback when they say approaches don't work
-  - Making up syntax instead of asking for correct methods
-  - Mitigating API limitations without proper investigation
-  - Debugging through complex frameworks instead of CLI testing
-  - Claiming bugs without verifying against vendor documentation
-
----
-
-This rule ensures all development work follows a systematic, test-driven, model-driven approach with comprehensive logging, validation, and strict scope discipline.
+  - when: user.feedback.response
+    then:
+      - "When user provides direct feedback about functionality, accept it"
+      - "Do not question user's direct experience with working solutions"
+      - "Do not insist on retesting what user has already proven"
+      - "When user says something works, implement it immediately"
+      - "Do not create unnecessary barriers to proven solutions"
+      - "Respect user's technical knowledge and experience"
+      - "Do not overthink simple, direct solutions"
+      - "When user expresses frustration with repeated testing, stop and implement"
+      - "Focus on solving the actual problem, not creating test scenarios"
+      - "Do not treat user as if they don't know what they're talking about"
 description:
 globs:
 alwaysApply: false
