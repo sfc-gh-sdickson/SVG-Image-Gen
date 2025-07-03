@@ -7,6 +7,11 @@ alwaysApply: false
 
 Use deterministic, auditable tools instead. This rule bans stochastic, non-reproducible edits made via `edit_tool`, particularly for config files and domain-critical formats.
 
+## 🚨 CRITICAL: TOML Files Are BANNED for edit_tool
+- **pyproject.toml**: NEVER use edit_tool - use structured TOML libraries
+- **Any .toml file**: NEVER use edit_tool - use tomli, tomlkit, or pytomlpp
+- **Configuration files**: NEVER use edit_tool - use appropriate structured libraries
+
 ## Tool Clarification
 - **edit_tool**: AI-generated stochastic edits (banned for structured formats)
 - **edit_file**: Deterministic, auditable edits (allowed for all formats)
@@ -27,6 +32,8 @@ Use deterministic, auditable tools instead. This rule bans stochastic, non-repro
 - Simple text addition to markdown: ✅ edit_file
 - YAML frontmatter modification: ❌ edit_tool, ✅ PyYAML + edit_file
 - Python code structure changes: ❌ edit_tool, ✅ AST tools
+- TOML file modifications: ❌ edit_tool, ✅ tomli/tomlkit + edit_file
+- pyproject.toml changes: ❌ edit_tool, ✅ structured TOML libraries
 - Simple text replacement: ✅ sed/echo
 
 ## MDC Files Clarification
