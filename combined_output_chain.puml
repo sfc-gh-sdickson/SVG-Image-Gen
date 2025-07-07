@@ -1,0 +1,160 @@
+@startuml Combined_Output_Chain
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+
+' Device Colors
+skinparam class {
+    BackgroundColor<<Application>> #D5E8D4
+    BackgroundColor<<Virtual>> #FFF2CC
+    BackgroundColor<<Hardware>> #E8F4FD
+    BackgroundColor<<Combined>> #E1D5E7
+    BorderColor #2E86AB
+}
+
+title Combined Output Chain\nDirect Audio Output Bypassing JamesDSP Processing
+
+' Applications Layer
+package "Applications" {
+    class Firefox <<Application>> {
+        + Sample Rate: 44100Hz
+        + Volume: 100%
+        + State: Active
+        + Audio Stream: Firefox Audio
+    }
+
+    class Chromium <<Application>> {
+        + Sample Rate: 48000Hz
+        + Volume: 58%
+        + State: Active
+        + Audio Stream: Chromium Audio
+    }
+}
+
+' Combined Processing Layer
+package "Combined Processing" {
+    class Combined_Out <<Combined>> {
+        + Device ID: 919
+        + Volume: 33%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Purpose: Direct Output
+        + Bypass: JamesDSP Processing
+    }
+}
+
+' Hardware Output Layer
+package "Hardware Output" {
+    class KM_Audio <<Hardware>> {
+        + Device ID: 69
+        + Volume: 100%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Type: USB Audio
+        + Amplification: External Amp
+        + Role: Main Speakers
+    }
+
+    class Fosi_BT30D <<Hardware>> {
+        + Device ID: 209
+        + Volume: 32%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Type: Bluetooth Subwoofer
+        + Latency: ~2ms Bluetooth
+        + Role: Bass/Low Frequency
+    }
+}
+
+' Audio Flow
+Firefox --> Combined_Out : "Audio Stream\nDirect Path"
+Chromium --> Combined_Out : "Audio Stream\nDirect Path"
+
+Combined_Out --> KM_Audio : "Direct Audio\nNo DSP Processing"
+Combined_Out --> Fosi_BT30D : "Direct Audio\nNo DSP Processing"
+
+' Processing Details
+note right of Combined_Out
+  **Combined Output Processing:**
+  - Bypasses JamesDSP completely
+  - Direct audio routing
+  - No DSP effects applied
+  - Clean, unprocessed audio
+  - Simultaneous output
+  - Volume balancing
+end note
+
+note right of KM_Audio
+  **Main Speaker Output:**
+  - External amplification
+  - High volume capability
+  - Clean, direct audio
+  - No DSP artifacts
+  - Full frequency response
+  - Natural sound reproduction
+end note
+
+note right of Fosi_BT30D
+  **Subwoofer Output:**
+  - Bluetooth connection
+  - ~2ms latency
+  - Bass/low frequency focus
+  - Clean, unprocessed audio
+  - No DSP interference
+  - Natural bass response
+end note
+
+note bottom of Firefox
+  **Direct Audio Path:**
+  - Firefox: 44100Hz native
+  - Chromium: 48000Hz native
+  - Both bypass JamesDSP
+  - Direct to hardware
+  - No processing delay
+  - Natural audio quality
+end note
+
+' Separation Benefits
+note top of Combined_Out
+  **Separation Benefits:**
+  - Fosi isolated from DSP
+  - No processing artifacts
+  - Clean bass response
+  - Independent volume control
+  - Reduced complexity
+  - Better phase coherence
+end note
+
+' Technical Specifications
+note left of Fosi_BT30D
+  **Bluetooth Specs:**
+  - Codec: SBC
+  - Latency: ~2ms
+  - Connection: Stable
+  - Quality: Good
+  - Range: Local
+end note
+
+note left of KM_Audio
+  **USB Audio Specs:**
+  - Interface: USB 2.0
+  - Sample Rate: 48000Hz
+  - Bit Depth: 24-bit
+  - Latency: Minimal
+  - Quality: High
+end note
+
+' Legend
+legend right
+  |= Color |= Type |
+  |#D5E8D4| Application |
+  |#FFF2CC| Virtual Sink |
+  |#E8F4FD| Hardware Device |
+  |#E1D5E7| Combined Processing |
+endlegend
+
+@enduml

@@ -1,0 +1,255 @@
+@startuml Audio_System_Network_Diagram
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+
+' Device Colors
+skinparam class {
+    BackgroundColor<<Hardware>> #E8F4FD
+    BackgroundColor<<Virtual>> #FFF2CC
+    BackgroundColor<<Application>> #D5E8D4
+    BackgroundColor<<Chain>> #F8CECC
+    BackgroundColor<<DSP>> #FFE6CC
+    BackgroundColor<<Combined>> #E1D5E7
+    BorderColor #2E86AB
+}
+
+' Title
+title Audio System Network Configuration\nDual Processing Chains with Fosi Subwoofer Separation
+
+' Applications Domain
+package "Applications" {
+    class Firefox <<Application>> {
+        + Sample Rate: 44100Hz
+        + Volume: 100%
+        + State: Active
+        + Audio Stream: Firefox Audio
+    }
+
+    class Chromium <<Application>> {
+        + Sample Rate: 48000Hz
+        + Volume: 58%
+        + State: Active
+        + Audio Stream: Chromium Audio
+    }
+}
+
+' DSP Processing Domain
+package "DSP Processing Domain" {
+    class JamesDSP_Sink <<DSP>> {
+        + Device ID: 273555
+        + Volume: 30%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + DSP Processing: Active
+        + Filter Chains: Multiple
+    }
+
+    class JamesDSP_Delay_Sink <<DSP>> {
+        + Device ID: 274119
+        + Volume: 100%
+        + Sample Rate: 44100Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Purpose: Latency Compensation
+        + Delay: 2ms (estimated)
+    }
+}
+
+' Combined Output Domain
+package "Combined Output Domain" {
+    class Combined_Out <<Combined>> {
+        + Device ID: 919
+        + Volume: 33%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Purpose: Direct Output
+        + Bypass: JamesDSP Processing
+    }
+}
+
+' Hardware Output Domain
+package "Hardware Output Domain" {
+    class KM_Audio <<Hardware>> {
+        + Device ID: 69
+        + Volume: 100%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Type: USB Audio
+        + Amplification: External Amp
+        + Role: Main Speakers
+    }
+
+    class Fosi_BT30D <<Hardware>> {
+        + Device ID: 209
+        + Volume: 32%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Type: Bluetooth Subwoofer
+        + Latency: ~2ms Bluetooth
+        + Role: Bass/Low Frequency
+    }
+}
+
+' Processing Chains Domain
+package "Processing Chains" {
+    class JamesDSP_Chain <<Chain>> {
+        + Type: DSP Processing
+        + Path: App → JamesDSP → Delay → KM Audio
+        + Status: Active
+        + Purpose: Enhanced Audio
+    }
+
+    class Combined_Output_Chain <<Chain>> {
+        + Type: Direct Output
+        + Path: Combined → KM Audio + Fosi
+        + Status: Active
+        + Purpose: Clean Audio
+    }
+}
+
+' System State Domain
+package "System State" {
+    class System_State {
+        + Volume Sync Daemon: STOPPED
+        + QJackCtl: RUNNING
+        + PipeWire: RUNNING
+        + JamesDSP: RUNNING
+    }
+}
+
+' Audio Flow - JamesDSP Chain
+Firefox --> JamesDSP_Sink : "Audio Stream\n44100Hz → 48000Hz"
+Chromium --> JamesDSP_Sink : "Audio Stream\n48000Hz → 48000Hz"
+
+JamesDSP_Sink --> JamesDSP_Delay_Sink : "Processed Audio\nDSP Effects Applied"
+JamesDSP_Delay_Sink --> KM_Audio : "Delayed Audio\nLatency Compensated"
+
+' Audio Flow - Combined Output Chain
+Combined_Out --> KM_Audio : "Direct Audio\nNo DSP Processing"
+Combined_Out --> Fosi_BT30D : "Direct Audio\nNo DSP Processing"
+
+' Chain Assignments
+JamesDSP_Sink ..> JamesDSP_Chain : "belongs to"
+JamesDSP_Delay_Sink ..> JamesDSP_Chain : "belongs to"
+KM_Audio ..> JamesDSP_Chain : "belongs to"
+
+Combined_Out ..> Combined_Output_Chain : "belongs to"
+Fosi_BT30D ..> Combined_Output_Chain : "belongs to"
+
+' System State Connections
+System_State ..> JamesDSP_Sink : "manages"
+System_State ..> Combined_Out : "manages"
+
+' Detailed Processing Notes
+note right of JamesDSP_Chain
+  **JamesDSP Processing Chain:**
+  - Firefox/Chromium → JamesDSP Sink
+  - JamesDSP Sink → Delay Sink
+  - Delay Sink → KM Audio
+  - DSP processing applied
+  - Real-time audio enhancement
+  - Sample rate conversion
+  - Latency compensation
+end note
+
+note right of Combined_Output_Chain
+  **Combined Output Chain:**
+  - Bypasses JamesDSP processing
+  - Direct output to KM Audio + Fosi
+  - Fosi separated from DSP chain
+  - Simultaneous output
+  - Clean, unprocessed audio
+  - Natural sound reproduction
+end note
+
+note right of Fosi_BT30D
+  **Fosi Subwoofer Separation:**
+  - Isolated from JamesDSP processing
+  - No DSP artifacts on bass
+  - Clean, natural bass response
+  - Independent volume control
+  - Bluetooth latency: ~2ms
+  - Better phase coherence
+end note
+
+note right of KM_Audio
+  **Dual Output to KM Audio:**
+  - Receives both processed and direct audio
+  - JamesDSP chain: Enhanced audio
+  - Combined chain: Clean audio
+  - External amplification
+  - High volume capability
+  - Full frequency response
+end note
+
+note bottom of System_State
+  **Current Configuration:**
+  - Fosi subwoofer separated from JamesDSP
+  - QJackCtl active for additional routing
+  - Volume sync daemon stopped (needs restart)
+  - Dual output chains active
+  - Simultaneous processing paths
+  - Complex but stable routing
+end note
+
+note top of JamesDSP_Sink
+  **DSP Processing Details:**
+  - Real-time DSP effects
+  - Filter chain processing
+  - Volume management
+  - Audio enhancement
+  - Bass/treble adjustment
+  - Sample rate conversion
+  - Low latency processing
+end note
+
+note top of Combined_Out
+  **Combined Output Details:**
+  - Direct audio routing
+  - No DSP effects applied
+  - Clean, unprocessed audio
+  - Volume balancing
+  - Simultaneous output
+  - Reduced complexity
+  - Natural sound quality
+end note
+
+' Technical Specifications
+note left of Firefox
+  **Application Audio:**
+  - Firefox: 44100Hz native
+  - Chromium: 48000Hz native
+  - Both processed through JamesDSP
+  - Volume levels maintained
+  - Real-time processing
+  - Low latency streaming
+end note
+
+note left of Fosi_BT30D
+  **Bluetooth Specifications:**
+  - Codec: SBC
+  - Latency: ~2ms
+  - Connection: Stable
+  - Quality: Good
+  - Range: Local
+  - Power: Efficient
+end note
+
+' Legend
+legend right
+  |= Color |= Type |
+  |#E8F4FD| Hardware Device |
+  |#FFF2CC| Virtual Sink |
+  |#D5E8D4| Application |
+  |#F8CECC| Processing Chain |
+  |#FFE6CC| DSP Processing |
+  |#E1D5E7| Combined Processing |
+endlegend
+
+@enduml

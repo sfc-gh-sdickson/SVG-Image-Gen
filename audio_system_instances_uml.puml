@@ -1,0 +1,309 @@
+# Generated following ontology framework rules
+@startuml Audio System Instances - Current State
+
+!define RECTANGLE class
+
+package "Audio Device Instances" {
+
+    ' Hardware Sinks (8 total)
+    class KM_Audio {
+        <<HardwareSink>>
+        + deviceID: "69"
+        + description: "KM_24bit96khz Audio Analog Stereo"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class PCM2912A_Codec {
+        <<HardwareSink>>
+        + deviceID: "71"
+        + description: "PCM2912A Audio Codec Analog Stereo"
+        + volume: 36
+        + sampleRate: 44100
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class Builtin_Audio {
+        <<HardwareSink>>
+        + deviceID: "72"
+        + description: "Built-in Audio Analog Stereo"
+        + volume: 36
+        + sampleRate: 44100
+        + state: "IDLE"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class Thunderbolt_Display {
+        <<HardwareSink>>
+        + deviceID: "70"
+        + description: "Thunderbolt Display Audio Analog Stereo"
+        + volume: 34
+        + sampleRate: 44100
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class JamesDSP_Sink {
+        <<HardwareSink>>
+        + deviceID: "91"
+        + description: "JamesDSP Sink"
+        + volume: 30
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class Fosi_BT30D {
+        <<HardwareSink>>
+        + deviceID: "146"
+        + description: "Fosi Audio BT30D"
+        + volume: 32
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class CombinedOut {
+        <<HardwareSink>>
+        + deviceID: "96"
+        + description: "CombinedOut"
+        + volume: 33
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    class Tonga_HDMI {
+        <<HardwareSink>>
+        + deviceID: "270629"
+        + description: "Tonga HDMI Audio [Radeon R9 285/380] Digital Stereo (HDMI 5)"
+        + volume: 32
+        + sampleRate: 44100
+        + state: "RUNNING"
+        + mediaClass: "Audio/Sink"
+    }
+
+    ' Audio Sources (1 total)
+    class Builtin_Audio_Source {
+        <<AudioSource>>
+        + deviceID: "73"
+        + description: "Built-in Audio Analog Stereo"
+        + volume: 100
+        + sampleRate: 44100
+        + state: "RUNNING"
+        + mediaClass: "Audio/Source"
+    }
+
+    ' Video Sources (2 total)
+    class FaceTime_Builtin {
+        <<VideoSource>>
+        + deviceID: "74"
+        + description: "FaceTime HD Camera (Built-in) (V4L2)"
+        + volume: 100
+        + sampleRate: 44100
+        + state: "RUNNING"
+        + mediaClass: "Video/Source"
+    }
+
+    class FaceTime_Display {
+        <<VideoSource>>
+        + deviceID: "75"
+        + description: "FaceTime HD Camera (Display) (V4L2)"
+        + volume: 100
+        + sampleRate: 44100
+        + state: "RUNNING"
+        + mediaClass: "Video/Source"
+    }
+
+    ' Stream Outputs (3 total)
+    class Chromium_Output {
+        <<StreamOutput>>
+        + deviceID: "175"
+        + description: "Chromium"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Output/Audio"
+    }
+
+    class Firefox_Output {
+        <<StreamOutput>>
+        + deviceID: "334"
+        + description: "Firefox"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Output/Audio"
+    }
+
+    class PulseAudio_Volume_Control {
+        <<StreamOutput>>
+        + deviceID: "246"
+        + description: "PulseAudio Volume Control"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Output/Audio"
+    }
+
+    ' Stream Inputs (5 identified)
+    class Chromium_Input {
+        <<StreamInput>>
+        + deviceID: "176"
+        + description: "Chromium"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Input/Audio"
+    }
+
+    class Firefox_Input {
+        <<StreamInput>>
+        + deviceID: "335"
+        + description: "Firefox"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Input/Audio"
+    }
+
+    class PulseAudio_Volume_Control_Input {
+        <<StreamInput>>
+        + deviceID: "247"
+        + description: "PulseAudio Volume Control"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Input/Audio"
+    }
+
+    class GNOME_Settings {
+        <<StreamInput>>
+        + deviceID: "248"
+        + description: "GNOME Settings"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Input/Audio"
+    }
+
+    class QJackCtl {
+        <<StreamInput>>
+        + deviceID: "208"
+        + description: "qjackctl"
+        + volume: 100
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + mediaClass: "Stream/Input/Audio"
+    }
+
+    ' Processing Chains
+    class JamesDSP_Chain {
+        <<ProcessingChain>>
+        + label: "JamesDSP Processing Chain"
+        + comment: "Audio processing chain through JamesDSP"
+    }
+
+    class Combined_Output_Chain {
+        <<ProcessingChain>>
+        + label: "Combined Output Chain"
+        + comment: "Direct output chain bypassing JamesDSP"
+    }
+
+    ' System State
+    class Current_System_State {
+        <<SystemState>>
+        + volumeSyncDaemon: false
+        + qJackCtl: true
+    }
+
+}
+
+package "Audio Connections" {
+
+    ' Current Connections (7 identified)
+    class Chromium_to_JamesDSP {
+        <<AudioConnection>>
+        + source: Chromium_Output
+        + target: JamesDSP_Sink
+    }
+
+    class Firefox_to_JamesDSP {
+        <<AudioConnection>>
+        + source: Firefox_Output
+        + target: JamesDSP_Sink
+    }
+
+    class JamesDSP_to_Fosi {
+        <<AudioConnection>>
+        + source: JamesDSP_Sink
+        + target: Fosi_BT30D
+    }
+
+    class JamesDSP_to_KM {
+        <<AudioConnection>>
+        + source: JamesDSP_Sink
+        + target: KM_Audio
+    }
+
+    class PulseAudio_to_JamesDSP {
+        <<AudioConnection>>
+        + source: PulseAudio_Volume_Control
+        + target: JamesDSP_Sink
+    }
+
+    class GNOME_Settings_to_JamesDSP {
+        <<AudioConnection>>
+        + source: GNOME_Settings
+        + target: JamesDSP_Sink
+    }
+
+    class QJackCtl_to_JamesDSP {
+        <<AudioConnection>>
+        + source: QJackCtl
+        + target: JamesDSP_Sink
+    }
+
+}
+
+' Relationships - Connections
+Chromium_Output --> JamesDSP_Sink : Chromium_to_JamesDSP
+Firefox_Output --> JamesDSP_Sink : Firefox_to_JamesDSP
+JamesDSP_Sink --> Fosi_BT30D : JamesDSP_to_Fosi
+JamesDSP_Sink --> KM_Audio : JamesDSP_to_KM
+PulseAudio_Volume_Control --> JamesDSP_Sink : PulseAudio_to_JamesDSP
+GNOME_Settings --> JamesDSP_Sink : GNOME_Settings_to_JamesDSP
+QJackCtl --> JamesDSP_Sink : QJackCtl_to_JamesDSP
+
+' Chain Assignments
+JamesDSP_Sink --> JamesDSP_Chain : belongs
+KM_Audio --> JamesDSP_Chain : belongs
+Fosi_BT30D --> JamesDSP_Chain : belongs
+CombinedOut --> Combined_Output_Chain : belongs
+
+' Processing Relationships
+JamesDSP_Sink --> Chromium_Output : processes
+JamesDSP_Sink --> Firefox_Output : processes
+JamesDSP_Sink --> PulseAudio_Volume_Control : processes
+JamesDSP_Sink --> GNOME_Settings : processes
+JamesDSP_Sink --> QJackCtl : processes
+
+note right of JamesDSP_Sink
+  Central processing node
+  for all application audio
+end note
+
+note right of Fosi_BT30D
+  Bluetooth subwoofer
+  with 1.9ms delay compensation
+end note
+
+note right of KM_Audio
+  Main speakers
+  (KM_24bit96khz)
+end note
+
+@enduml

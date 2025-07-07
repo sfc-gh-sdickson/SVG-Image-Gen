@@ -1,0 +1,228 @@
+# Generated following ontology framework rules
+@startuml Audio System Ontology - Complete Model
+
+!define RECTANGLE class
+
+package "Audio System Ontology" {
+
+    ' Core Classes
+    class OntologyEntity {
+        <<abstract>>
+    }
+
+    class AudioDevice {
+        + hasDeviceID: string
+        + hasDescription: string
+        + hasVolume: integer
+        + hasSampleRate: integer
+        + hasState: string
+        + hasDriver: string
+        + hasMediaClass: string
+    }
+
+    class AudioSink {
+        <<extends AudioDevice>>
+    }
+
+    class AudioSource {
+        <<extends AudioDevice>>
+    }
+
+    class HardwareSink {
+        <<extends AudioSink>>
+    }
+
+    class VirtualSink {
+        <<extends AudioSink>>
+    }
+
+    class StreamOutput {
+        <<extends AudioDevice>>
+    }
+
+    class StreamInput {
+        <<extends AudioDevice>>
+    }
+
+    class VideoSource {
+        <<extends AudioSource>>
+    }
+
+    class AudioConnection {
+        + hasSource: AudioDevice
+        + hasTarget: AudioDevice
+    }
+
+    class ProcessingChain {
+        + hasLabel: string
+        + hasComment: string
+    }
+
+    ' Object Properties
+    class OntologyObjectProperty {
+        <<abstract>>
+        + hasDomain: OntologyEntity
+        + hasRange: OntologyEntity
+    }
+
+    class HasConnection {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioDevice
+        + range: AudioConnection
+    }
+
+    class HasInput {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioDevice
+        + range: AudioSource
+    }
+
+    class HasOutput {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioDevice
+        + range: AudioSink
+    }
+
+    class ProcessesAudio {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioDevice
+        + range: AudioDevice
+    }
+
+    class BelongsToChain {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioDevice
+        + range: ProcessingChain
+    }
+
+    class HasSource {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioConnection
+        + range: AudioDevice
+    }
+
+    class HasTarget {
+        <<extends OntologyObjectProperty>>
+        + domain: AudioConnection
+        + range: AudioDevice
+    }
+
+    ' Data Properties
+    class OntologyDataProperty {
+        <<abstract>>
+        + hasDomain: OntologyEntity
+        + hasRange: xsd:datatype
+    }
+
+    class HasVolume {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:integer
+    }
+
+    class HasSampleRate {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:integer
+    }
+
+    class HasState {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:string
+    }
+
+    class HasDeviceID {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:string
+    }
+
+    class HasDescription {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:string
+    }
+
+    class HasDriver {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:string
+    }
+
+    class HasMediaClass {
+        <<extends OntologyDataProperty>>
+        + domain: AudioDevice
+        + range: xsd:string
+    }
+
+    ' System State
+    class SystemState {
+        + hasVolumeSyncDaemon: boolean
+        + hasQJackCtl: boolean
+    }
+
+    ' Relationships
+    OntologyEntity <|-- AudioDevice
+    AudioDevice <|-- AudioSink
+    AudioDevice <|-- AudioSource
+    AudioSink <|-- HardwareSink
+    AudioSink <|-- VirtualSink
+    AudioDevice <|-- StreamOutput
+    AudioDevice <|-- StreamInput
+    AudioSource <|-- VideoSource
+
+    OntologyObjectProperty <|-- HasConnection
+    OntologyObjectProperty <|-- HasInput
+    OntologyObjectProperty <|-- HasOutput
+    OntologyObjectProperty <|-- ProcessesAudio
+    OntologyObjectProperty <|-- BelongsToChain
+    OntologyObjectProperty <|-- HasSource
+    OntologyObjectProperty <|-- HasTarget
+
+    OntologyDataProperty <|-- HasVolume
+    OntologyDataProperty <|-- HasSampleRate
+    OntologyDataProperty <|-- HasState
+    OntologyDataProperty <|-- HasDeviceID
+    OntologyDataProperty <|-- HasDescription
+    OntologyDataProperty <|-- HasDriver
+    OntologyDataProperty <|-- HasMediaClass
+
+    ' Property associations
+    AudioDevice ||--o{ HasConnection : has
+    AudioDevice ||--o{ HasInput : has
+    AudioDevice ||--o{ HasOutput : has
+    AudioDevice ||--o{ ProcessesAudio : performs
+    AudioDevice ||--o{ BelongsToChain : belongs
+    AudioConnection ||--o{ HasSource : has
+    AudioConnection ||--o{ HasTarget : has
+
+    AudioDevice ||--o{ HasVolume : has
+    AudioDevice ||--o{ HasSampleRate : has
+    AudioDevice ||--o{ HasState : has
+    AudioDevice ||--o{ HasDeviceID : has
+    AudioDevice ||--o{ HasDescription : has
+    AudioDevice ||--o{ HasDriver : has
+    AudioDevice ||--o{ HasMediaClass : has
+
+    SystemState ||--o{ HasVolumeSyncDaemon : has
+    SystemState ||--o{ HasQJackCtl : has
+
+}
+
+note right of AudioDevice
+  Base class for all audio entities
+  in the PipeWire system
+end note
+
+note right of AudioConnection
+  Represents connections between
+  audio devices in the routing graph
+end note
+
+note right of ProcessingChain
+  Groups devices that work together
+  in a processing pipeline
+end note
+
+@enduml

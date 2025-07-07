@@ -1,0 +1,169 @@
+# Generated following ontology framework rules
+@startuml Audio System Routing Flow
+
+!define RECTANGLE class
+
+package "Application Layer" {
+    class Chromium_App {
+        <<Application>>
+        + name: "Chromium"
+        + type: "Browser"
+        + audioOutput: Chromium_Output
+    }
+
+    class Firefox_App {
+        <<Application>>
+        + name: "Firefox"
+        + type: "Browser"
+        + audioOutput: Firefox_Output
+    }
+
+    class PulseAudio_App {
+        <<Application>>
+        + name: "PulseAudio Volume Control"
+        + type: "Audio Control"
+        + audioOutput: PulseAudio_Volume_Control
+    }
+
+    class GNOME_Settings_App {
+        <<Application>>
+        + name: "GNOME Settings"
+        + type: "System Settings"
+        + audioOutput: GNOME_Settings
+    }
+
+    class QJackCtl_App {
+        <<Application>>
+        + name: "QJackCtl"
+        + type: "Audio Routing Tool"
+        + audioOutput: QJackCtl
+    }
+}
+
+package "Audio Processing Layer" {
+    class JamesDSP_Processor {
+        <<ProcessingNode>>
+        + name: "JamesDSP Sink"
+        + deviceID: "91"
+        + volume: 30
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + function: "Audio Filtering and Processing"
+    }
+}
+
+package "Output Layer" {
+    class KM_Speakers {
+        <<HardwareOutput>>
+        + name: "KM_24bit96khz Audio"
+        + deviceID: "69"
+        + volume: 100
+        + sampleRate: 48000
+        + type: "Main Speakers"
+        + state: "RUNNING"
+    }
+
+    class Fosi_Subwoofer {
+        <<HardwareOutput>>
+        + name: "Fosi Audio BT30D"
+        + deviceID: "146"
+        + volume: 32
+        + sampleRate: 48000
+        + type: "Bluetooth Subwoofer"
+        + state: "RUNNING"
+        + latency: "1.9ms compensated"
+    }
+}
+
+package "Processing Chains" {
+    class JamesDSP_Chain {
+        <<ProcessingChain>>
+        + name: "JamesDSP Processing Chain"
+        + description: "Audio processing through JamesDSP filter"
+        + members: [JamesDSP_Processor, KM_Speakers, Fosi_Subwoofer]
+    }
+
+    class Combined_Chain {
+        <<ProcessingChain>>
+        + name: "Combined Output Chain"
+        + description: "Direct output bypassing JamesDSP"
+        + members: [CombinedOut]
+    }
+}
+
+package "System State" {
+    class Audio_System_State {
+        <<SystemState>>
+        + volumeSyncDaemon: false
+        + qJackCtl: true
+        + totalNodes: 29
+        + totalConnections: 15
+        + loopsDetected: 0
+    }
+}
+
+' Application to Processing Flow
+Chromium_App --> Chromium_App.audioOutput
+Firefox_App --> Firefox_App.audioOutput
+PulseAudio_App --> PulseAudio_App.audioOutput
+GNOME_Settings_App --> GNOME_Settings_App.audioOutput
+QJackCtl_App --> QJackCtl_App.audioOutput
+
+' Audio Outputs to JamesDSP
+Chromium_App.audioOutput --> JamesDSP_Processor : "Chromium_to_JamesDSP"
+Firefox_App.audioOutput --> JamesDSP_Processor : "Firefox_to_JamesDSP"
+PulseAudio_App.audioOutput --> JamesDSP_Processor : "PulseAudio_to_JamesDSP"
+GNOME_Settings_App.audioOutput --> JamesDSP_Processor : "GNOME_Settings_to_JamesDSP"
+QJackCtl_App.audioOutput --> JamesDSP_Processor : "QJackCtl_to_JamesDSP"
+
+' JamesDSP to Outputs
+JamesDSP_Processor --> KM_Speakers : "JamesDSP_to_KM"
+JamesDSP_Processor --> Fosi_Subwoofer : "JamesDSP_to_Fosi"
+
+' Chain Assignments
+JamesDSP_Processor --> JamesDSP_Chain : belongs
+KM_Speakers --> JamesDSP_Chain : belongs
+Fosi_Subwoofer --> JamesDSP_Chain : belongs
+
+' Processing Relationships
+JamesDSP_Processor --> Chromium_App.audioOutput : processes
+JamesDSP_Processor --> Firefox_App.audioOutput : processes
+JamesDSP_Processor --> PulseAudio_App.audioOutput : processes
+JamesDSP_Processor --> GNOME_Settings_App.audioOutput : processes
+JamesDSP_Processor --> QJackCtl_App.audioOutput : processes
+
+' System State
+Audio_System_State --> JamesDSP_Chain : monitors
+Audio_System_State --> Combined_Chain : monitors
+
+note right of JamesDSP_Processor
+  Central processing node
+  - Filters audio from all applications
+  - Applies DSP processing
+  - Routes to main speakers and subwoofer
+end note
+
+note right of Fosi_Subwoofer
+  Bluetooth subwoofer
+  - 1.9ms delay compensation applied
+  - Receives processed audio from JamesDSP
+  - Synchronized with main speakers
+end note
+
+note right of KM_Speakers
+  Main speakers (KM_24bit96khz)
+  - High-quality analog output
+  - Receives processed audio from JamesDSP
+  - Synchronized with subwoofer
+end note
+
+note right of Audio_System_State
+  Current System Status:
+  - 29 total nodes
+  - 15 connections
+  - No loops detected
+  - QJackCtl running for routing
+  - Volume sync daemon stopped
+end note
+
+@enduml

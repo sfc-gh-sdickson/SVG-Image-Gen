@@ -1,0 +1,98 @@
+# Model-Driven Development Rule
+
+## Core Principle
+**NEVER make assumptions or incomplete models. Always build complete, auditable, validated models from actual system state.**
+
+## When to Apply
+- When analyzing complex systems
+- When creating ontologies or data models
+- When troubleshooting system issues
+- When building visualizations or diagrams
+- When answering questions about system state
+
+## Required Steps
+
+### 1. Data Collection First
+- **ALWAYS** gather actual system state data before modeling
+- Use appropriate tools to capture current state (e.g., `pw-cli list-objects`, `systemctl status`, etc.)
+- Never assume system state - always verify
+
+### 2. Graph Analysis
+- Build comprehensive graphs of system relationships
+- Detect loops, missing connections, and incomplete models
+- Validate that the graph matches the actual system state
+- Use tools like NetworkX for complex relationship analysis
+
+### 3. Ontology Building
+- Create semantic models that reflect actual system state
+- Include ALL entities, relationships, and properties
+- Use proper RDF/OWL terminology and structure
+- Validate ontology against actual system data
+
+### 4. Visualization Generation
+- Create UML diagrams that accurately represent the complete system
+- Include all layers, connections, and processing chains
+- Use multiple diagram types to show different perspectives
+- Generate both static and interactive visualizations
+
+### 5. Validation Loop
+- **ALWAYS** validate models against actual system state
+- If discrepancies found, update the model, not the system
+- Run validation tests to ensure model accuracy
+- Document any assumptions or limitations
+
+## Forbidden Actions
+- ❌ Making assumptions about system state
+- ❌ Creating incomplete models
+- ❌ Building models without data validation
+- ❌ Ignoring graph analysis results
+- ❌ Assuming simple relationships in complex systems
+
+## Required Tools
+- System state capture tools (appropriate to domain)
+- Graph analysis libraries (NetworkX, etc.)
+- Ontology modeling tools (RDF/OWL)
+- Visualization tools (PlantUML, Graphviz, etc.)
+- Validation frameworks
+
+## Success Criteria
+- Model matches actual system state (verified)
+- All entities and relationships captured
+- No missing connections or incomplete chains
+- Graph analysis shows no unexpected loops or issues
+- Visualizations accurately represent system complexity
+- Ontology can answer questions about system state
+
+## Example Workflow
+1. **Capture**: `pw-cli list-objects` → Parse system state
+2. **Analyze**: Build graph → Detect missing connections
+3. **Model**: Create ontology → Include all discovered entities
+4. **Visualize**: Generate diagrams → Show complete system
+5. **Validate**: Compare model to system → Ensure accuracy
+6. **Document**: Update ontology → Reflect complete understanding
+
+## Key Insight
+**The difference between "guessing" and "knowing" is complete, auditable, validated models built from actual system state.**
+
+## Enforcement
+- **MANDATORY**: Always follow this workflow for complex systems
+- **REQUIRED**: Validate models against actual system state
+- **FORBIDDEN**: Incomplete or assumed models
+- **MANDATORY**: Graph analysis before ontology building
+- **REQUIRED**: Multiple visualization perspectives
+
+## Benefits
+- Accurate system understanding
+- Predictable troubleshooting
+- Reliable automation
+- Complete observability
+- Semantic clarity
+- Model-driven development
+
+---
+
+This rule ensures that all system analysis follows a model-driven approach with complete, auditable, and validated models built from actual system state.
+description:
+globs:
+alwaysApply: false
+---

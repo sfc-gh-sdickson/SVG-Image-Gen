@@ -1,0 +1,30 @@
+{
+  "AudioLatencyDecision": {
+    "decision": "AudioLatencyDecision",
+    "validations": [
+      "HumanExperience",
+      "ToolValidation"
+    ],
+    "contradictions": [
+      "AIReasoning"
+    ],
+    "confidence": "LowConfidence",
+    "state": "InitialState",
+    "evidence": [],
+    "confidence_score": 0.2
+  },
+  "TestDecision": {
+    "decision": "TestDecision",
+    "validations": [
+      "HumanExperience",
+      "ToolValidation"
+    ],
+    "contradictions": [
+      "AIReasoning"
+    ],
+    "confidence": "MediumConfidence",
+    "state": "InitialState",
+    "evidence": [],
+    "confidence_score": 0.49999999999999994
+  }
+}

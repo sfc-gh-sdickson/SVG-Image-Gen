@@ -1,0 +1,528 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix audio: <http://example.org/audio-system#> .
+@prefix device: <http://example.org/audio-devices#> .
+@prefix connection: <http://example.org/audio-connections#> .
+
+# Audio System Ontology
+# Updated based on complete PipeWire configuration and graph analysis
+
+# Class Definitions
+audio:AudioDevice a owl:Class ;
+    rdfs:label "Audio Device" ;
+    rdfs:comment "A physical or virtual audio device in the system" .
+
+audio:AudioSink a owl:Class ;
+    rdfs:subClassOf audio:AudioDevice ;
+    rdfs:label "Audio Sink" ;
+    rdfs:comment "An audio output device or virtual sink" .
+
+audio:AudioSource a owl:Class ;
+    rdfs:subClassOf audio:AudioDevice ;
+    rdfs:label "Audio Source" ;
+    rdfs:comment "An audio input device or virtual source" .
+
+audio:HardwareSink a owl:Class ;
+    rdfs:subClassOf audio:AudioSink ;
+    rdfs:label "Hardware Sink" ;
+    rdfs:comment "A physical audio output device" .
+
+audio:VirtualSink a owl:Class ;
+    rdfs:subClassOf audio:AudioSink ;
+    rdfs:label "Virtual Sink" ;
+    rdfs:comment "A virtual audio sink created by software" .
+
+audio:MixerSink a owl:Class ;
+    rdfs:subClassOf audio:VirtualSink ;
+    rdfs:label "Mixer Sink" ;
+    rdfs:comment "A virtual sink that mixes multiple audio inputs" .
+
+audio:StreamOutput a owl:Class ;
+    rdfs:subClassOf audio:AudioDevice ;
+    rdfs:label "Stream Output" ;
+    rdfs:comment "An audio stream output from applications" .
+
+audio:StreamInput a owl:Class ;
+    rdfs:subClassOf audio:AudioDevice ;
+    rdfs:label "Stream Input" ;
+    rdfs:comment "An audio stream input to applications" .
+
+audio:VideoSource a owl:Class ;
+    rdfs:subClassOf audio:AudioSource ;
+    rdfs:label "Video Source" ;
+    rdfs:comment "A video device with audio capabilities" .
+
+audio:AudioConnection a owl:Class ;
+    rdfs:label "Audio Connection" ;
+    rdfs:comment "A connection between audio devices" .
+
+audio:ProcessingChain a owl:Class ;
+    rdfs:label "Processing Chain" ;
+    rdfs:comment "A chain of audio processing devices" .
+
+# Object Properties
+audio:hasConnection a owl:ObjectProperty ;
+    rdfs:label "has connection" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range audio:AudioConnection .
+
+audio:hasInput a owl:ObjectProperty ;
+    rdfs:label "has input" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range audio:AudioSource .
+
+audio:hasOutput a owl:ObjectProperty ;
+    rdfs:label "has output" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range audio:AudioSink .
+
+audio:processesAudio a owl:ObjectProperty ;
+    rdfs:label "processes audio" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range audio:AudioDevice .
+
+audio:belongsToChain a owl:ObjectProperty ;
+    rdfs:label "belongs to chain" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range audio:ProcessingChain .
+
+audio:hasSource a owl:ObjectProperty ;
+    rdfs:label "has source" ;
+    rdfs:domain audio:AudioConnection ;
+    rdfs:range audio:AudioDevice .
+
+audio:hasTarget a owl:ObjectProperty ;
+    rdfs:label "has target" ;
+    rdfs:domain audio:AudioConnection ;
+    rdfs:range audio:AudioDevice .
+
+# Data Properties
+audio:hasVolume a owl:DatatypeProperty ;
+    rdfs:label "has volume" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:integer .
+
+audio:hasSampleRate a owl:DatatypeProperty ;
+    rdfs:label "has sample rate" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:integer .
+
+audio:hasState a owl:DatatypeProperty ;
+    rdfs:label "has state" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:string .
+
+audio:hasDeviceID a owl:DatatypeProperty ;
+    rdfs:label "has device ID" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:string .
+
+audio:hasDescription a owl:DatatypeProperty ;
+    rdfs:label "has description" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:string .
+
+audio:hasDriver a owl:DatatypeProperty ;
+    rdfs:label "has driver" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:string .
+
+audio:hasMediaClass a owl:DatatypeProperty ;
+    rdfs:label "has media class" ;
+    rdfs:domain audio:AudioDevice ;
+    rdfs:range xsd:string .
+
+# Device Instances - Complete System State
+
+# Hardware Sinks (8 total)
+device:km_audio a audio:HardwareSink ;
+    audio:hasDeviceID "69" ;
+    audio:hasDescription "KM_24bit96khz Audio Analog Stereo" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "KM Audio" .
+
+device:pcm2912a_codec a audio:HardwareSink ;
+    audio:hasDeviceID "71" ;
+    audio:hasDescription "PCM2912A Audio Codec Analog Stereo" ;
+    audio:hasVolume 36 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "PCM2912A Audio Codec" .
+
+device:builtin_audio a audio:HardwareSink ;
+    audio:hasDeviceID "72" ;
+    audio:hasDescription "Built-in Audio Analog Stereo" ;
+    audio:hasVolume 36 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "IDLE" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "Built-in Audio" .
+
+device:thunderbolt_display a audio:HardwareSink ;
+    audio:hasDeviceID "70" ;
+    audio:hasDescription "Thunderbolt Display Audio Analog Stereo" ;
+    audio:hasVolume 34 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "Thunderbolt Display Audio" .
+
+device:jamesdsp_sink a audio:HardwareSink ;
+    audio:hasDeviceID "91" ;
+    audio:hasDescription "JamesDSP Sink" ;
+    audio:hasVolume 30 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "JamesDSP Sink" .
+
+device:fosi_bt30d a audio:HardwareSink ;
+    audio:hasDeviceID "146" ;
+    audio:hasDescription "Fosi Audio BT30D" ;
+    audio:hasVolume 32 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "Fosi BT30D Subwoofer" .
+
+device:combined_out a audio:HardwareSink ;
+    audio:hasDeviceID "96" ;
+    audio:hasDescription "CombinedOut" ;
+    audio:hasVolume 33 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "Combined Output Sink" .
+
+device:tonga_hdmi a audio:HardwareSink ;
+    audio:hasDeviceID "270629" ;
+    audio:hasDescription "Tonga HDMI Audio [Radeon R9 285/380] Digital Stereo (HDMI 5)" ;
+    audio:hasVolume 32 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "Tonga HDMI Audio" .
+
+# ALSA Hardware Devices (4 total) - These feed into PulseAudio Volume Control
+device:alsa_km_audio a audio:HardwareSink ;
+    audio:hasDeviceID "41" ;
+    audio:hasDescription "alsa:pcm:4:front:4:playback" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "ALSA" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "ALSA KM Audio" .
+
+device:alsa_pcm2912a a audio:HardwareSink ;
+    audio:hasDeviceID "66" ;
+    audio:hasDescription "alsa:pcm:3:front:3:playback" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "ALSA" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "ALSA PCM2912A" .
+
+device:alsa_usb_codec a audio:HardwareSink ;
+    audio:hasDeviceID "64" ;
+    audio:hasDescription "alsa:pcm:2:front:2:playback" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "ALSA" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "ALSA USB Codec" .
+
+device:alsa_tonga_hdmi a audio:HardwareSink ;
+    audio:hasDeviceID "211" ;
+    audio:hasDescription "alsa:pcm:1:hdmi:1,4:playback" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "ALSA" ;
+    audio:hasMediaClass "Audio/Sink" ;
+    rdfs:label "ALSA Tonga HDMI" .
+
+# Virtual Sinks
+device:pulseaudio_volume_control a audio:MixerSink ;
+    audio:hasDeviceID "246" ;
+    audio:hasDescription "PulseAudio Volume Control" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "PulseAudio Volume Control" .
+
+# Audio Sources (1 total)
+device:builtin_audio_source a audio:AudioSource ;
+    audio:hasDeviceID "73" ;
+    audio:hasDescription "Built-in Audio Analog Stereo" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Audio/Source" ;
+    rdfs:label "Built-in Audio Source" .
+
+# Video Sources (2 total)
+device:facetime_builtin a audio:VideoSource ;
+    audio:hasDeviceID "74" ;
+    audio:hasDescription "FaceTime HD Camera (Built-in) (V4L2)" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Video/Source" ;
+    rdfs:label "FaceTime HD Camera (Built-in)" .
+
+device:facetime_display a audio:VideoSource ;
+    audio:hasDeviceID "75" ;
+    audio:hasDescription "FaceTime HD Camera (Display) (V4L2)" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 44100 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Video/Source" ;
+    rdfs:label "FaceTime HD Camera (Display)" .
+
+# Stream Outputs (2 total)
+device:chromium_output a audio:StreamOutput ;
+    audio:hasDeviceID "175" ;
+    audio:hasDescription "Chromium" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Output/Audio" ;
+    rdfs:label "Chromium Audio Output" .
+
+device:firefox_output a audio:StreamOutput ;
+    audio:hasDeviceID "334" ;
+    audio:hasDescription "Firefox" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Output/Audio" ;
+    rdfs:label "Firefox Audio Output" .
+
+# Stream Inputs (9 total)
+device:chromium_input a audio:StreamInput ;
+    audio:hasDeviceID "176" ;
+    audio:hasDescription "Chromium" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "Chromium Audio Input" .
+
+device:firefox_input a audio:StreamInput ;
+    audio:hasDeviceID "335" ;
+    audio:hasDescription "Firefox" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "Firefox Audio Input" .
+
+device:pulseaudio_volume_control_input a audio:StreamInput ;
+    audio:hasDeviceID "247" ;
+    audio:hasDescription "PulseAudio Volume Control" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "PulseAudio Volume Control Input" .
+
+device:gnome_settings a audio:StreamInput ;
+    audio:hasDeviceID "248" ;
+    audio:hasDescription "GNOME Settings" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "GNOME Settings" .
+
+device:qjackctl a audio:StreamInput ;
+    audio:hasDeviceID "208" ;
+    audio:hasDescription "qjackctl" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "QJackCtl" .
+
+# Additional Stream Inputs (4 more)
+device:unknown_stream_input_1 a audio:StreamInput ;
+    audio:hasDeviceID "unknown" ;
+    audio:hasDescription "Unknown Stream Input 1" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "Unknown Stream Input 1" .
+
+device:unknown_stream_input_2 a audio:StreamInput ;
+    audio:hasDeviceID "unknown" ;
+    audio:hasDescription "Unknown Stream Input 2" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "Unknown Stream Input 2" .
+
+device:unknown_stream_input_3 a audio:StreamInput ;
+    audio:hasDeviceID "unknown" ;
+    audio:hasDescription "Unknown Stream Input 3" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "Unknown Stream Input 3" .
+
+device:unknown_stream_input_4 a audio:StreamInput ;
+    audio:hasDeviceID "unknown" ;
+    audio:hasDescription "Unknown Stream Input 4" ;
+    audio:hasVolume 100 ;
+    audio:hasSampleRate 48000 ;
+    audio:hasState "RUNNING" ;
+    audio:hasDriver "PipeWire" ;
+    audio:hasMediaClass "Stream/Input/Audio" ;
+    rdfs:label "Unknown Stream Input 4" .
+
+# Processing Chains
+audio:jamesdsp_chain a audio:ProcessingChain ;
+    rdfs:label "JamesDSP Processing Chain" ;
+    rdfs:comment "Audio processing chain through JamesDSP" .
+
+audio:combined_output_chain a audio:ProcessingChain ;
+    rdfs:label "Combined Output Chain" ;
+    rdfs:comment "Direct output chain bypassing JamesDSP" .
+
+audio:pulseaudio_mixer_chain a audio:ProcessingChain ;
+    rdfs:label "PulseAudio Mixer Chain" ;
+    rdfs:comment "Hardware mixing chain through PulseAudio Volume Control" .
+
+# Complete Connections (12 total from graph analysis)
+# Hardware to PulseAudio Mixer
+connection:alsa_km_to_pulseaudio a audio:AudioConnection ;
+    rdfs:label "ALSA KM Audio to PulseAudio" ;
+    audio:hasSource device:alsa_km_audio ;
+    audio:hasTarget device:pulseaudio_volume_control .
+
+connection:alsa_pcm2912a_to_pulseaudio a audio:AudioConnection ;
+    rdfs:label "ALSA PCM2912A to PulseAudio" ;
+    audio:hasSource device:alsa_pcm2912a ;
+    audio:hasTarget device:pulseaudio_volume_control .
+
+connection:alsa_usb_to_pulseaudio a audio:AudioConnection ;
+    rdfs:label "ALSA USB Codec to PulseAudio" ;
+    audio:hasSource device:alsa_usb_codec ;
+    audio:hasTarget device:pulseaudio_volume_control .
+
+connection:alsa_tonga_to_pulseaudio a audio:AudioConnection ;
+    rdfs:label "ALSA Tonga HDMI to PulseAudio" ;
+    audio:hasSource device:alsa_tonga_hdmi ;
+    audio:hasTarget device:pulseaudio_volume_control .
+
+# PulseAudio to JamesDSP
+connection:pulseaudio_to_jamesdsp a audio:AudioConnection ;
+    rdfs:label "PulseAudio to JamesDSP" ;
+    audio:hasSource device:pulseaudio_volume_control ;
+    audio:hasTarget device:jamesdsp_sink .
+
+# Application outputs to JamesDSP
+connection:chromium_to_jamesdsp a audio:AudioConnection ;
+    rdfs:label "Chromium to JamesDSP" ;
+    audio:hasSource device:chromium_output ;
+    audio:hasTarget device:jamesdsp_sink .
+
+connection:firefox_to_jamesdsp a audio:AudioConnection ;
+    rdfs:label "Firefox to JamesDSP" ;
+    audio:hasSource device:firefox_output ;
+    audio:hasTarget device:jamesdsp_sink .
+
+# JamesDSP to outputs
+connection:jamesdsp_to_fosi a audio:AudioConnection ;
+    rdfs:label "JamesDSP to Fosi" ;
+    audio:hasSource device:jamesdsp_sink ;
+    audio:hasTarget device:fosi_bt30d .
+
+connection:jamesdsp_to_km a audio:AudioConnection ;
+    rdfs:label "JamesDSP to KM Audio" ;
+    audio:hasSource device:jamesdsp_sink ;
+    audio:hasTarget device:km_audio .
+
+# Additional connections
+connection:gnome_settings_to_jamesdsp a audio:AudioConnection ;
+    rdfs:label "GNOME Settings to JamesDSP" ;
+    audio:hasSource device:gnome_settings ;
+    audio:hasTarget device:jamesdsp_sink .
+
+connection:qjackctl_to_jamesdsp a audio:AudioConnection ;
+    rdfs:label "QJackCtl to JamesDSP" ;
+    audio:hasSource device:qjackctl ;
+    audio:hasTarget device:jamesdsp_sink .
+
+# Chain Assignments
+device:jamesdsp_sink audio:belongsToChain audio:jamesdsp_chain .
+device:km_audio audio:belongsToChain audio:jamesdsp_chain .
+device:fosi_bt30d audio:belongsToChain audio:jamesdsp_chain .
+
+device:combined_out audio:belongsToChain audio:combined_output_chain .
+
+device:pulseaudio_volume_control audio:belongsToChain audio:pulseaudio_mixer_chain .
+device:alsa_km_audio audio:belongsToChain audio:pulseaudio_mixer_chain .
+device:alsa_pcm2912a audio:belongsToChain audio:pulseaudio_mixer_chain .
+device:alsa_usb_codec audio:belongsToChain audio:pulseaudio_mixer_chain .
+device:alsa_tonga_hdmi audio:belongsToChain audio:pulseaudio_mixer_chain .
+
+# Processing Relationships
+device:jamesdsp_sink audio:processesAudio device:chromium_output .
+device:jamesdsp_sink audio:processesAudio device:firefox_output .
+device:jamesdsp_sink audio:processesAudio device:pulseaudio_volume_control .
+device:jamesdsp_sink audio:processesAudio device:gnome_settings .
+device:jamesdsp_sink audio:processesAudio device:qjackctl .
+
+device:pulseaudio_volume_control audio:processesAudio device:alsa_km_audio .
+device:pulseaudio_volume_control audio:processesAudio device:alsa_pcm2912a .
+device:pulseaudio_volume_control audio:processesAudio device:alsa_usb_codec .
+device:pulseaudio_volume_control audio:processesAudio device:alsa_tonga_hdmi .
+
+# System State
+audio:hasVolumeSyncDaemon a owl:DatatypeProperty ;
+    rdfs:label "has volume sync daemon" ;
+    rdfs:range xsd:boolean .
+
+audio:hasQJackCtl a owl:DatatypeProperty ;
+    rdfs:label "has QJackCtl running" ;
+    rdfs:range xsd:boolean .
+
+audio:current_system_state a owl:Thing ;
+    audio:hasVolumeSyncDaemon false ;
+    audio:hasQJackCtl true ;
+    rdfs:label "Current Audio System State" .

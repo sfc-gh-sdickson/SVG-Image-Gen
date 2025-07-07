@@ -1,0 +1,15 @@
+digraph ImplementationDependencies {
+    rankdir=TB;
+    node [shape=box, style=filled];
+
+    "verify_lkg_state" [label="Verify current LKG state before changes", fillcolor=lightblue];
+    "create_delay_sink" [label="Create 20ms delay sink for main speakers", fillcolor=lightgreen];
+    "verify_delay_creation" [label="Verify delay sink was created successfully", fillcolor=lightblue];
+    "verify_new_routing" [label="Verify new routing topology matches target state", fillcolor=lightblue];
+    "test_audio_synchronization" [label="Test audio synchronization between speakers and subwoofer", fillcolor=lightgreen];
+
+    "verify_lkg_state" -> "create_delay_sink";
+    "create_delay_sink" -> "verify_delay_creation";
+    "verify_delay_creation" -> "verify_new_routing";
+    "verify_new_routing" -> "test_audio_synchronization";
+}

@@ -1,0 +1,136 @@
+@startuml JamesDSP_Processing_Chain
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+
+' Device Colors
+skinparam class {
+    BackgroundColor<<Application>> #D5E8D4
+    BackgroundColor<<Virtual>> #FFF2CC
+    BackgroundColor<<Hardware>> #E8F4FD
+    BackgroundColor<<DSP>> #FFE6CC
+    BorderColor #2E86AB
+}
+
+title JamesDSP Processing Chain\nDSP Processing for Main Speakers with Latency Compensation
+
+' Applications Layer
+package "Applications" {
+    class Firefox <<Application>> {
+        + Sample Rate: 44100Hz
+        + Volume: 100%
+        + State: Active
+        + Audio Stream: Firefox Audio
+    }
+
+    class Chromium <<Application>> {
+        + Sample Rate: 48000Hz
+        + Volume: 58%
+        + State: Active
+        + Audio Stream: Chromium Audio
+    }
+}
+
+' DSP Processing Layer
+package "DSP Processing Chain" {
+    class JamesDSP_Sink <<DSP>> {
+        + Device ID: 273555
+        + Volume: 30%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + DSP Processing: Active
+        + Filter Chains: Multiple
+    }
+
+    class JamesDSP_Delay_Sink <<DSP>> {
+        + Device ID: 274119
+        + Volume: 100%
+        + Sample Rate: 44100Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Purpose: Latency Compensation
+        + Delay: 2ms (estimated)
+    }
+}
+
+' Hardware Output Layer
+package "Hardware Output" {
+    class KM_Audio <<Hardware>> {
+        + Device ID: 69
+        + Volume: 100%
+        + Sample Rate: 48000Hz
+        + State: RUNNING
+        + Driver: PipeWire
+        + Type: USB Audio
+        + Amplification: External Amp
+        + Role: Main Speakers
+    }
+}
+
+' Audio Flow
+Firefox --> JamesDSP_Sink : "Audio Stream\n44100Hz → 48000Hz"
+Chromium --> JamesDSP_Sink : "Audio Stream\n48000Hz → 48000Hz"
+
+JamesDSP_Sink --> JamesDSP_Delay_Sink : "Processed Audio\nDSP Effects Applied"
+JamesDSP_Delay_Sink --> KM_Audio : "Delayed Audio\nLatency Compensated"
+
+' Processing Details
+note right of JamesDSP_Sink
+  **JamesDSP Processing:**
+  - Real-time DSP effects
+  - Sample rate conversion
+  - Filter chain processing
+  - Volume management
+  - Audio enhancement
+  - Bass/treble adjustment
+end note
+
+note right of JamesDSP_Delay_Sink
+  **Latency Compensation:**
+  - 2ms delay applied
+  - Compensates for Bluetooth latency
+  - Syncs with Fosi subwoofer
+  - Sample rate: 44100Hz
+  - Buffer management
+end note
+
+note right of KM_Audio
+  **Main Speaker Output:**
+  - External amplification
+  - High volume capability
+  - Clean audio path
+  - DSP processed audio
+  - Latency compensated
+end note
+
+note bottom of Firefox
+  **Application Audio:**
+  - Firefox: 44100Hz native
+  - Chromium: 48000Hz native
+  - Both processed through JamesDSP
+  - Volume levels maintained
+  - Real-time processing
+end note
+
+' Technical Specifications
+note top of JamesDSP_Sink
+  **Technical Specs:**
+  - Input: 44100Hz/48000Hz
+  - Output: 48000Hz
+  - Processing: Real-time DSP
+  - Memory: Optimized buffers
+  - CPU: Low latency
+end note
+
+' Legend
+legend right
+  |= Color |= Type |
+  |#D5E8D4| Application |
+  |#FFF2CC| Virtual Sink |
+  |#E8F4FD| Hardware Device |
+  |#FFE6CC| DSP Processing |
+endlegend
+
+@enduml

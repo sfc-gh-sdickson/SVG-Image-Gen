@@ -1,0 +1,240 @@
+# Generated following ontology framework rules
+@startuml Audio System Target State - With 20ms Delay
+
+!define RECTANGLE class
+
+package "Hardware Layer (ALSA)" {
+    class ALSA_KM_Audio {
+        <<HardwareSink>>
+        + deviceID: "41"
+        + description: "alsa:pcm:4:front:4:playback"
+        + driver: "ALSA"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+
+    class ALSA_PCM2912A {
+        <<HardwareSink>>
+        + deviceID: "66"
+        + description: "alsa:pcm:3:front:3:playback"
+        + driver: "ALSA"
+        + sampleRate: 44100
+        + state: "RUNNING"
+    }
+
+    class ALSA_USB_Codec {
+        <<HardwareSink>>
+        + deviceID: "64"
+        + description: "alsa:pcm:2:front:2:playback"
+        + driver: "ALSA"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+
+    class ALSA_Tonga_HDMI {
+        <<HardwareSink>>
+        + deviceID: "211"
+        + description: "alsa:pcm:1:hdmi:1,4:playback"
+        + driver: "ALSA"
+        + sampleRate: 44100
+        + state: "RUNNING"
+    }
+}
+
+package "Mixer Layer (PulseAudio)" {
+    class PulseAudio_Volume_Control {
+        <<MixerSink>>
+        + deviceID: "246"
+        + description: "PulseAudio Volume Control"
+        + driver: "PipeWire"
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + function: "Hardware Audio Mixer"
+    }
+}
+
+package "Application Layer" {
+    class Chromium_App {
+        <<Application>>
+        + name: "Chromium"
+        + type: "Browser"
+        + audioOutput: Chromium_Output
+    }
+
+    class Firefox_App {
+        <<Application>>
+        + name: "Firefox"
+        + type: "Browser"
+        + audioOutput: Firefox_Output
+    }
+
+    class Chromium_Output {
+        <<StreamOutput>>
+        + deviceID: "175"
+        + description: "Chromium"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+
+    class Firefox_Output {
+        <<StreamOutput>>
+        + deviceID: "334"
+        + description: "Firefox"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+}
+
+package "Processing Layer (JamesDSP)" {
+    class JamesDSP_Processor {
+        <<ProcessingNode>>
+        + deviceID: "91"
+        + description: "JamesDSP Sink"
+        + volume: 30
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + function: "Audio Filtering and Processing"
+    }
+}
+
+package "Delay Layer" {
+    class Main_Speakers_Delay {
+        <<DelaySink>>
+        + deviceID: "TBD"
+        + description: "20ms Delay Sink"
+        + delay: "20ms"
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + function: "Delay main speakers to sync with subwoofer"
+    }
+}
+
+package "Output Layer" {
+    class KM_Speakers {
+        <<HardwareOutput>>
+        + deviceID: "69"
+        + description: "KM_24bit96khz Audio"
+        + volume: 100
+        + sampleRate: 48000
+        + type: "Main Speakers"
+        + state: "RUNNING"
+        + note: "DELAYED by 20ms"
+    }
+
+    class Fosi_Subwoofer {
+        <<HardwareOutput>>
+        + deviceID: "146"
+        + description: "Fosi Audio BT30D"
+        + volume: 32
+        + sampleRate: 48000
+        + type: "Bluetooth Subwoofer"
+        + state: "RUNNING"
+        + latency: "1.9ms compensated"
+        + note: "NO DELAY - direct connection"
+    }
+}
+
+package "Processing Chains" {
+    class PulseAudio_Mixer_Chain {
+        <<ProcessingChain>>
+        + name: "PulseAudio Mixer Chain"
+        + description: "Hardware mixing through PulseAudio Volume Control"
+        + members: [ALSA devices, PulseAudio Volume Control]
+    }
+
+    class JamesDSP_Chain {
+        <<ProcessingChain>>
+        + name: "JamesDSP Processing Chain"
+        + description: "Audio processing through JamesDSP filter"
+        + members: [JamesDSP_Processor, Main_Speakers_Delay, KM_Speakers, Fosi_Subwoofer]
+    }
+
+    class Delay_Chain {
+        <<ProcessingChain>>
+        + name: "Delay Processing Chain"
+        + description: "20ms delay for main speakers synchronization"
+        + members: [Main_Speakers_Delay, KM_Speakers]
+    }
+}
+
+' Hardware to PulseAudio Mixer Flow
+ALSA_KM_Audio --> PulseAudio_Volume_Control : "ALSA_KM_to_PulseAudio"
+ALSA_PCM2912A --> PulseAudio_Volume_Control : "ALSA_PCM2912A_to_PulseAudio"
+ALSA_USB_Codec --> PulseAudio_Volume_Control : "ALSA_USB_to_PulseAudio"
+ALSA_Tonga_HDMI --> PulseAudio_Volume_Control : "ALSA_Tonga_to_PulseAudio"
+
+' Application to Processing Flow
+Chromium_App --> Chromium_App.audioOutput
+Firefox_App --> Firefox_App.audioOutput
+
+' Audio Outputs to JamesDSP
+Chromium_App.audioOutput --> JamesDSP_Processor : "Chromium_to_JamesDSP"
+Firefox_App.audioOutput --> JamesDSP_Processor : "Firefox_to_JamesDSP"
+
+' PulseAudio to JamesDSP
+PulseAudio_Volume_Control --> JamesDSP_Processor : "PulseAudio_to_JamesDSP"
+
+' JamesDSP to Delay and Direct Outputs
+JamesDSP_Processor --> Main_Speakers_Delay : "JamesDSP_to_Delay"
+JamesDSP_Processor --> Fosi_Subwoofer : "JamesDSP_to_Fosi_Direct"
+
+' Delay to Main Speakers
+Main_Speakers_Delay --> KM_Speakers : "Delay_to_KM"
+
+' Chain Assignments
+ALSA_KM_Audio --> PulseAudio_Mixer_Chain : belongs
+ALSA_PCM2912A --> PulseAudio_Mixer_Chain : belongs
+ALSA_USB_Codec --> PulseAudio_Mixer_Chain : belongs
+ALSA_Tonga_HDMI --> PulseAudio_Mixer_Chain : belongs
+PulseAudio_Volume_Control --> PulseAudio_Mixer_Chain : belongs
+
+JamesDSP_Processor --> JamesDSP_Chain : belongs
+Main_Speakers_Delay --> JamesDSP_Chain : belongs
+KM_Speakers --> JamesDSP_Chain : belongs
+Fosi_Subwoofer --> JamesDSP_Chain : belongs
+
+Main_Speakers_Delay --> Delay_Chain : belongs
+KM_Speakers --> Delay_Chain : belongs
+
+' Processing Relationships
+PulseAudio_Volume_Control --> ALSA_KM_Audio : processes
+PulseAudio_Volume_Control --> ALSA_PCM2912A : processes
+PulseAudio_Volume_Control --> ALSA_USB_Codec : processes
+PulseAudio_Volume_Control --> ALSA_Tonga_HDMI : processes
+
+JamesDSP_Processor --> Chromium_App.audioOutput : processes
+JamesDSP_Processor --> Firefox_App.audioOutput : processes
+JamesDSP_Processor --> PulseAudio_Volume_Control : processes
+
+Main_Speakers_Delay --> JamesDSP_Processor : processes
+
+note right of Main_Speakers_Delay
+  NEW: 20ms Delay Sink
+  - Delays main speakers by 20ms
+  - Syncs with subwoofer latency
+  - Only affects KM speakers path
+  - Subwoofer gets direct connection
+end note
+
+note right of Fosi_Subwoofer
+  Subwoofer gets direct connection
+  - No additional delay
+  - 1.9ms compensation already applied
+  - Synchronized with delayed main speakers
+end note
+
+note right of KM_Speakers
+  Main speakers get delayed audio
+  - 20ms delay applied
+  - Syncs with subwoofer timing
+  - Creates proper phase alignment
+end note
+
+note right of JamesDSP_Processor
+  JamesDSP routes to two paths:
+  - Direct to subwoofer (no delay)
+  - Through delay to main speakers
+  - Enables independent timing control
+end note
+
+@enduml

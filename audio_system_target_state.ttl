@@ -1,0 +1,276 @@
+# Audio System Target State Ontology
+# Generated following ontology framework rules
+# Target: 20ms delay on main speakers path
+
+@prefix : <http://example.org/audio-system/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Classes
+:HardwareSink rdfs:Class ;
+    rdfs:label "Hardware Sink" ;
+    rdfs:comment "ALSA hardware audio devices" .
+
+:MixerSink rdfs:Class ;
+    rdfs:label "Mixer Sink" ;
+    rdfs:comment "Audio mixing devices" .
+
+:Application rdfs:Class ;
+    rdfs:label "Application" ;
+    rdfs:comment "Audio applications" .
+
+:StreamOutput rdfs:Class ;
+    rdfs:label "Stream Output" ;
+    rdfs:comment "Application audio streams" .
+
+:ProcessingNode rdfs:Class ;
+    rdfs:label "Processing Node" ;
+    rdfs:comment "Audio processing devices" .
+
+:DelaySink rdfs:Class ;
+    rdfs:label "Delay Sink" ;
+    rdfs:comment "Audio delay devices" .
+
+:HardwareOutput rdfs:Class ;
+    rdfs:label "Hardware Output" ;
+    rdfs:comment "Final audio output devices" .
+
+:ProcessingChain rdfs:Class ;
+    rdfs:label "Processing Chain" ;
+    rdfs:comment "Audio processing chains" .
+
+# Properties
+:hasDeviceID rdf:Property ;
+    rdfs:label "has device ID" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:hasDescription rdf:Property ;
+    rdfs:label "has description" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:hasDriver rdf:Property ;
+    rdfs:label "has driver" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:hasSampleRate rdf:Property ;
+    rdfs:label "has sample rate" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:integer .
+
+:hasState rdf:Property ;
+    rdfs:label "has state" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:hasVolume rdf:Property ;
+    rdfs:label "has volume" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:integer .
+
+:hasDelay rdf:Property ;
+    rdfs:label "has delay" ;
+    rdfs:domain :DelaySink ;
+    rdfs:range xsd:string .
+
+:hasLatency rdf:Property ;
+    rdfs:label "has latency" ;
+    rdfs:domain :HardwareOutput ;
+    rdfs:range xsd:string .
+
+:hasType rdf:Property ;
+    rdfs:label "has type" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:hasFunction rdf:Property ;
+    rdfs:label "has function" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:hasNote rdf:Property ;
+    rdfs:label "has note" ;
+    rdfs:domain :Device ;
+    rdfs:range xsd:string .
+
+:routesTo rdf:Property ;
+    rdfs:label "routes to" ;
+    rdfs:domain :Device ;
+    rdfs:range :Device .
+
+:belongsTo rdf:Property ;
+    rdfs:label "belongs to" ;
+    rdfs:domain :Device ;
+    rdfs:range :ProcessingChain .
+
+:processes rdf:Property ;
+    rdfs:label "processes" ;
+    rdfs:domain :Device ;
+    rdfs:range :Device .
+
+# Hardware Layer Instances
+:ALSA_KM_Audio rdf:type :HardwareSink ;
+    :hasDeviceID "41" ;
+    :hasDescription "alsa:pcm:4:front:4:playback" ;
+    :hasDriver "ALSA" ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" .
+
+:ALSA_PCM2912A rdf:type :HardwareSink ;
+    :hasDeviceID "66" ;
+    :hasDescription "alsa:pcm:3:front:3:playback" ;
+    :hasDriver "ALSA" ;
+    :hasSampleRate 44100 ;
+    :hasState "RUNNING" .
+
+:ALSA_USB_Codec rdf:type :HardwareSink ;
+    :hasDeviceID "64" ;
+    :hasDescription "alsa:pcm:2:front:2:playback" ;
+    :hasDriver "ALSA" ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" .
+
+:ALSA_Tonga_HDMI rdf:type :HardwareSink ;
+    :hasDeviceID "211" ;
+    :hasDescription "alsa:pcm:1:hdmi:1,4:playback" ;
+    :hasDriver "ALSA" ;
+    :hasSampleRate 44100 ;
+    :hasState "RUNNING" .
+
+# Mixer Layer Instances
+:PulseAudio_Volume_Control rdf:type :MixerSink ;
+    :hasDeviceID "246" ;
+    :hasDescription "PulseAudio Volume Control" ;
+    :hasDriver "PipeWire" ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" ;
+    :hasFunction "Hardware Audio Mixer" .
+
+# Application Layer Instances
+:Chromium_App rdf:type :Application ;
+    :hasDescription "Chromium Browser" ;
+    :hasType "Browser" .
+
+:Firefox_App rdf:type :Application ;
+    :hasDescription "Firefox Browser" ;
+    :hasType "Browser" .
+
+:Chromium_Output rdf:type :StreamOutput ;
+    :hasDeviceID "175" ;
+    :hasDescription "Chromium" ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" .
+
+:Firefox_Output rdf:type :StreamOutput ;
+    :hasDeviceID "334" ;
+    :hasDescription "Firefox" ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" .
+
+# Processing Layer Instances
+:JamesDSP_Processor rdf:type :ProcessingNode ;
+    :hasDeviceID "91" ;
+    :hasDescription "JamesDSP Sink" ;
+    :hasVolume 30 ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" ;
+    :hasFunction "Audio Filtering and Processing" .
+
+# Delay Layer Instances (NEW)
+:Main_Speakers_Delay rdf:type :DelaySink ;
+    :hasDeviceID "TBD" ;
+    :hasDescription "20ms Delay Sink" ;
+    :hasDelay "20ms" ;
+    :hasSampleRate 48000 ;
+    :hasState "RUNNING" ;
+    :hasFunction "Delay main speakers to sync with subwoofer" .
+
+# Output Layer Instances
+:KM_Speakers rdf:type :HardwareOutput ;
+    :hasDeviceID "69" ;
+    :hasDescription "KM_24bit96khz Audio" ;
+    :hasVolume 100 ;
+    :hasSampleRate 48000 ;
+    :hasType "Main Speakers" ;
+    :hasState "RUNNING" ;
+    :hasNote "DELAYED by 20ms" .
+
+:Fosi_Subwoofer rdf:type :HardwareOutput ;
+    :hasDeviceID "146" ;
+    :hasDescription "Fosi Audio BT30D" ;
+    :hasVolume 32 ;
+    :hasSampleRate 48000 ;
+    :hasType "Bluetooth Subwoofer" ;
+    :hasState "RUNNING" ;
+    :hasLatency "1.9ms compensated" ;
+    :hasNote "NO DELAY - direct connection" .
+
+# Processing Chain Instances
+:PulseAudio_Mixer_Chain rdf:type :ProcessingChain ;
+    :hasDescription "Hardware mixing through PulseAudio Volume Control" ;
+    :hasFunction "Mix ALSA devices through PulseAudio" .
+
+:JamesDSP_Chain rdf:type :ProcessingChain ;
+    :hasDescription "Audio processing through JamesDSP filter" ;
+    :hasFunction "Process audio through JamesDSP with delay routing" .
+
+:Delay_Chain rdf:type :ProcessingChain ;
+    :hasDescription "20ms delay for main speakers synchronization" ;
+    :hasFunction "Delay main speakers to sync with subwoofer" .
+
+# Hardware to PulseAudio Mixer Connections
+:ALSA_KM_Audio :routesTo :PulseAudio_Volume_Control .
+:ALSA_PCM2912A :routesTo :PulseAudio_Volume_Control .
+:ALSA_USB_Codec :routesTo :PulseAudio_Volume_Control .
+:ALSA_Tonga_HDMI :routesTo :PulseAudio_Volume_Control .
+
+# Application to Processing Connections
+:Chromium_Output :routesTo :JamesDSP_Processor .
+:Firefox_Output :routesTo :JamesDSP_Processor .
+
+# PulseAudio to JamesDSP Connection
+:PulseAudio_Volume_Control :routesTo :JamesDSP_Processor .
+
+# JamesDSP to Delay and Direct Outputs (TARGET STATE)
+:JamesDSP_Processor :routesTo :Main_Speakers_Delay .
+:JamesDSP_Processor :routesTo :Fosi_Subwoofer .
+
+# Delay to Main Speakers (TARGET STATE)
+:Main_Speakers_Delay :routesTo :KM_Speakers .
+
+# Chain Assignments
+:ALSA_KM_Audio :belongsTo :PulseAudio_Mixer_Chain .
+:ALSA_PCM2912A :belongsTo :PulseAudio_Mixer_Chain .
+:ALSA_USB_Codec :belongsTo :PulseAudio_Mixer_Chain .
+:ALSA_Tonga_HDMI :belongsTo :PulseAudio_Mixer_Chain .
+:PulseAudio_Volume_Control :belongsTo :PulseAudio_Mixer_Chain .
+
+:JamesDSP_Processor :belongsTo :JamesDSP_Chain .
+:Main_Speakers_Delay :belongsTo :JamesDSP_Chain .
+:KM_Speakers :belongsTo :JamesDSP_Chain .
+:Fosi_Subwoofer :belongsTo :JamesDSP_Chain .
+
+:Main_Speakers_Delay :belongsTo :Delay_Chain .
+:KM_Speakers :belongsTo :Delay_Chain .
+
+# Processing Relationships
+:PulseAudio_Volume_Control :processes :ALSA_KM_Audio .
+:PulseAudio_Volume_Control :processes :ALSA_PCM2912A .
+:PulseAudio_Volume_Control :processes :ALSA_USB_Codec .
+:PulseAudio_Volume_Control :processes :ALSA_Tonga_HDMI .
+
+:JamesDSP_Processor :processes :Chromium_Output .
+:JamesDSP_Processor :processes :Firefox_Output .
+:JamesDSP_Processor :processes :PulseAudio_Volume_Control .
+
+:Main_Speakers_Delay :processes :JamesDSP_Processor .
+
+# Target State Notes
+:TargetState rdf:type owl:NamedIndividual ;
+    :hasDescription "Audio system with 20ms delay on main speakers" ;
+    :hasFunction "Synchronize main speakers with subwoofer" ;
+    :hasNote "Main speakers delayed by 20ms, subwoofer gets direct connection" .

@@ -1,0 +1,233 @@
+# Audio System Call for Help - Professional Tools Investigation
+
+meta:
+  name: Audio System Professional Tools Investigation
+  description: >
+    Call for help investigating professional audio tools (JACK, ALSA direct routing,
+    PipeWire native) to overcome PipeWire/PulseAudio limitations for subwoofer
+    synchronization with real-time adjustment capabilities.
+  status: active
+  priority: high
+  category: audio_system_professional_tools
+
+## 🎯 **Current State Analysis**
+
+### **✅ Working LKG Implementation**
+- **20ms delay on main speakers**: Successfully implemented
+- **Direct subwoofer connection**: No delay, direct routing
+- **Clean topology**: No feedback loops detected
+- **30-second polling**: Applied as requested
+- **Audio synchronization**: Working correctly
+
+### **📊 Current Architecture**
+```
+JamesDSP Sink → JamesDSP Plugin → delay_20ms (20ms delay)
+JamesDSP Plugin → delay_20ms → KM Speakers (delayed path)
+JamesDSP Sink → Fosi Subwoofer (direct, no delay)
+```
+
+## 🚨 **Tool Constraints Identified**
+
+### **❌ PipeWire/PulseAudio Limitations**
+
+#### **1. Forced Mixer Architecture**
+- **Problem**: Cannot bypass PulseAudio Volume Control for direct hardware routing
+- **Evidence**: All audio must go through `PulseAudio Volume Control:monitor_FL/FR`
+- **Impact**: Creates unwanted mixing and potential latency issues
+
+#### **2. Limited Sub-millisecond Precision**
+- **Problem**: Manual tuning required (1.8ms → 1.9ms → 2.0ms)
+- **Evidence**: No real-time adjustment capabilities
+- **Impact**: Cannot fine-tune delay during operation
+
+#### **3. No Real-time Adjustment**
+- **Problem**: Delay values must be set statically
+- **Evidence**: Requires module reloading for changes
+- **Impact**: Cannot adjust delay based on content or room acoustics
+
+#### **4. Loopback Module Issues**
+- **Problem**: Creates feedback loops when used incorrectly
+- **Evidence**: Multiple failed attempts with feedback loops
+- **Impact**: Requires careful cleanup and monitoring
+
+## 🔧 **Professional Tools Investigation Needed**
+
+### **1. JACK Audio Connection Kit**
+- **Investigation Required**:
+  - JACK + PipeWire coexistence testing
+  - Direct hardware routing capabilities
+  - Real-time delay adjustment features
+  - Sub-millisecond precision testing
+  - Professional audio standards compliance
+
+- **Questions**:
+  - Can JACK provide direct hardware routing bypassing PulseAudio?
+  - What real-time adjustment capabilities does JACK offer?
+  - Can JACK achieve sub-millisecond delay precision?
+  - How does JACK handle multiple audio devices (KM speakers + Fosi subwoofer)?
+
+### **2. ALSA Direct Routing**
+- **Investigation Required**:
+  - ALSA configuration for direct hardware access
+  - Bypass capabilities for PulseAudio/PipeWire
+  - Latency characteristics measurement
+  - Multi-device routing configuration
+
+- **Questions**:
+  - Can ALSA provide direct hardware routing without middleware?
+  - What latency characteristics can ALSA achieve?
+  - How to configure ALSA for multiple output devices?
+  - Can ALSA provide real-time delay adjustment?
+
+### **3. PipeWire Native Mode**
+- **Investigation Required**:
+  - PipeWire without PulseAudio compatibility layer
+  - Direct graph manipulation capabilities
+  - Professional audio features assessment
+  - Real-time adjustment possibilities
+
+- **Questions**:
+  - Can PipeWire native provide direct hardware routing?
+  - What professional audio features are available?
+  - Can PipeWire native achieve sub-millisecond precision?
+  - Real-time adjustment capabilities?
+
+### **4. Custom Audio Solution**
+- **Investigation Required**:
+  - Custom audio stack development requirements
+  - Hardware-specific optimization possibilities
+  - Real-time processing capabilities
+  - Integration with existing JamesDSP setup
+
+- **Questions**:
+  - What would a custom audio solution require?
+  - Can we optimize specifically for subwoofer applications?
+  - What real-time processing capabilities are needed?
+  - How to integrate with existing JamesDSP setup?
+
+## 📋 **Specific Requirements for Investigation**
+
+### **Current Working Requirements**
+1. **20ms delay on main speakers** ✅ (Working with PipeWire)
+2. **Direct connection to subwoofer** ✅ (Working)
+3. **No feedback loops** ✅ (Working)
+4. **30-second polling** ✅ (Working)
+
+### **Future Requirements (Need Professional Tools)**
+1. **Real-time delay adjustment** ❌ (Not possible with current tools)
+2. **Sub-millisecond precision** ❌ (Limited by PipeWire/PulseAudio)
+3. **Direct hardware routing** ❌ (Forced through mixer)
+4. **Professional audio capabilities** ❌ (Consumer-grade tools)
+5. **Dynamic room acoustics compensation** ❌ (No real-time adjustment)
+6. **Content-based delay optimization** ❌ (Static delay values)
+
+## 🚀 **Investigation Priorities**
+
+### **Priority 1: JACK Audio Investigation**
+- **Why**: Professional audio standards, direct routing, real-time capabilities
+- **Questions**:
+  - Can JACK provide the direct hardware routing we need?
+  - What real-time adjustment capabilities does JACK offer?
+  - Can JACK achieve sub-millisecond delay precision?
+  - How does JACK handle our specific hardware setup?
+
+### **Priority 2: ALSA Direct Routing**
+- **Why**: Bypass all middleware, minimal latency, direct hardware control
+- **Questions**:
+  - Can ALSA provide direct hardware access without PulseAudio?
+  - What latency characteristics can ALSA achieve?
+  - How to configure ALSA for multiple output devices?
+  - Can ALSA provide real-time delay adjustment?
+
+### **Priority 3: PipeWire Native Mode**
+- **Why**: Modern architecture, potential for better latency, direct graph manipulation
+- **Questions**:
+  - Can PipeWire native provide direct hardware routing?
+  - What professional audio features are available?
+  - Can PipeWire native achieve sub-millisecond precision?
+  - Real-time adjustment capabilities?
+
+## 📊 **Tool Comparison Matrix (Investigation Needed)**
+
+| Feature | Current (PipeWire/PulseAudio) | JACK (Investigate) | ALSA Direct (Investigate) | PipeWire Native (Investigate) |
+|---------|-------------------|------|-------------|---------|
+| Direct Routing | ❌ | ❓ | ❓ | ❓ |
+| Sub-ms Precision | ❌ | ❓ | ❓ | ❓ |
+| Real-time Adjustment | ❌ | ❓ | ❓ | ❓ |
+| GUI Tools | ✅ | ❓ | ❓ | ❓ |
+| Setup Complexity | ✅ | ❓ | ❓ | ❓ |
+| Professional Audio | ❌ | ❓ | ❓ | ❓ |
+
+## 🎯 **Call for Help Questions**
+
+### **For JACK Audio Experts**:
+1. Can JACK provide direct hardware routing bypassing PulseAudio?
+2. What real-time adjustment capabilities does JACK offer for delay?
+3. Can JACK achieve sub-millisecond delay precision?
+4. How does JACK handle multiple audio devices (KM speakers + Fosi subwoofer)?
+5. Can JACK coexist with PipeWire for gradual migration?
+
+### **For ALSA Experts**:
+1. Can ALSA provide direct hardware routing without middleware?
+2. What latency characteristics can ALSA achieve for our use case?
+3. How to configure ALSA for multiple output devices with different delays?
+4. Can ALSA provide real-time delay adjustment?
+5. How to integrate ALSA with existing JamesDSP setup?
+
+### **For PipeWire Experts**:
+1. Can PipeWire native provide direct hardware routing?
+2. What professional audio features are available in PipeWire native?
+3. Can PipeWire native achieve sub-millisecond precision?
+4. What real-time adjustment capabilities exist?
+5. How to migrate from PulseAudio compatibility layer to native?
+
+### **For Professional Audio Experts**:
+1. What professional audio tools are best suited for subwoofer synchronization?
+2. How to achieve real-time delay adjustment for room acoustics?
+3. What tools provide sub-millisecond precision for audio timing?
+4. How to integrate professional audio tools with consumer hardware?
+5. What custom audio solutions would be most effective?
+
+## 📈 **Success Criteria for Investigation**
+
+### **Technical Requirements**
+1. **Direct hardware routing**: Bypass PulseAudio mixer architecture
+2. **Sub-millisecond precision**: Achieve <1ms delay adjustment precision
+3. **Real-time adjustment**: Change delay values during operation
+4. **Professional audio standards**: Meet professional audio quality requirements
+5. **Hardware compatibility**: Work with existing KM speakers and Fosi subwoofer
+
+### **Usability Requirements**
+1. **GUI tools**: Maintain user-friendly interface
+2. **Setup complexity**: Reasonable setup and configuration
+3. **Integration**: Work with existing JamesDSP setup
+4. **Stability**: Reliable operation without feedback loops
+5. **Performance**: Minimal CPU overhead
+
+## 🚀 **Next Steps**
+
+### **Immediate Actions**
+1. **Document current LKG state** ✅ (Working implementation)
+2. **Create rollback procedures** ✅ (Available)
+3. **Test with various audio content** (In progress)
+
+### **Investigation Actions**
+1. **JACK Audio investigation** (Priority 1)
+2. **ALSA direct routing investigation** (Priority 2)
+3. **PipeWire native mode investigation** (Priority 3)
+4. **Professional audio tools evaluation** (Ongoing)
+
+### **Long-term Actions**
+1. **Architecture decision** (Based on investigation results)
+2. **Migration planning** (If better tools identified)
+3. **Professional audio stack implementation** (If required)
+
+---
+
+**Status**: Active investigation needed for professional audio tools
+**Priority**: High - Current tools have significant limitations
+**Next Action**: Begin JACK Audio investigation as highest priority
+description:
+globs:
+alwaysApply: false
+---

@@ -1,0 +1,217 @@
+# Generated following ontology framework rules
+@startuml Audio System Complete Chain
+
+!define RECTANGLE class
+
+package "Hardware Layer (ALSA)" {
+    class ALSA_KM_Audio {
+        <<HardwareSink>>
+        + deviceID: "41"
+        + description: "alsa:pcm:4:front:4:playback"
+        + driver: "ALSA"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+
+    class ALSA_PCM2912A {
+        <<HardwareSink>>
+        + deviceID: "66"
+        + description: "alsa:pcm:3:front:3:playback"
+        + driver: "ALSA"
+        + sampleRate: 44100
+        + state: "RUNNING"
+    }
+
+    class ALSA_USB_Codec {
+        <<HardwareSink>>
+        + deviceID: "64"
+        + description: "alsa:pcm:2:front:2:playback"
+        + driver: "ALSA"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+
+    class ALSA_Tonga_HDMI {
+        <<HardwareSink>>
+        + deviceID: "211"
+        + description: "alsa:pcm:1:hdmi:1,4:playback"
+        + driver: "ALSA"
+        + sampleRate: 44100
+        + state: "RUNNING"
+    }
+}
+
+package "Mixer Layer (PulseAudio)" {
+    class PulseAudio_Volume_Control {
+        <<MixerSink>>
+        + deviceID: "246"
+        + description: "PulseAudio Volume Control"
+        + driver: "PipeWire"
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + function: "Hardware Audio Mixer"
+    }
+}
+
+package "Application Layer" {
+    class Chromium_App {
+        <<Application>>
+        + name: "Chromium"
+        + type: "Browser"
+        + audioOutput: Chromium_Output
+    }
+
+    class Firefox_App {
+        <<Application>>
+        + name: "Firefox"
+        + type: "Browser"
+        + audioOutput: Firefox_Output
+    }
+
+    class Chromium_Output {
+        <<StreamOutput>>
+        + deviceID: "175"
+        + description: "Chromium"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+
+    class Firefox_Output {
+        <<StreamOutput>>
+        + deviceID: "334"
+        + description: "Firefox"
+        + sampleRate: 48000
+        + state: "RUNNING"
+    }
+}
+
+package "Processing Layer (JamesDSP)" {
+    class JamesDSP_Processor {
+        <<ProcessingNode>>
+        + deviceID: "91"
+        + description: "JamesDSP Sink"
+        + volume: 30
+        + sampleRate: 48000
+        + state: "RUNNING"
+        + function: "Audio Filtering and Processing"
+    }
+}
+
+package "Output Layer" {
+    class KM_Speakers {
+        <<HardwareOutput>>
+        + deviceID: "69"
+        + description: "KM_24bit96khz Audio"
+        + volume: 100
+        + sampleRate: 48000
+        + type: "Main Speakers"
+        + state: "RUNNING"
+    }
+
+    class Fosi_Subwoofer {
+        <<HardwareOutput>>
+        + deviceID: "146"
+        + description: "Fosi Audio BT30D"
+        + volume: 32
+        + sampleRate: 48000
+        + type: "Bluetooth Subwoofer"
+        + state: "RUNNING"
+        + latency: "1.9ms compensated"
+    }
+}
+
+package "Processing Chains" {
+    class PulseAudio_Mixer_Chain {
+        <<ProcessingChain>>
+        + name: "PulseAudio Mixer Chain"
+        + description: "Hardware mixing through PulseAudio Volume Control"
+        + members: [ALSA devices, PulseAudio Volume Control]
+    }
+
+    class JamesDSP_Chain {
+        <<ProcessingChain>>
+        + name: "JamesDSP Processing Chain"
+        + description: "Audio processing through JamesDSP filter"
+        + members: [JamesDSP_Processor, KM_Speakers, Fosi_Subwoofer]
+    }
+}
+
+' Hardware to PulseAudio Mixer Flow
+ALSA_KM_Audio --> PulseAudio_Volume_Control : "ALSA_KM_to_PulseAudio"
+ALSA_PCM2912A --> PulseAudio_Volume_Control : "ALSA_PCM2912A_to_PulseAudio"
+ALSA_USB_Codec --> PulseAudio_Volume_Control : "ALSA_USB_to_PulseAudio"
+ALSA_Tonga_HDMI --> PulseAudio_Volume_Control : "ALSA_Tonga_to_PulseAudio"
+
+' Application to Processing Flow
+Chromium_App --> Chromium_App.audioOutput
+Firefox_App --> Firefox_App.audioOutput
+
+' Audio Outputs to JamesDSP
+Chromium_App.audioOutput --> JamesDSP_Processor : "Chromium_to_JamesDSP"
+Firefox_App.audioOutput --> JamesDSP_Processor : "Firefox_to_JamesDSP"
+
+' PulseAudio to JamesDSP
+PulseAudio_Volume_Control --> JamesDSP_Processor : "PulseAudio_to_JamesDSP"
+
+' JamesDSP to Outputs
+JamesDSP_Processor --> KM_Speakers : "JamesDSP_to_KM"
+JamesDSP_Processor --> Fosi_Subwoofer : "JamesDSP_to_Fosi"
+
+' Chain Assignments
+ALSA_KM_Audio --> PulseAudio_Mixer_Chain : belongs
+ALSA_PCM2912A --> PulseAudio_Mixer_Chain : belongs
+ALSA_USB_Codec --> PulseAudio_Mixer_Chain : belongs
+ALSA_Tonga_HDMI --> PulseAudio_Mixer_Chain : belongs
+PulseAudio_Volume_Control --> PulseAudio_Mixer_Chain : belongs
+
+JamesDSP_Processor --> JamesDSP_Chain : belongs
+KM_Speakers --> JamesDSP_Chain : belongs
+Fosi_Subwoofer --> JamesDSP_Chain : belongs
+
+' Processing Relationships
+PulseAudio_Volume_Control --> ALSA_KM_Audio : processes
+PulseAudio_Volume_Control --> ALSA_PCM2912A : processes
+PulseAudio_Volume_Control --> ALSA_USB_Codec : processes
+PulseAudio_Volume_Control --> ALSA_Tonga_HDMI : processes
+
+JamesDSP_Processor --> Chromium_App.audioOutput : processes
+JamesDSP_Processor --> Firefox_App.audioOutput : processes
+JamesDSP_Processor --> PulseAudio_Volume_Control : processes
+
+note right of PulseAudio_Volume_Control
+  Hardware Audio Mixer
+  - Combines audio from all ALSA devices
+  - Provides unified volume control
+  - Routes mixed audio to JamesDSP
+end note
+
+note right of JamesDSP_Processor
+  Audio Processing Node
+  - Receives mixed hardware audio from PulseAudio
+  - Receives application audio directly
+  - Applies DSP processing and filtering
+  - Routes to main speakers and subwoofer
+end note
+
+note right of Fosi_Subwoofer
+  Bluetooth subwoofer
+  - 1.9ms delay compensation applied
+  - Receives processed audio from JamesDSP
+  - Synchronized with main speakers
+end note
+
+note right of KM_Speakers
+  Main speakers (KM_24bit96khz)
+  - High-quality analog output
+  - Receives processed audio from JamesDSP
+  - Synchronized with subwoofer
+end note
+
+note right of ALSA_KM_Audio
+  ALSA hardware device
+  - Direct hardware interface
+  - Feeds into PulseAudio mixer
+  - Part of hardware mixing chain
+end note
+
+@enduml

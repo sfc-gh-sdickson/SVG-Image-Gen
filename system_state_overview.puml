@@ -1,0 +1,198 @@
+@startuml System_State_Overview
+
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontName Arial
+skinparam defaultFontSize 10
+
+' Device Colors
+skinparam class {
+    BackgroundColor<<Running>> #D5E8D4
+    BackgroundColor<<Stopped>> #F8CECC
+    BackgroundColor<<Warning>> #FFF2CC
+    BackgroundColor<<Service>> #E1D5E7
+    BorderColor #2E86AB
+}
+
+title Audio System State Overview\nCurrent Configuration and Service Status
+
+' Audio Services
+package "Audio Services" {
+    class PipeWire <<Running>> {
+        + PID: 1435575
+        + Status: RUNNING
+        + CPU: 5.1%
+        + Memory: 236KB
+        + Role: Audio Server
+        + Version: 0.3.x
+    }
+
+    class PipeWire_Pulse <<Running>> {
+        + PID: 1435578
+        + Status: RUNNING
+        + CPU: 5.6%
+        + Memory: 241KB
+        + Role: PulseAudio Compatibility
+        + Compatibility: Full
+    }
+
+    class JamesDSP <<Running>> {
+        + PID: 3016595
+        + Status: RUNNING
+        + CPU: Low
+        + Memory: Minimal
+        + Role: DSP Processing
+        + Version: Custom Build
+    }
+}
+
+' Audio Applications
+package "Audio Applications" {
+    class QJackCtl <<Running>> {
+        + PID: 3010876
+        + Status: RUNNING
+        + CPU: 2.8%
+        + Memory: 167MB
+        + Role: JACK Audio Control
+        + Purpose: Additional Routing
+    }
+
+    class Firefox <<Running>> {
+        + PID: 126520
+        + Status: Active
+        + Audio: Streaming
+        + Sample Rate: 44100Hz
+        + Volume: 100%
+    }
+
+    class Chromium <<Running>> {
+        + PID: 3008076
+        + Status: Active
+        + Audio: Streaming
+        + Sample Rate: 48000Hz
+        + Volume: 58%
+    }
+}
+
+' System Services
+package "System Services" {
+    class Volume_Sync_Daemon <<Stopped>> {
+        + Status: STOPPED
+        + PID File: Exists
+        + Daemon: Not Running
+        + Issue: Needs Restart
+        + Impact: Volume Ratios
+    }
+
+    class System76_Scheduler <<Running>> {
+        + PID: 2625
+        + Status: RUNNING
+        + Role: System Scheduler
+        + CPU: 0.0%
+        + Memory: 17KB
+    }
+}
+
+' Audio Devices Status
+package "Audio Device Status" {
+    class Active_Devices <<Running>> {
+        + KM Audio: RUNNING
+        + Fosi BT30D: RUNNING
+        + Thunderbolt Display: RUNNING
+        + PCM2912A Codec: RUNNING
+        + Tonga HDMI: RUNNING
+        + JamesDSP Sink: RUNNING
+        + Combined Output: RUNNING
+    }
+
+    class Inactive_Devices <<Warning>> {
+        + Built-in Audio: IDLE
+        + Volume Sync: STOPPED
+    }
+}
+
+' Service Relationships
+PipeWire --> PipeWire_Pulse : "Manages"
+PipeWire --> JamesDSP : "Hosts"
+PipeWire --> Active_Devices : "Controls"
+QJackCtl --> PipeWire : "Interfaces"
+Firefox --> JamesDSP : "Audio Stream"
+Chromium --> JamesDSP : "Audio Stream"
+
+' System Health
+note right of PipeWire
+  **PipeWire Status:**
+  - Primary audio server
+  - All devices connected
+  - Stable operation
+  - Low resource usage
+  - Full compatibility
+end note
+
+note right of QJackCtl
+  **QJackCtl Status:**
+  - JACK audio control active
+  - Additional routing available
+  - User-initiated for patching
+  - May interfere with PipeWire
+  - Use with caution
+end note
+
+note right of Volume_Sync_Daemon
+  **Volume Sync Issue:**
+  - Daemon stopped unexpectedly
+  - PID file exists but no process
+  - Volume ratios not maintained
+  - Manual restart required
+  - Impact: Volume mismatches
+end note
+
+note right of Active_Devices
+  **Device Status:**
+  - 7 devices RUNNING
+  - 1 device IDLE (Built-in)
+  - All critical devices active
+  - Audio routing functional
+  - No device failures
+end note
+
+' Configuration Notes
+note bottom of JamesDSP
+  **Current Configuration:**
+  - Fosi subwoofer separated
+  - Dual output chains active
+  - JamesDSP processing main speakers
+  - Direct output to subwoofer
+  - QJackCtl for additional routing
+  - Volume sync daemon needs restart
+end note
+
+' Performance Metrics
+note top of PipeWire
+  **Performance Metrics:**
+  - CPU Usage: ~10% total
+  - Memory Usage: ~500KB total
+  - Latency: Minimal
+  - Quality: High
+  - Stability: Good
+end note
+
+' Troubleshooting Notes
+note left of Volume_Sync_Daemon
+  **Troubleshooting:**
+  - Volume sync daemon stopped
+  - Restart command needed
+  - Check for conflicts
+  - Monitor volume ratios
+  - Verify daemon logs
+end note
+
+' Legend
+legend right
+  |= Color |= Status |
+  |#D5E8D4| Running |
+  |#F8CECC| Stopped |
+  |#FFF2CC| Warning |
+  |#E1D5E7| Service |
+endlegend
+
+@enduml
