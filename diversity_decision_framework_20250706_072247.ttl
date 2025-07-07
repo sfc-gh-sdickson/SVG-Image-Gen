@@ -1,0 +1,198 @@
+@prefix : <http://example.org/diversity-decision-framework#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+:AgreementState a :DecisionState ;
+    rdfs:label "Agreement State" ;
+    :stateValue "agreement" ;
+    rdfs:comment "Multiple sources agree - high confidence" .
+
+:AudioLatencyDecision a :Decision ;
+    rdfs:label "Audio Latency Decision" ;
+    :contradictedBy :AIReasoning ;
+    :hasConfidence :LowConfidence ;
+    :hasEvidence :LatencyMeasurementEvidence ;
+    :hasState :InitialState ;
+    :validatedBy :HumanExperience,
+        :ToolValidation ;
+    rdfs:comment "Decision about implementing 20ms delay for audio sync" .
+
+:CrossModelValidation a :ValidationSource ;
+    rdfs:label "Cross-Model Validation" ;
+    :reliabilityScore "0.75"^^xsd:float ;
+    :sourceType "ai" ;
+    rdfs:comment "Validation across different AI models" .
+
+:DisagreementState a :DecisionState ;
+    rdfs:label "Disagreement State" ;
+    :stateValue "disagreement" ;
+    rdfs:comment "Sources disagree - needs investigation" .
+
+:EmpiricalPerspective a :DiversityPerspective ;
+    rdfs:label "Empirical Perspective" ;
+    :perspectiveType "empirical" ;
+    rdfs:comment "Focus on measurable, testable evidence" .
+
+:EmpiricalTesting a :ValidationSource ;
+    rdfs:label "Empirical Testing" ;
+    :reliabilityScore "0.9"^^xsd:float ;
+    :sourceType "empirical" ;
+    rdfs:comment "Direct testing and experimentation" .
+
+:HighConfidence a :ConfidenceLevel ;
+    rdfs:label "High Confidence" ;
+    :confidenceValue "0.8"^^xsd:float ;
+    rdfs:comment "Multiple validations agree - high confidence" .
+
+:RefinedState a :DecisionState ;
+    rdfs:label "Refined State" ;
+    :stateValue "refined" ;
+    rdfs:comment "Decision refined based on diverse input" .
+
+:SystemicPerspective a :DiversityPerspective ;
+    rdfs:label "Systemic Perspective" ;
+    :perspectiveType "systemic" ;
+    rdfs:comment "Focus on system-wide implications and interactions" .
+
+:TechnicalPerspective a :DiversityPerspective ;
+    rdfs:label "Technical Perspective" ;
+    :perspectiveType "technical" ;
+    rdfs:comment "Focus on technical implementation and constraints" .
+
+:TestDecision a :Decision ;
+    rdfs:label "TestDecision" ;
+    :contradictedBy :AIReasoning ;
+    :hasConfidence :MediumConfidence ;
+    :hasState :InitialState ;
+    :validatedBy :HumanExperience,
+        :ToolValidation ;
+    rdfs:comment "A test decision for demonstration" .
+
+:UserExperiencePerspective a :DiversityPerspective ;
+    rdfs:label "User Experience Perspective" ;
+    :perspectiveType "ux" ;
+    rdfs:comment "Focus on user needs and experience" .
+
+:ValidatingState a :DecisionState ;
+    rdfs:label "Validating State" ;
+    :stateValue "validating" ;
+    rdfs:comment "Currently gathering diverse perspectives" .
+
+:VeryHighConfidence a :ConfidenceLevel ;
+    rdfs:label "Very High Confidence" ;
+    :confidenceValue "0.95"^^xsd:float ;
+    rdfs:comment "Extensive validation with agreement - very high confidence" .
+
+:contradictedBy a owl:ObjectProperty ;
+    rdfs:label "contradicted by" ;
+    rdfs:domain :Decision ;
+    rdfs:range :ValidationSource .
+
+:decreasesConfidence a owl:ObjectProperty ;
+    rdfs:label "decreases confidence" ;
+    rdfs:domain :ValidationSource ;
+    rdfs:range :ConfidenceLevel .
+
+:hasConfidence a owl:ObjectProperty ;
+    rdfs:label "has confidence" ;
+    rdfs:domain :Decision ;
+    rdfs:range :ConfidenceLevel .
+
+:hasConfidenceValue a owl:DatatypeProperty ;
+    rdfs:label "has confidence value" ;
+    rdfs:domain :ConfidenceLevel ;
+    rdfs:range xsd:float .
+
+:hasEvidence a owl:ObjectProperty ;
+    rdfs:label "has evidence" ;
+    rdfs:domain :Decision ;
+    rdfs:range :Evidence .
+
+:hasReliabilityScore a owl:DatatypeProperty ;
+    rdfs:label "has reliability score" ;
+    rdfs:domain :ValidationSource ;
+    rdfs:range xsd:float .
+
+:hasState a owl:ObjectProperty ;
+    rdfs:label "has state" ;
+    rdfs:domain :Decision ;
+    rdfs:range :DecisionState .
+
+:increasesConfidence a owl:ObjectProperty ;
+    rdfs:label "increases confidence" ;
+    rdfs:domain :ValidationSource ;
+    rdfs:range :ConfidenceLevel .
+
+:requiresPerspective a owl:ObjectProperty ;
+    rdfs:label "requires perspective" ;
+    rdfs:domain :Decision ;
+    rdfs:range :DiversityPerspective .
+
+:validatedBy a owl:ObjectProperty ;
+    rdfs:label "validated by" ;
+    rdfs:domain :Decision ;
+    rdfs:range :ValidationSource .
+
+:LatencyMeasurementEvidence a :Evidence ;
+    rdfs:label "Latency Measurement Evidence" ;
+    :evidenceType "empirical" ;
+    :timestamp "2024-01-15T10:30:00+00:00"^^xsd:dateTime ;
+    rdfs:comment "Evidence from actual latency measurements" .
+
+:LowConfidence a :ConfidenceLevel ;
+    rdfs:label "Low Confidence" ;
+    :confidenceValue "0.2"^^xsd:float ;
+    rdfs:comment "Initial confidence level - requires validation" .
+
+:MediumConfidence a :ConfidenceLevel ;
+    rdfs:label "Medium Confidence" ;
+    :confidenceValue "0.5"^^xsd:float ;
+    rdfs:comment "Some validation received - moderate confidence" .
+
+:AIReasoning a :ValidationSource ;
+    rdfs:label "AI Reasoning" ;
+    :reliabilityScore "0.6"^^xsd:float ;
+    :sourceType "ai" ;
+    rdfs:comment "Analytical reasoning and pattern recognition" .
+
+:Evidence a owl:Class ;
+    rdfs:label "Evidence" ;
+    rdfs:comment "Evidence that supports or contradicts a decision" .
+
+:HumanExperience a :ValidationSource ;
+    rdfs:label "Human Experience" ;
+    :reliabilityScore "0.8"^^xsd:float ;
+    :sourceType "human" ;
+    rdfs:comment "Real-world experience and intuition" .
+
+:InitialState a :DecisionState ;
+    rdfs:label "Initial State" ;
+    :stateValue "initial" ;
+    rdfs:comment "Decision just made - needs validation" .
+
+:ToolValidation a :ValidationSource ;
+    rdfs:label "Tool Validation" ;
+    :reliabilityScore "0.7"^^xsd:float ;
+    :sourceType "tool" ;
+    rdfs:comment "Validation through specific tools and APIs" .
+
+:DiversityPerspective a owl:Class ;
+    rdfs:label "Diversity Perspective" ;
+    rdfs:comment "A unique perspective that contributes to decision validation" .
+
+:DecisionState a owl:Class ;
+    rdfs:label "Decision State" ;
+    rdfs:comment "Current state of a decision in the validation process" .
+
+:ConfidenceLevel a owl:Class ;
+    rdfs:label "Confidence Level" ;
+    rdfs:comment "Level of confidence in a decision" .
+
+:Decision a owl:Class ;
+    rdfs:label "Decision" ;
+    rdfs:comment "A decision that requires confidence assessment" .
+
+:ValidationSource a owl:Class ;
+    rdfs:label "Validation Source" ;
+    rdfs:comment "A source that can validate or challenge a decision" .
