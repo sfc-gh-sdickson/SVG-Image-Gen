@@ -198,6 +198,11 @@ tmp/
 uploads/
 downloads/
 .env.local
+
+# Snowflake integration files with secrets
+svggen_git_integration.sql
+*.sql
+!svggen_git_integration_template.sql
 .env.production
 .env.staging
 
