@@ -44,6 +44,23 @@
             opacity: 0.9;
         }
 
+        .connection-status {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .connection-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .connection-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -97,6 +114,12 @@
 
         .btn:active {
             transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-danger {
@@ -313,7 +336,11 @@
     <div class="container">
         <div class="header">
             <h1>🎨 UIStateManager Observability Demo</h1>
-            <p>Interactive demonstration of structured state management with comprehensive logging</p>
+            <p>Real-time state management with actual Python backend</p>
+        </div>
+
+        <div class="connection-status" id="connectionStatus">
+            🔄 Connecting to API server...
         </div>
 
         <div class="main-content">
@@ -342,27 +369,27 @@
                             <option value="1024x1024">1024x1024</option>
                         </select>
                     </div>
-                    <button class="btn" onclick="updateFormData()">Update Form Data</button>
-                    <button class="btn btn-danger" onclick="clearFormData()">Clear Form Data</button>
+                    <button class="btn" onclick="updateFormData()" id="updateFormBtn">Update Form Data</button>
+                    <button class="btn btn-danger" onclick="clearFormData()" id="clearFormBtn">Clear Form Data</button>
                 </div>
 
                 <div class="control-group">
                     <h3>🔄 Step Transitions</h3>
-                    <button class="btn" onclick="setStep('setup')">Setup</button>
-                    <button class="btn" onclick="setStep('form_fill')">Form Fill</button>
-                    <button class="btn" onclick="setStep('validation')">Validation</button>
-                    <button class="btn" onclick="setStep('generation')">Generation</button>
-                    <button class="btn" onclick="setStep('complete')">Complete</button>
+                    <button class="btn" onclick="setStep('setup')" id="stepSetupBtn">Setup</button>
+                    <button class="btn" onclick="setStep('form_fill')" id="stepFormFillBtn">Form Fill</button>
+                    <button class="btn" onclick="setStep('validation')" id="stepValidationBtn">Validation</button>
+                    <button class="btn" onclick="setStep('generation')" id="stepGenerationBtn">Generation</button>
+                    <button class="btn" onclick="setStep('complete')" id="stepCompleteBtn">Complete</button>
                 </div>
 
                 <div class="control-group">
                     <h3>⏳ Loading States</h3>
-                    <button class="btn" onclick="setLoadingState('form_submit', true)">Start Form Submit</button>
-                    <button class="btn" onclick="setLoadingState('form_submit', false)">Stop Form Submit</button>
-                    <button class="btn" onclick="setLoadingState('cortex_call', true)">Start Cortex Call</button>
-                    <button class="btn" onclick="setLoadingState('cortex_call', false)">Stop Cortex Call</button>
-                    <button class="btn" onclick="setLoadingState('svg_generation', true)">Start SVG Generation</button>
-                    <button class="btn" onclick="setLoadingState('svg_generation', false)">Stop SVG Generation</button>
+                    <button class="btn" onclick="setLoadingState('form_submit', true)" id="loadingFormSubmitStartBtn">Start Form Submit</button>
+                    <button class="btn" onclick="setLoadingState('form_submit', false)" id="loadingFormSubmitStopBtn">Stop Form Submit</button>
+                    <button class="btn" onclick="setLoadingState('cortex_call', true)" id="loadingCortexStartBtn">Start Cortex Call</button>
+                    <button class="btn" onclick="setLoadingState('cortex_call', false)" id="loadingCortexStopBtn">Stop Cortex Call</button>
+                    <button class="btn" onclick="setLoadingState('svg_generation', true)" id="loadingSvgStartBtn">Start SVG Generation</button>
+                    <button class="btn" onclick="setLoadingState('svg_generation', false)" id="loadingSvgStopBtn">Stop SVG Generation</button>
                 </div>
 
                 <div class="control-group">
@@ -375,15 +402,15 @@
                         <label for="errorMessage">Error Message:</label>
                         <input type="text" id="errorMessage" placeholder="e.g., Invalid format">
                     </div>
-                    <button class="btn btn-warning" onclick="addValidationError()">Add Validation Error</button>
-                    <button class="btn btn-success" onclick="clearValidationErrors()">Clear All Errors</button>
+                    <button class="btn btn-warning" onclick="addValidationError()" id="addErrorBtn">Add Validation Error</button>
+                    <button class="btn btn-success" onclick="clearValidationErrors()" id="clearErrorsBtn">Clear All Errors</button>
                 </div>
 
                 <div class="control-group">
                     <h3>🔄 State Management</h3>
-                    <button class="btn" onclick="resetState()">Reset All State</button>
-                    <button class="btn" onclick="logStateSummary()">Log State Summary</button>
-                    <button class="btn" onclick="simulateWorkflow()">Simulate Complete Workflow</button>
+                    <button class="btn" onclick="resetState()" id="resetBtn">Reset All State</button>
+                    <button class="btn" onclick="logStateSummary()" id="summaryBtn">Log State Summary</button>
+                    <button class="btn" onclick="simulateWorkflow()" id="workflowBtn">Simulate Complete Workflow</button>
                 </div>
             </div>
 
@@ -399,9 +426,9 @@
 
                 <div class="log-container" id="logContainer">
                     <div class="log-entry info">
-                        <div class="log-timestamp">2025-07-09 16:45:00</div>
-                        <div class="log-message">UI State Manager initialized with defaults</div>
-                        <div class="log-context">Initialized keys: current_step, form_data, validation_errors, loading_states, user_context</div>
+                        <div class="log-timestamp">Initializing...</div>
+                        <div class="log-message">Connecting to real Python UIStateManager</div>
+                        <div class="log-context">Waiting for API connection...</div>
                     </div>
                 </div>
 
@@ -411,308 +438,395 @@
     </div>
 
     <script>
-        // Simulated UIStateManager for demonstration
-        class MockUIStateManager {
-            constructor() {
-                this.state = {
-                    current_step: 'setup',
-                    form_data: {},
-                    validation_errors: {},
-                    loading_states: {},
-                    user_context: null
-                };
-                this.logs = [];
-            }
+        // API configuration
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        let eventSource = null;
+        let isConnected = false;
 
-            set(key, value) {
-                const oldValue = this.state[key];
-                this.state[key] = value;
-                this.log('info', `State ${oldValue === undefined ? 'initialization' : 'update'}: ${key}`, {
-                    key: key,
-                    old_value: oldValue,
-                    new_value: value,
-                    change_type: oldValue === undefined ? 'initialization' : 'update'
-                });
-                this.updateStateDisplay();
-            }
+        // State management
+        let currentState = {
+            current_step: 'setup',
+            form_data: {},
+            validation_errors: {},
+            loading_states: {},
+            user_context: null
+        };
 
-            get(key) {
-                const value = this.state[key];
-                this.log('debug', `State accessed: ${key}`, {
-                    key: key,
-                    value: value,
-                    is_default: !(key in this.state)
-                });
-                return value;
-            }
-
-            set_current_step(step) {
-                const oldStep = this.state.current_step;
-                this.state.current_step = step;
-                this.log('info', `Step transition: ${oldStep} -> ${step}`, {
-                    old_step: oldStep,
-                    new_step: step,
-                    step_transition: true
-                });
-                this.updateStateDisplay();
-            }
-
-            set_form_data(data) {
-                const oldData = this.state.form_data;
-                this.state.form_data = data;
-                this.log('info', 'Form data updated', {
-                    old_data_keys: Object.keys(oldData),
-                    new_data_keys: Object.keys(data),
-                    data_changes: this.getDataChanges(oldData, data)
-                });
-                this.updateStateDisplay();
-            }
-
-            set_loading_state(component, is_loading) {
-                const oldState = this.state.loading_states[component] || false;
-                this.state.loading_states[component] = is_loading;
-                this.log('info', `Loading state changed: ${component}`, {
-                    component: component,
-                    old_state: oldState,
-                    new_state: is_loading,
-                    all_loading_states: this.state.loading_states
-                });
-                this.updateStateDisplay();
-            }
-
-            set_validation_error(field, message) {
-                this.state.validation_errors[field] = message;
-                this.log('warning', `Validation error set: ${field}`, {
-                    field: field,
-                    error_message: message,
-                    all_validation_errors: this.state.validation_errors
-                });
-                this.updateStateDisplay();
-            }
-
-            clear_validation_errors() {
-                const oldErrors = { ...this.state.validation_errors };
-                this.state.validation_errors = {};
-                if (Object.keys(oldErrors).length > 0) {
-                    this.log('info', 'Validation errors cleared', {
-                        cleared_errors: oldErrors,
-                        error_count: Object.keys(oldErrors).length
-                    });
+        // Initialize connection
+        async function initializeConnection() {
+            try {
+                // Test API connection
+                const response = await fetch(`${API_BASE_URL}/api/health`);
+                if (response.ok) {
+                    setConnectionStatus(true);
+                    await loadCurrentState();
+                    startEventSource();
+                } else {
+                    setConnectionStatus(false);
                 }
-                this.updateStateDisplay();
-            }
-
-            reset() {
-                const oldState = { ...this.state };
-                this.state = {
-                    current_step: 'setup',
-                    form_data: {},
-                    validation_errors: {},
-                    loading_states: {},
-                    user_context: null
-                };
-                this.log('info', 'State reset to defaults', {
-                    reset_keys: Object.keys(oldState),
-                    total_reset_keys: Object.keys(oldState).length
-                });
-                this.updateStateDisplay();
-            }
-
-            log_state_summary() {
-                this.log('info', 'UI State Summary', {
-                    current_step: this.state.current_step,
-                    form_data_keys: Object.keys(this.state.form_data),
-                    validation_error_count: Object.keys(this.state.validation_errors).length,
-                    loading_states: this.state.loading_states,
-                    has_user_context: this.state.user_context !== null,
-                    total_session_keys: Object.keys(this.state).length
-                });
-            }
-
-            log(level, message, context = {}) {
-                const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
-                const logEntry = {
-                    timestamp: timestamp,
-                    level: level,
-                    message: message,
-                    context: context
-                };
-                this.logs.push(logEntry);
-                this.displayLog(logEntry);
-            }
-
-            getDataChanges(oldData, newData) {
-                const changes = {};
-                const allKeys = new Set([...Object.keys(oldData), ...Object.keys(newData)]);
-
-                for (const key of allKeys) {
-                    changes[key] = {
-                        old: oldData[key],
-                        new: newData[key]
-                    };
-                }
-                return changes;
-            }
-
-            updateStateDisplay() {
-                const display = document.getElementById('stateDisplay');
-                display.innerHTML = '';
-
-                for (const [key, value] of Object.entries(this.state)) {
-                    const item = document.createElement('div');
-                    item.className = 'state-item';
-
-                    const keySpan = document.createElement('span');
-                    keySpan.className = 'state-key';
-                    keySpan.textContent = key;
-
-                    const valueSpan = document.createElement('span');
-                    valueSpan.className = 'state-value';
-
-                    if (typeof value === 'object' && value !== null) {
-                        valueSpan.textContent = JSON.stringify(value);
-                    } else {
-                        valueSpan.textContent = String(value);
-                    }
-
-                    item.appendChild(keySpan);
-                    item.appendChild(valueSpan);
-                    display.appendChild(item);
-                }
-            }
-
-            displayLog(logEntry) {
-                const container = document.getElementById('logContainer');
-                const logDiv = document.createElement('div');
-                logDiv.className = `log-entry ${logEntry.level}`;
-
-                const timestamp = document.createElement('div');
-                timestamp.className = 'log-timestamp';
-                timestamp.textContent = logEntry.timestamp;
-
-                const message = document.createElement('div');
-                message.className = 'log-message';
-                message.textContent = logEntry.message;
-
-                const context = document.createElement('div');
-                context.className = 'log-context';
-                context.textContent = JSON.stringify(logEntry.context, null, 2);
-
-                logDiv.appendChild(timestamp);
-                logDiv.appendChild(message);
-                logDiv.appendChild(context);
-
-                container.appendChild(logDiv);
-                container.scrollTop = container.scrollHeight;
+            } catch (error) {
+                console.error('Failed to connect to API:', error);
+                setConnectionStatus(false);
             }
         }
 
-        // Initialize the mock state manager
-        const stateManager = new MockUIStateManager();
-        stateManager.updateStateDisplay();
+        function setConnectionStatus(connected) {
+            isConnected = connected;
+            const statusEl = document.getElementById('connectionStatus');
 
-        // Control functions
-        function updateFormData() {
-            const prompt = document.getElementById('prompt').value;
-            const model = document.getElementById('model').value;
-            const size = document.getElementById('size').value;
+            if (connected) {
+                statusEl.textContent = '✅ Connected to Python UIStateManager API';
+                statusEl.className = 'connection-status connected';
+                enableAllButtons();
+            } else {
+                statusEl.textContent = '❌ Disconnected from API server';
+                statusEl.className = 'connection-status disconnected';
+                disableAllButtons();
+            }
+        }
 
-            const formData = {
-                prompt: prompt,
-                model: model,
-                size: size
+        function enableAllButtons() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+
+        function disableAllButtons() {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        async function loadCurrentState() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state`);
+                if (response.ok) {
+                    currentState = await response.json();
+                    updateStateDisplay();
+                    addLog('info', 'Loaded current state from API', currentState);
+                }
+            } catch (error) {
+                console.error('Failed to load state:', error);
+                addLog('error', 'Failed to load state from API', { error: error.message });
+            }
+        }
+
+        function startEventSource() {
+            if (eventSource) {
+                eventSource.close();
+            }
+
+            eventSource = new EventSource(`${API_BASE_URL}/api/events`);
+
+            eventSource.onopen = function(event) {
+                addLog('info', 'EventSource connected', { event: 'open' });
             };
 
-            stateManager.set_form_data(formData);
+            eventSource.onmessage = function(event) {
+                try {
+                    const update = JSON.parse(event.data);
+                    handleStateUpdate(update);
+                } catch (error) {
+                    console.error('Failed to parse event:', error);
+                }
+            };
+
+            eventSource.onerror = function(event) {
+                addLog('error', 'EventSource error', { event: 'error' });
+                setConnectionStatus(false);
+            };
         }
 
-        function clearFormData() {
-            stateManager.set_form_data({});
-            document.getElementById('prompt').value = '';
-            document.getElementById('model').selectedIndex = 0;
-            document.getElementById('size').selectedIndex = 1;
+        function handleStateUpdate(update) {
+            addLog('info', `State update: ${update.data.action}`, update.data);
+
+            // Update local state based on the action
+            if (update.data.action === 'set_step') {
+                currentState.current_step = update.data.step;
+            } else if (update.data.action === 'update_form_data') {
+                currentState.form_data = update.data.form_data;
+            } else if (update.data.action === 'set_loading_state') {
+                currentState.loading_states[update.data.component] = update.data.is_loading;
+            } else if (update.data.action === 'add_validation_error') {
+                currentState.validation_errors[update.data.field] = update.data.message;
+            } else if (update.data.action === 'clear_validation_errors') {
+                currentState.validation_errors = {};
+            } else if (update.data.action === 'reset_state') {
+                currentState = {
+                    current_step: 'setup',
+                    form_data: {},
+                    validation_errors: {},
+                    loading_states: {},
+                    user_context: null
+                };
+            }
+
+            updateStateDisplay();
         }
 
-        function setStep(step) {
-            stateManager.set_current_step(step);
+        function updateStateDisplay() {
+            const display = document.getElementById('stateDisplay');
+            display.innerHTML = '';
+
+            for (const [key, value] of Object.entries(currentState)) {
+                const item = document.createElement('div');
+                item.className = 'state-item';
+
+                const keySpan = document.createElement('span');
+                keySpan.className = 'state-key';
+                keySpan.textContent = key;
+
+                const valueSpan = document.createElement('span');
+                valueSpan.className = 'state-value';
+
+                if (typeof value === 'object' && value !== null) {
+                    valueSpan.textContent = JSON.stringify(value);
+                } else {
+                    valueSpan.textContent = String(value);
+                }
+
+                item.appendChild(keySpan);
+                item.appendChild(valueSpan);
+                display.appendChild(item);
+            }
         }
 
-        function setLoadingState(component, is_loading) {
-            stateManager.set_loading_state(component, is_loading);
+        function addLog(level, message, context = {}) {
+            const container = document.getElementById('logContainer');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log-entry ${level}`;
+
+            const timestamp = document.createElement('div');
+            timestamp.className = 'log-timestamp';
+            timestamp.textContent = new Date().toISOString().replace('T', ' ').substr(0, 19);
+
+            const messageEl = document.createElement('div');
+            messageEl.className = 'log-message';
+            messageEl.textContent = message;
+
+            const contextEl = document.createElement('div');
+            contextEl.className = 'log-context';
+            contextEl.textContent = JSON.stringify(context, null, 2);
+
+            logDiv.appendChild(timestamp);
+            logDiv.appendChild(messageEl);
+            logDiv.appendChild(contextEl);
+
+            container.appendChild(logDiv);
+            container.scrollTop = container.scrollHeight;
         }
 
-        function addValidationError() {
+        // API functions
+        async function updateFormData() {
+            if (!isConnected) return;
+
+            const formData = {
+                prompt: document.getElementById('prompt').value,
+                model: document.getElementById('model').value,
+                size: document.getElementById('size').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/form`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    addLog('info', 'Form data updated via API', formData);
+                } else {
+                    addLog('error', 'Failed to update form data', { status: response.status });
+                }
+            } catch (error) {
+                addLog('error', 'API call failed', { error: error.message });
+            }
+        }
+
+        async function clearFormData() {
+            if (!isConnected) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/form`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+
+                if (response.ok) {
+                    document.getElementById('prompt').value = '';
+                    document.getElementById('model').selectedIndex = 0;
+                    document.getElementById('size').selectedIndex = 1;
+                    addLog('info', 'Form data cleared via API');
+                }
+            } catch (error) {
+                addLog('error', 'Failed to clear form data', { error: error.message });
+            }
+        }
+
+        async function setStep(step) {
+            if (!isConnected) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/step`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ step: step })
+                });
+
+                if (response.ok) {
+                    addLog('info', `Step changed to: ${step}`);
+                }
+            } catch (error) {
+                addLog('error', 'Failed to set step', { error: error.message });
+            }
+        }
+
+        async function setLoadingState(component, is_loading) {
+            if (!isConnected) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/loading`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ component: component, is_loading: is_loading })
+                });
+
+                if (response.ok) {
+                    addLog('info', `Loading state changed: ${component} = ${is_loading}`);
+                }
+            } catch (error) {
+                addLog('error', 'Failed to set loading state', { error: error.message });
+            }
+        }
+
+        async function addValidationError() {
+            if (!isConnected) return;
+
             const field = document.getElementById('errorField').value;
             const message = document.getElementById('errorMessage').value;
 
-            if (field && message) {
-                stateManager.set_validation_error(field, message);
-                document.getElementById('errorField').value = '';
-                document.getElementById('errorMessage').value = '';
+            if (!field || !message) {
+                addLog('warning', 'Please provide both field and error message');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/validation-error`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ field: field, message: message })
+                });
+
+                if (response.ok) {
+                    document.getElementById('errorField').value = '';
+                    document.getElementById('errorMessage').value = '';
+                    addLog('warning', `Validation error added: ${field}`);
+                }
+            } catch (error) {
+                addLog('error', 'Failed to add validation error', { error: error.message });
             }
         }
 
-        function clearValidationErrors() {
-            stateManager.clear_validation_errors();
+        async function clearValidationErrors() {
+            if (!isConnected) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/validation-errors`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    addLog('info', 'All validation errors cleared');
+                }
+            } catch (error) {
+                addLog('error', 'Failed to clear validation errors', { error: error.message });
+            }
         }
 
-        function resetState() {
-            stateManager.reset();
+        async function resetState() {
+            if (!isConnected) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state/reset`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    addLog('info', 'State reset to defaults');
+                }
+            } catch (error) {
+                addLog('error', 'Failed to reset state', { error: error.message });
+            }
         }
 
-        function logStateSummary() {
-            stateManager.log_state_summary();
+        async function logStateSummary() {
+            if (!isConnected) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/state`);
+                if (response.ok) {
+                    const state = await response.json();
+                    addLog('info', 'State Summary', state);
+                }
+            } catch (error) {
+                addLog('error', 'Failed to get state summary', { error: error.message });
+            }
+        }
+
+        async function simulateWorkflow() {
+            if (!isConnected) return;
+
+            addLog('info', 'Starting workflow simulation...');
+
+            // Step 1: Form fill
+            setTimeout(async () => {
+                await setStep('form_fill');
+                await updateFormData();
+            }, 500);
+
+            // Step 2: Validation
+            setTimeout(async () => {
+                await setStep('validation');
+                await setLoadingState('validation', true);
+            }, 1500);
+
+            // Step 3: Add error
+            setTimeout(async () => {
+                await addValidationError();
+                await setLoadingState('validation', false);
+            }, 2500);
+
+            // Step 4: Fix and continue
+            setTimeout(async () => {
+                await clearValidationErrors();
+                await setStep('generation');
+                await setLoadingState('cortex_call', true);
+                await setLoadingState('svg_generation', true);
+            }, 3500);
+
+            // Step 5: Complete
+            setTimeout(async () => {
+                await setLoadingState('cortex_call', false);
+                await setLoadingState('svg_generation', false);
+                await setStep('complete');
+                await logStateSummary();
+            }, 4500);
         }
 
         function clearLogs() {
             document.getElementById('logContainer').innerHTML = '';
         }
 
-        function simulateWorkflow() {
-            // Simulate a complete workflow
-            stateManager.log('info', 'Starting workflow simulation...');
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeConnection();
 
-            setTimeout(() => {
-                stateManager.set_current_step('form_fill');
-                stateManager.set_form_data({
-                    prompt: 'Create a red square with blue border',
-                    model: 'claude-3-5-sonnet',
-                    size: '512x512'
-                });
-            }, 500);
-
-            setTimeout(() => {
-                stateManager.set_current_step('validation');
-                stateManager.set_loading_state('validation', true);
-            }, 1000);
-
-            setTimeout(() => {
-                stateManager.set_validation_error('prompt', 'Prompt too vague');
-                stateManager.set_loading_state('validation', false);
-            }, 1500);
-
-            setTimeout(() => {
-                stateManager.set_form_data({
-                    prompt: 'Create a red square with blue border, minimalist style',
-                    model: 'claude-3-5-sonnet',
-                    size: '512x512'
-                });
-                stateManager.clear_validation_errors();
-            }, 2000);
-
-            setTimeout(() => {
-                stateManager.set_current_step('generation');
-                stateManager.set_loading_state('cortex_call', true);
-                stateManager.set_loading_state('svg_generation', true);
-            }, 2500);
-
-            setTimeout(() => {
-                stateManager.set_loading_state('cortex_call', false);
-                stateManager.set_loading_state('svg_generation', false);
-                stateManager.set_current_step('complete');
-                stateManager.log_state_summary();
-            }, 3000);
-        }
+            // Retry connection every 5 seconds if disconnected
+            setInterval(() => {
+                if (!isConnected) {
+                    initializeConnection();
+                }
+            }, 5000);
+        });
     </script>
 </body>
 </html>
