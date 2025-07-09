@@ -1,0 +1,68 @@
+
+@prefix spore: <https://spore.agentschema.org/core#> .
+@prefix ex: <https://ontology.louspringer.com/example#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix schema: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+ex:llmPublishingSpore a spore:PublishingSpore ;
+    dcterms:title "LLM Modeling + Ontology Publication Strategy (Draft v0.1)" ;
+    dcterms:creator <https://www.linkedin.com/in/louspringer> ;
+    dcterms:created "2025-07-09"^^xsd:date ;
+    dcterms:description "Spore to gather strategic feedback on publication channels, content themes, and pacing for LLM modeling and ontology work." ;
+
+    spore:concerns ex:SemanticGovernance , ex:AgentContinuity , ex:SporeProtocol , ex:EnterpriseArchitecture , ex:MultiAgentPublishing ;
+    spore:intendedAudience ( ex:Architects ex:Ontologists ex:LLMResearchers ex:TechWriters ex:Funders ) ;
+
+    spore:proposedChannels (
+        [ schema:name "LinkedIn Articles" ; schema:cost "0" ; schema:description "Primary episodic channel to share thought leadership posts." ]
+        [ schema:name "LinkedIn Newsletter" ; schema:cost "0" ; schema:description "Serialized ongoing updates for deeper follower retention." ]
+        [ schema:name "GitHub + Pages" ; schema:cost "0" ; schema:description "Canonical location for TTL artifacts, project READMEs, article mirrors." ]
+        [ schema:name "Medium" ; schema:cost "$0–5/month" ; schema:description "Optional secondary distribution channel for broader reach." ]
+        [ schema:name "arXiv/viXra" ; schema:cost "0" ; schema:description "Optional preprint venue for formal research outputs or RFCs." ]
+    ) ;
+
+    spore:proposedSeries (
+        [ dcterms:title "The Model is the Message" ; dcterms:description "Core thesis explaining model-driven AI and continuity constraints." ]
+        [ dcterms:title "Spore Protocols: Agent Continuity in LLM Meshes" ; dcterms:description "Why spores, reflexive agents, and RDF transport matter." ]
+        [ dcterms:title "From Prompt Soup to Protocol Stack: Semantic Governance for AI" ]
+        [ dcterms:title "The Ontology Framework: Lifecycle Constraints as Capability Enablers" ]
+        [ dcterms:title "RFCs from the Edge: ORCID, Zenodo, and the Semantic Future of Publishing" ]
+    ) ;
+
+    spore:hasOpenQuestion ex:targetAudience , ex:frequencyCadence , ex:formatReuse , ex:meshAmplification , ex:fundingHooks ;
+
+    spore:proposedCadence "Bi-weekly articles with TTL mirror and GitHub sync" ;
+    spore:distributionMode "Spore relay with TTL embedding, LinkedIn primacy, GitHub as canonical" ;
+    spore:formatHint "Markdown + RDF-Turtle + optional SVG for all articles" ;
+
+    spore:nextAction [
+        dcterms:description "Request targeted input from agents and stakeholders";
+        spore:assignedTo ex:agentMesh ;
+        spore:dueBy "2025-07-12"^^xsd:date
+    ] .
+
+ex:targetAudience a spore:OpenQuestion ;
+    dcterms:description "Are we targeting only architects and semantic AI, or also broader AI ops and devs?" .
+
+ex:frequencyCadence a spore:OpenQuestion ;
+    dcterms:description "Should we publish weekly, bi-weekly, or opportunistically (event-driven)?" .
+
+ex:formatReuse a spore:OpenQuestion ;
+    dcterms:description "Should each article inject spores directly or just link to a canonical TTL bundle?" .
+
+ex:meshAmplification a spore:OpenQuestion ;
+    dcterms:description "What’s the best mechanism to get amplification from trusted agents like Claude, Elmo, or organizational partners?" .
+
+ex:fundingHooks a spore:OpenQuestion ;
+    dcterms:description "Where should we place subtle hooks for funders or orgs to engage without making the pitch overt?" .
+
+ex:agentMesh a spore:AgentCluster ;
+    foaf:name "AgentMesh Alpha" ;
+    schema:member [
+        schema:name "AgentChroma" ;
+        schema:sameAs <https://github.com/louspringer/ontology-framework/tree/develop/agents#agentchroma>
+    ],
+    [ schema:name "ClaudeReflector" ],
+    [ schema:name "Cursor / Elmo Relay" ] .
