@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UIStateManager Observability Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .control-panel h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .control-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .control-group h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffd43b 0%, #fcc419 100%);
+            color: #495057;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group select, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9em;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus, .input-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .observability-panel {
+            background: #2d3748;
+            color: #e2e8f0;
+            border-radius: 10px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .observability-panel h2 {
+            color: #f7fafc;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .log-container {
+            background: #1a202c;
+            border-radius: 8px;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 400px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+
+        .log-entry {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 4px;
+            border-left: 3px solid #667eea;
+        }
+
+        .log-entry.info {
+            background: rgba(102, 126, 234, 0.1);
+            border-left-color: #667eea;
+        }
+
+        .log-entry.warning {
+            background: rgba(255, 212, 59, 0.1);
+            border-left-color: #ffd43b;
+        }
+
+        .log-entry.error {
+            background: rgba(255, 107, 107, 0.1);
+            border-left-color: #ff6b6b;
+        }
+
+        .log-entry.debug {
+            background: rgba(102, 126, 234, 0.05);
+            border-left-color: #667eea;
+            opacity: 0.8;
+        }
+
+        .log-timestamp {
+            color: #a0aec0;
+            font-size: 0.8em;
+        }
+
+        .log-message {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .log-context {
+            color: #a0aec0;
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .state-display {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .state-display h3 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .state-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .state-item:last-child {
+            border-bottom: none;
+        }
+
+        .state-key {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .state-value {
+            color: #6c757d;
+            font-family: 'Courier New', monospace;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .loading-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active {
+            background: #51cf66;
+        }
+
+        .status-inactive {
+            background: #adb5bd;
+        }
+
+        .status-error {
+            background: #ff6b6b;
+        }
+
+        .clear-logs-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.8em;
+        }
+
+        .clear-logs-btn:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 UIStateManager Observability Demo</h1>
+            <p>Interactive demonstration of structured state management with comprehensive logging</p>
+        </div>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <h2>🛠️ Control Panel</h2>
+
+                <div class="control-group">
+                    <h3>📝 Form Data Management</h3>
+                    <div class="input-group">
+                        <label for="prompt">Prompt:</label>
+                        <textarea id="prompt" placeholder="Enter your SVG generation prompt...">Create a blue circle with red border</textarea>
+                    </div>
+                    <div class="input-group">
+                        <label for="model">Model:</label>
+                        <select id="model">
+                            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet</option>
+                            <option value="claude-3-7-sonnet">Claude 3.7 Sonnet</option>
+                            <option value="openai-gpt-4o">OpenAI GPT-4o</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="size">Size:</label>
+                        <select id="size">
+                            <option value="256x256">256x256</option>
+                            <option value="512x512" selected>512x512</option>
+                            <option value="1024x1024">1024x1024</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="updateFormData()">Update Form Data</button>
+                    <button class="btn btn-danger" onclick="clearFormData()">Clear Form Data</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>🔄 Step Transitions</h3>
+                    <button class="btn" onclick="setStep('setup')">Setup</button>
+                    <button class="btn" onclick="setStep('form_fill')">Form Fill</button>
+                    <button class="btn" onclick="setStep('validation')">Validation</button>
+                    <button class="btn" onclick="setStep('generation')">Generation</button>
+                    <button class="btn" onclick="setStep('complete')">Complete</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>⏳ Loading States</h3>
+                    <button class="btn" onclick="setLoadingState('form_submit', true)">Start Form Submit</button>
+                    <button class="btn" onclick="setLoadingState('form_submit', false)">Stop Form Submit</button>
+                    <button class="btn" onclick="setLoadingState('cortex_call', true)">Start Cortex Call</button>
+                    <button class="btn" onclick="setLoadingState('cortex_call', false)">Stop Cortex Call</button>
+                    <button class="btn" onclick="setLoadingState('svg_generation', true)">Start SVG Generation</button>
+                    <button class="btn" onclick="setLoadingState('svg_generation', false)">Stop SVG Generation</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>⚠️ Validation Errors</h3>
+                    <div class="input-group">
+                        <label for="errorField">Field:</label>
+                        <input type="text" id="errorField" placeholder="e.g., prompt, model, size">
+                    </div>
+                    <div class="input-group">
+                        <label for="errorMessage">Error Message:</label>
+                        <input type="text" id="errorMessage" placeholder="e.g., Invalid format">
+                    </div>
+                    <button class="btn btn-warning" onclick="addValidationError()">Add Validation Error</button>
+                    <button class="btn btn-success" onclick="clearValidationErrors()">Clear All Errors</button>
+                </div>
+
+                <div class="control-group">
+                    <h3>🔄 State Management</h3>
+                    <button class="btn" onclick="resetState()">Reset All State</button>
+                    <button class="btn" onclick="logStateSummary()">Log State Summary</button>
+                    <button class="btn" onclick="simulateWorkflow()">Simulate Complete Workflow</button>
+                </div>
+            </div>
+
+            <div class="observability-panel">
+                <h2>📊 Observability Dashboard</h2>
+
+                <div class="state-display">
+                    <h3>Current State</h3>
+                    <div id="stateDisplay">
+                        <!-- State items will be populated here -->
+                    </div>
+                </div>
+
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry info">
+                        <div class="log-timestamp">2025-07-09 16:45:00</div>
+                        <div class="log-message">UI State Manager initialized with defaults</div>
+                        <div class="log-context">Initialized keys: current_step, form_data, validation_errors, loading_states, user_context</div>
+                    </div>
+                </div>
+
+                <button class="clear-logs-btn" onclick="clearLogs()">Clear Logs</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulated UIStateManager for demonstration
+        class MockUIStateManager {
+            constructor() {
+                this.state = {
+                    current_step: 'setup',
+                    form_data: {},
+                    validation_errors: {},
+                    loading_states: {},
+                    user_context: null
+                };
+                this.logs = [];
+            }
+
+            set(key, value) {
+                const oldValue = this.state[key];
+                this.state[key] = value;
+                this.log('info', `State ${oldValue === undefined ? 'initialization' : 'update'}: ${key}`, {
+                    key: key,
+                    old_value: oldValue,
+                    new_value: value,
+                    change_type: oldValue === undefined ? 'initialization' : 'update'
+                });
+                this.updateStateDisplay();
+            }
+
+            get(key) {
+                const value = this.state[key];
+                this.log('debug', `State accessed: ${key}`, {
+                    key: key,
+                    value: value,
+                    is_default: !(key in this.state)
+                });
+                return value;
+            }
+
+            set_current_step(step) {
+                const oldStep = this.state.current_step;
+                this.state.current_step = step;
+                this.log('info', `Step transition: ${oldStep} -> ${step}`, {
+                    old_step: oldStep,
+                    new_step: step,
+                    step_transition: true
+                });
+                this.updateStateDisplay();
+            }
+
+            set_form_data(data) {
+                const oldData = this.state.form_data;
+                this.state.form_data = data;
+                this.log('info', 'Form data updated', {
+                    old_data_keys: Object.keys(oldData),
+                    new_data_keys: Object.keys(data),
+                    data_changes: this.getDataChanges(oldData, data)
+                });
+                this.updateStateDisplay();
+            }
+
+            set_loading_state(component, is_loading) {
+                const oldState = this.state.loading_states[component] || false;
+                this.state.loading_states[component] = is_loading;
+                this.log('info', `Loading state changed: ${component}`, {
+                    component: component,
+                    old_state: oldState,
+                    new_state: is_loading,
+                    all_loading_states: this.state.loading_states
+                });
+                this.updateStateDisplay();
+            }
+
+            set_validation_error(field, message) {
+                this.state.validation_errors[field] = message;
+                this.log('warning', `Validation error set: ${field}`, {
+                    field: field,
+                    error_message: message,
+                    all_validation_errors: this.state.validation_errors
+                });
+                this.updateStateDisplay();
+            }
+
+            clear_validation_errors() {
+                const oldErrors = { ...this.state.validation_errors };
+                this.state.validation_errors = {};
+                if (Object.keys(oldErrors).length > 0) {
+                    this.log('info', 'Validation errors cleared', {
+                        cleared_errors: oldErrors,
+                        error_count: Object.keys(oldErrors).length
+                    });
+                }
+                this.updateStateDisplay();
+            }
+
+            reset() {
+                const oldState = { ...this.state };
+                this.state = {
+                    current_step: 'setup',
+                    form_data: {},
+                    validation_errors: {},
+                    loading_states: {},
+                    user_context: null
+                };
+                this.log('info', 'State reset to defaults', {
+                    reset_keys: Object.keys(oldState),
+                    total_reset_keys: Object.keys(oldState).length
+                });
+                this.updateStateDisplay();
+            }
+
+            log_state_summary() {
+                this.log('info', 'UI State Summary', {
+                    current_step: this.state.current_step,
+                    form_data_keys: Object.keys(this.state.form_data),
+                    validation_error_count: Object.keys(this.state.validation_errors).length,
+                    loading_states: this.state.loading_states,
+                    has_user_context: this.state.user_context !== null,
+                    total_session_keys: Object.keys(this.state).length
+                });
+            }
+
+            log(level, message, context = {}) {
+                const timestamp = new Date().toISOString().replace('T', ' ').substr(0, 19);
+                const logEntry = {
+                    timestamp: timestamp,
+                    level: level,
+                    message: message,
+                    context: context
+                };
+                this.logs.push(logEntry);
+                this.displayLog(logEntry);
+            }
+
+            getDataChanges(oldData, newData) {
+                const changes = {};
+                const allKeys = new Set([...Object.keys(oldData), ...Object.keys(newData)]);
+
+                for (const key of allKeys) {
+                    changes[key] = {
+                        old: oldData[key],
+                        new: newData[key]
+                    };
+                }
+                return changes;
+            }
+
+            updateStateDisplay() {
+                const display = document.getElementById('stateDisplay');
+                display.innerHTML = '';
+
+                for (const [key, value] of Object.entries(this.state)) {
+                    const item = document.createElement('div');
+                    item.className = 'state-item';
+
+                    const keySpan = document.createElement('span');
+                    keySpan.className = 'state-key';
+                    keySpan.textContent = key;
+
+                    const valueSpan = document.createElement('span');
+                    valueSpan.className = 'state-value';
+
+                    if (typeof value === 'object' && value !== null) {
+                        valueSpan.textContent = JSON.stringify(value);
+                    } else {
+                        valueSpan.textContent = String(value);
+                    }
+
+                    item.appendChild(keySpan);
+                    item.appendChild(valueSpan);
+                    display.appendChild(item);
+                }
+            }
+
+            displayLog(logEntry) {
+                const container = document.getElementById('logContainer');
+                const logDiv = document.createElement('div');
+                logDiv.className = `log-entry ${logEntry.level}`;
+
+                const timestamp = document.createElement('div');
+                timestamp.className = 'log-timestamp';
+                timestamp.textContent = logEntry.timestamp;
+
+                const message = document.createElement('div');
+                message.className = 'log-message';
+                message.textContent = logEntry.message;
+
+                const context = document.createElement('div');
+                context.className = 'log-context';
+                context.textContent = JSON.stringify(logEntry.context, null, 2);
+
+                logDiv.appendChild(timestamp);
+                logDiv.appendChild(message);
+                logDiv.appendChild(context);
+
+                container.appendChild(logDiv);
+                container.scrollTop = container.scrollHeight;
+            }
+        }
+
+        // Initialize the mock state manager
+        const stateManager = new MockUIStateManager();
+        stateManager.updateStateDisplay();
+
+        // Control functions
+        function updateFormData() {
+            const prompt = document.getElementById('prompt').value;
+            const model = document.getElementById('model').value;
+            const size = document.getElementById('size').value;
+
+            const formData = {
+                prompt: prompt,
+                model: model,
+                size: size
+            };
+
+            stateManager.set_form_data(formData);
+        }
+
+        function clearFormData() {
+            stateManager.set_form_data({});
+            document.getElementById('prompt').value = '';
+            document.getElementById('model').selectedIndex = 0;
+            document.getElementById('size').selectedIndex = 1;
+        }
+
+        function setStep(step) {
+            stateManager.set_current_step(step);
+        }
+
+        function setLoadingState(component, is_loading) {
+            stateManager.set_loading_state(component, is_loading);
+        }
+
+        function addValidationError() {
+            const field = document.getElementById('errorField').value;
+            const message = document.getElementById('errorMessage').value;
+
+            if (field && message) {
+                stateManager.set_validation_error(field, message);
+                document.getElementById('errorField').value = '';
+                document.getElementById('errorMessage').value = '';
+            }
+        }
+
+        function clearValidationErrors() {
+            stateManager.clear_validation_errors();
+        }
+
+        function resetState() {
+            stateManager.reset();
+        }
+
+        function logStateSummary() {
+            stateManager.log_state_summary();
+        }
+
+        function clearLogs() {
+            document.getElementById('logContainer').innerHTML = '';
+        }
+
+        function simulateWorkflow() {
+            // Simulate a complete workflow
+            stateManager.log('info', 'Starting workflow simulation...');
+
+            setTimeout(() => {
+                stateManager.set_current_step('form_fill');
+                stateManager.set_form_data({
+                    prompt: 'Create a red square with blue border',
+                    model: 'claude-3-5-sonnet',
+                    size: '512x512'
+                });
+            }, 500);
+
+            setTimeout(() => {
+                stateManager.set_current_step('validation');
+                stateManager.set_loading_state('validation', true);
+            }, 1000);
+
+            setTimeout(() => {
+                stateManager.set_validation_error('prompt', 'Prompt too vague');
+                stateManager.set_loading_state('validation', false);
+            }, 1500);
+
+            setTimeout(() => {
+                stateManager.set_form_data({
+                    prompt: 'Create a red square with blue border, minimalist style',
+                    model: 'claude-3-5-sonnet',
+                    size: '512x512'
+                });
+                stateManager.clear_validation_errors();
+            }, 2000);
+
+            setTimeout(() => {
+                stateManager.set_current_step('generation');
+                stateManager.set_loading_state('cortex_call', true);
+                stateManager.set_loading_state('svg_generation', true);
+            }, 2500);
+
+            setTimeout(() => {
+                stateManager.set_loading_state('cortex_call', false);
+                stateManager.set_loading_state('svg_generation', false);
+                stateManager.set_current_step('complete');
+                stateManager.log_state_summary();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
