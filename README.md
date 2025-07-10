@@ -104,7 +104,11 @@ For development, testing, and local use:
 
 4. **Run the application**:
    ```bash
-   streamlit run src/svg_image_generator/app.py
+   # Option A: Run the main Streamlit app directly
+   streamlit run SVG-Image-Gen.py
+
+   # Option B: Use the project entry point (if installed)
+   streamlit run -m streamlit-app
    ```
 
 ## 🔐 Authentication

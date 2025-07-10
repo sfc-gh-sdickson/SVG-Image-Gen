@@ -1,0 +1,6 @@
+# Minimal requirements for State API Server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+requests==2.31.0
+streamlit==1.28.1
+structlog==23.2.0

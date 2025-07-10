@@ -1,0 +1,125 @@
+# confidence-reporting.mdc
+
+meta:
+  name: Confidence Reporting and Uncertainty Disclosure
+  description: >
+    Requires explicit confidence assessment and disclosure for all responses,
+    especially when architectural constraints or scope boundaries are unclear.
+    Prevents violations of project constraints and ensures proper clarification
+    before implementation.
+
+rules:
+  - when: confidence.assessment
+    then:
+      - "Always assess confidence level before providing any implementation"
+      - "Report confidence level when below 80%"
+      - "Disclose uncertainty before proceeding with implementation"
+      - "Ask for clarification when confidence is low"
+      - "Consider architectural constraints in confidence assessment"
+
+  - when: confidence.below_80_percent
+    then:
+      - "Explicitly state: 'My confidence in this approach is X%'"
+      - "Explain specific areas of uncertainty"
+      - "Ask: 'Should I proceed or would you like to clarify the requirements?'"
+      - "Wait for user confirmation before implementation"
+      - "Do not proceed with implementation until confidence is resolved"
+
+  - when: architectural.constraints
+    then:
+      - "Always verify understanding of architectural constraints"
+      - "Ask for clarification on SiS/static-only requirements"
+      - "Confirm scope boundaries before implementation"
+      - "Report confidence level when constraints are unclear"
+      - "Request explicit confirmation of architectural approach"
+
+  - when: scope.discipline
+    then:
+      - "Assess confidence in scope understanding"
+      - "Report if scope boundaries are unclear"
+      - "Ask for clarification on scope limits"
+      - "Do not assume scope extensions are acceptable"
+      - "Confirm scope before any implementation"
+
+  - when: implementation.approach
+    then:
+      - "Assess confidence in technical approach"
+      - "Report confidence level for proposed solution"
+      - "Explain alternatives if confidence is low"
+      - "Ask for guidance on preferred approach"
+      - "Wait for confirmation before proceeding"
+
+  - when: user.requirements
+    then:
+      - "Assess confidence in understanding user requirements"
+      - "Report confidence level for requirement interpretation"
+      - "Ask clarifying questions when requirements are ambiguous"
+      - "Confirm understanding before implementation"
+      - "Do not assume requirements"
+
+confidence_levels:
+  high: "80-100% - Clear understanding, proceed with implementation"
+  medium: "60-79% - Some uncertainty, ask for clarification"
+  low: "Below 60% - Significant uncertainty, require clarification"
+
+reporting_format:
+  template: "My confidence in this approach is {X}%. {Explanation of uncertainty}. Should I proceed or would you like to clarify the requirements?"
+  examples:
+    - "My confidence in this approach is 70%. I'm uncertain about the SiS constraints - should I proceed with a client-only solution or would you like to clarify if a minimal backend is acceptable?"
+    - "My confidence in this approach is 50%. The scope boundaries are unclear - should I implement the full feature or focus on a specific component first?"
+
+triggers:
+  - "Architectural constraints mentioned (SiS, static-only, serverless)"
+  - "Scope boundaries unclear or ambiguous"
+  - "Technical approach involves multiple options"
+  - "User requirements contain ambiguous terms"
+  - "Implementation involves new technologies or patterns"
+  - "Previous violations of project constraints"
+
+enforcement:
+  - "Mandatory confidence assessment for all implementations"
+  - "Required disclosure when confidence < 80%"
+  - "No implementation without confidence resolution"
+  - "Document confidence levels in commit messages"
+  - "Review confidence assessments in code reviews"
+
+examples:
+  scenario_1:
+    situation: "User asks for 'best available client-side HTML5 facilities'"
+    confidence: "60% - Uncertain if 'actual state' requires backend"
+    response: "My confidence in this approach is 60%. I'm uncertain whether 'actual state' means client-only simulation or requires a backend. Should I proceed with a pure client-side solution or would you like to clarify if a minimal backend is acceptable for live state reflection?"
+
+  scenario_2:
+    situation: "User mentions SiS constraints"
+    confidence: "40% - Unclear scope of static-only requirements"
+    response: "My confidence in this approach is 40%. I need clarification on the SiS constraints - does this mean absolutely no server code, or are there exceptions for development/demo purposes? Should I proceed with a pure static solution or would you like to clarify the boundaries?"
+
+  scenario_3:
+    situation: "User asks for 'live' demo"
+    confidence: "70% - Uncertain about 'live' definition"
+    response: "My confidence in this approach is 70%. I'm uncertain whether 'live' means real-time updates from a backend or simulated live behavior in the browser. Should I proceed with a simulated approach or would you like to clarify the live requirements?"
+
+rationale: >
+  This rule prevents violations of project constraints by ensuring:
+  - Explicit confidence assessment before implementation
+  - Clear disclosure of uncertainty
+  - Proper clarification of requirements
+  - Prevention of scope creep and architectural violations
+  - Better communication of implementation risks
+
+  Recent violations that this rule addresses:
+  - Implementing server-side solution when client-only was required
+  - Violating SiS constraints without clarification
+  - Assuming scope extensions were acceptable
+  - Proceeding with unclear architectural requirements
+
+---
+
+This rule ensures proper confidence assessment and uncertainty disclosure to prevent constraint violations and improve implementation quality.
+description:
+globs:
+alwaysApply: true
+description:
+globs:
+alwaysApply: false
+---

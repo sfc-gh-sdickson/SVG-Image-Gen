@@ -123,8 +123,12 @@ async def get_state():
 
 
 @app.post("/api/state/step")
-async def set_step(step: str):
+async def set_step(data: Dict[str, Any]):
     """Set current step."""
+    step = data.get("step")
+    if not step:
+        raise HTTPException(status_code=400, detail="step parameter is required")
+
     sm = get_state_manager()
     sm.set_current_step(step)
 
@@ -155,8 +159,16 @@ async def update_form_data(form_data: Dict[str, Any]):
 
 
 @app.post("/api/state/loading")
-async def set_loading_state(component: str, is_loading: bool):
+async def set_loading_state(data: Dict[str, Any]):
     """Set loading state for a component."""
+    component = data.get("component")
+    is_loading = data.get("is_loading")
+
+    if component is None or is_loading is None:
+        raise HTTPException(
+            status_code=400, detail="component and is_loading parameters are required"
+        )
+
     sm = get_state_manager()
     sm.set_loading_state(component, is_loading)
 
@@ -175,8 +187,16 @@ async def set_loading_state(component: str, is_loading: bool):
 
 
 @app.post("/api/state/validation-error")
-async def add_validation_error(field: str, message: str):
+async def add_validation_error(data: Dict[str, Any]):
     """Add validation error."""
+    field = data.get("field")
+    message = data.get("message")
+
+    if not field or not message:
+        raise HTTPException(
+            status_code=400, detail="field and message parameters are required"
+        )
+
     sm = get_state_manager()
     sm.set_validation_error(field, message)
 

@@ -95,6 +95,7 @@ Changelog = "https://github.com/your-org/svg-image-generator/blob/main/CHANGELOG
 
 [project.scripts]
 svg-generator = "svg_image_generator.cli:main"
+streamlit-app = "SVG-Image-Gen:main"
 
 [project.gui-scripts]
 svg-generator-gui = "svg_image_generator.gui:main"

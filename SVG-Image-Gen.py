@@ -17,14 +17,49 @@ import toml
 from snowflake.snowpark import Session
 from snowflake.snowpark.context import get_active_session
 
+# Import state management decorators
+from src.svg_image_generator.streamlit_integration import (
+    get_state_manager,
+    loading_context,
+    step_context,
+    track_form_data,
+    track_loading,
+    track_step,
+    track_validation_errors,
+)
+
+# Initialize state manager
+state_manager = get_state_manager()
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Page configuration
-st.set_page_config(
-    page_title="SVG Generator with Snowflake Cortex", page_icon="🎨", layout="wide"
-)
+# Runtime detection and self-identification
+import sys
+
+# Initialize safe feature integration
+try:
+    from src.svg_image_generator.safe_integration import (
+        initialize_safe_features,
+        safe_ui_state,
+    )
+
+    ui_state_manager = initialize_safe_features()
+except Exception as e:
+    print(f"⚠️ Feature integration failed: {e}")
+    ui_state_manager = None
+
+if __name__ == "__main__":
+    # This is the main entry point
+    st.set_page_config(
+        page_title="SVG Generator with Snowflake Cortex", page_icon="🎨", layout="wide"
+    )
+else:
+    # This is being imported as a module
+    st.set_page_config(
+        page_title="SVG Generator with Snowflake Cortex", page_icon="🎨", layout="wide"
+    )
 
 st.title("🎨 SVG Generator with Snowflake Cortex")
 st.markdown(
@@ -392,6 +427,57 @@ def implement_prompt_sandwich(
         raise e
 
 
+# Safe decorators for UI state tracking
+def safe_track_step(step_name: str):
+    """Safe decorator for tracking steps with graceful degradation."""
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            # Set step if UI tracking is available
+            if ui_state_manager and hasattr(ui_state_manager, "set_current_step"):
+                try:
+                    ui_state_manager.set_current_step(step_name)
+                except Exception as e:
+                    print(f"⚠️ UI state tracking failed: {e}")
+
+            # Execute the function
+            result = func(*args, **kwargs)
+            return result
+
+        return wrapper
+
+    return decorator
+
+
+def safe_track_loading(component: str):
+    """Safe decorator for tracking loading states with graceful degradation."""
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            # Set loading state if UI tracking is available
+            if ui_state_manager and hasattr(ui_state_manager, "set_loading_state"):
+                try:
+                    ui_state_manager.set_loading_state(component, True)
+                except Exception as e:
+                    print(f"⚠️ UI state tracking failed: {e}")
+
+            try:
+                # Execute the function
+                result = func(*args, **kwargs)
+                return result
+            finally:
+                # Clear loading state if UI tracking is available
+                if ui_state_manager and hasattr(ui_state_manager, "set_loading_state"):
+                    try:
+                        ui_state_manager.set_loading_state(component, False)
+                    except Exception as e:
+                        print(f"⚠️ UI state tracking failed: {e}")
+
+        return wrapper
+
+    return decorator
+
+
 # Get the active Snowflake session
 @st.cache_resource
 def get_session() -> Session:
@@ -538,6 +624,17 @@ except Exception as e:
 # Sidebar for dynamic context configuration
 st.sidebar.header("🔧 Context Configuration")
 
+# Show feature status if UI state management is available
+if ui_state_manager and hasattr(ui_state_manager, "get_status"):
+    try:
+        status = ui_state_manager.get_status()
+        if status.get("available"):
+            st.sidebar.success("✅ UI State Tracking: Enabled")
+        else:
+            st.sidebar.info("ℹ️ UI State Tracking: Disabled")
+    except Exception as e:
+        st.sidebar.info("ℹ️ UI State Tracking: Unavailable")
+
 # Dynamic Database Dropdown
 available_databases = user_context.get("accessible_databases", [])
 current_database = user_context.get("current_database", "")
@@ -682,6 +779,13 @@ if st.button("🚀 Generate SVG and Upload to Stage", type="primary"):
         st.error("Please select a stage")
     else:
         try:
+            # Track step if UI state management is available
+            if ui_state_manager and hasattr(ui_state_manager, "set_current_step"):
+                try:
+                    ui_state_manager.set_current_step("svg_generation")
+                except Exception as e:
+                    print(f"⚠️ UI state tracking failed: {e}")
+
             # Switch context if needed
             if not use_context():
                 st.stop()
@@ -700,6 +804,13 @@ if st.button("🚀 Generate SVG and Upload to Stage", type="primary"):
 
             # Implement Prompt Sandwich
             with st.spinner("🔄 Implementing prompt sandwich approach..."):
+                # Track loading state if UI state management is available
+                if ui_state_manager and hasattr(ui_state_manager, "set_loading_state"):
+                    try:
+                        ui_state_manager.set_loading_state("prompt_sandwich", True)
+                    except Exception as e:
+                        print(f"⚠️ UI state tracking failed: {e}")
+
                 try:
                     raw_prompt, refined_prompt, svg_content = implement_prompt_sandwich(
                         session, svg_prompt, model
@@ -717,6 +828,15 @@ if st.button("🚀 Generate SVG and Upload to Stage", type="primary"):
                 except Exception as e:
                     st.error(f"❌ Error in prompt sandwich: {str(e)}")
                     st.stop()
+                finally:
+                    # Clear loading state if UI state management is available
+                    if ui_state_manager and hasattr(
+                        ui_state_manager, "set_loading_state"
+                    ):
+                        try:
+                            ui_state_manager.set_loading_state("prompt_sandwich", False)
+                        except Exception as e:
+                            print(f"⚠️ UI state tracking failed: {e}")
 
             if svg_content:
                 # Clean up the SVG content (remove any extra text)
@@ -750,6 +870,15 @@ if st.button("🚀 Generate SVG and Upload to Stage", type="primary"):
 
                 # Upload SVG to stage
                 with st.spinner("📤 Uploading SVG to Snowflake stage..."):
+                    # Track loading state if UI state management is available
+                    if ui_state_manager and hasattr(
+                        ui_state_manager, "set_loading_state"
+                    ):
+                        try:
+                            ui_state_manager.set_loading_state("upload_to_stage", True)
+                        except Exception as e:
+                            print(f"⚠️ UI state tracking failed: {e}")
+
                     try:
                         # Create a temporary table to hold the SVG content
                         temp_table = (
@@ -814,6 +943,17 @@ if st.button("🚀 Generate SVG and Upload to Stage", type="primary"):
                             session.sql(f"DROP TABLE IF EXISTS {temp_table}").collect()
                         except Exception:
                             pass  # Ignore cleanup errors
+                    finally:
+                        # Clear loading state if UI state management is available
+                        if ui_state_manager and hasattr(
+                            ui_state_manager, "set_loading_state"
+                        ):
+                            try:
+                                ui_state_manager.set_loading_state(
+                                    "upload_to_stage", False
+                                )
+                            except Exception as e:
+                                print(f"⚠️ UI state tracking failed: {e}")
 
                 # Provide code to retrieve the file
                 st.subheader("💻 How to retrieve your SVG file:")
@@ -927,3 +1067,14 @@ with st.expander("🔧 Troubleshooting"):
     - Consider the warehouse size for complex generations
     """
     )
+
+
+def main():
+    """Main entry point for the SVG Generator Streamlit app."""
+    # All the existing Streamlit UI code is already here
+    # This function serves as the entry point for tools and scripts
+    pass
+
+
+if __name__ == "__main__":
+    main()
